@@ -1,11 +1,18 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProfileControllers;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController; //fijarse en la rota tal cual esta
+use App\Http\Controllers\ExplotacionController; //fijarse en la rota tal cual esta
 
 Route::get('/', function () {
     return view('welcome');
 });
+//vista usuarios
+Route::get('user',[UserController::class,'mostrar']);
+//vista explotaciones
+Route::get('explotaciones',[ExplotacionController::class,'mostrarExplotaciones']);
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');
