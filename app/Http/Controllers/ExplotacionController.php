@@ -10,6 +10,6 @@ class ExplotacionController extends Controller
     public function mostrarExplotaciones(){
         return $explotaciones = explotacion::all();
     }
-    //probando el ssh
+    //probando el ssh   
 }
 
