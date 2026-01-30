@@ -18,12 +18,17 @@ protected $table = 'explotaciones'; //confunde la tabla para que no pase
     ];
 
     public function user(){
-    return $this->belongsTo(User::class);
+         return $this->belongsTo(User::class);
 }
 
     public function propietario(){
-    return $this->belongsTo(Propietario::class);
+          return $this->belongsTo(Propietario::class);
 }
+
+    public function parcelas(){
+        return $this->hasMany(Parcela::class);
+    }
+
 }
 
 

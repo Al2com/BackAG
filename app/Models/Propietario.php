@@ -16,4 +16,8 @@ class Propietarios extends Model
     public function explotaciones(){
         return $this->hasMany(Explotacion::class);
     }
+
+    public function parcelas(){
+        return $this->hasMany(Parcela::class);
+    }
 }

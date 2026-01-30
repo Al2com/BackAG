@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileControllers;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController; //fijarse en la rota tal cual esta
 use App\Http\Controllers\ExplotacionController; //fijarse en la rota tal cual esta
+use App\Http\Controllers\ParcelaController; //importar el controlador
 
 Route::get('/', function () {
     return view('welcome');
@@ -12,6 +13,8 @@ Route::get('/', function () {
 Route::get('user',[UserController::class,'mostrar']);
 //vista explotaciones
 Route::get('explotaciones',[ExplotacionController::class,'mostrarExplotaciones']);
+//vista parcelas
+Route::get('parcelas',[ParcelaController::class,'mostrarParcelas']);
 
 
 Route::get('/dashboard', function () {
