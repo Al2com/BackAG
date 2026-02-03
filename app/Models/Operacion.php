@@ -17,5 +17,13 @@ class Operacion extends Model
         'descripcion'
     ];
 
-//fata hacer las relaciones 
+//una operación pertenece usuario,
+public function usuario(){
+    return $this->belongsTo(User::class 'id_usuario');
+}
+//una operacion pertenece a una parcela
+
+public function parcela(){
+    return $this->belongsTo(Parcela::class);
+}
 }
