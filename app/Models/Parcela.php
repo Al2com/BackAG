@@ -28,7 +28,7 @@ class Parcela extends Model
    //Una parcela tiene muchas operaciones
 
    public function operaciones(){
-        return $this->hasMany(Operacion::class 'parcela_id');//clave foranea id_parcela(esta en operaciones)
+        return $this->hasMany(Operacion::class ,'parcela_id');//clave foranea id_parcela(esta en operaciones)
    }
 
 

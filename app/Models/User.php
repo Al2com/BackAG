@@ -53,8 +53,8 @@ class User extends Authenticatable
         return $this->hasMany(Explotacion::class);// un propietario tiene muchas explotaciones
     }
 
-    //el usuario tiene michas operaciones 
+    //el usuario tiene michas operaciones
     public function operaciones(){
-         return $this->hasMany(Operacion::class, 'usuario_id');
+         return $this->hasMany(Operacion::class , 'usuario_id');
 }
 }
