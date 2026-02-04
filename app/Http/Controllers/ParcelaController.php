@@ -17,5 +17,8 @@ class ParcelaController extends Controller
         $numParcelas= Parcela::count();
         return response()->json(['total'=>$numParcelas]);
     }
+    
+
+
 
 }

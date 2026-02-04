@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('parcelas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('explotacion_id')->constrained('explotaciones')->onDelate('set null');
-            $table->foreignId('propietarios_id')->constrained('propietarios')->onDelate('set null');
+            $table->foreignId('explotacion_id')->constrained('explotaciones')->onDelete('set null');
+            $table->foreignId('propietarios_id')->constrained('propietarios')->onDelete('set null');
             $table->enum('rol', ['manta', 'goteo'])->default('manta');
             $table->string('pol_parcela');
             $table->string('variedad');
             $table->timestamps();
-          
+
         });
     }
 
