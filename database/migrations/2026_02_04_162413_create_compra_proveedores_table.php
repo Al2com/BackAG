@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('fumigaciones', function (Blueprint $table) {
+        Schema::create('proveedores', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('operacion_id')->nullable()->constrained('operaciones')->nullOnDelete();
-            $table->string('descripcion');
+            $table->string('nombre_empresa');
+            $table->string('direccion');
+            $table->string('telefono')->nullable();
+            $table->string('nombre_comercial')->nullable();
+            $table->text('descripcion');
             $table->timestamps();
         });
     }
@@ -24,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('fumigaciones');
+        Schema::dropIfExists('proveedores');
     }
 };

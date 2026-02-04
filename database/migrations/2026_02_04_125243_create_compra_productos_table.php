@@ -12,16 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('compra_productos', function (Blueprint $table) {
-            $table->id();
-            $table->
-            $table->
-            $table->
-            $table->
-            $table->
-            $table->timestamps();
-        });
+    $table->id();
+    $table->foreignId('producto_id')->nullable()->constrained('productos')->nullOnDelete();
+    $table->foreignId('proveedor_id')->nullable()->constrained('proveedores')->nullOnDelete();
+    $table->dateTime('fecha_compra');
+    $table->decimal('cantidad_compra', 7, 2);
+    $table->decimal('precio', 7, 2);
+    $table->timestamps();
+    });
     }
-
     /**
      * Reverse the migrations.
      */

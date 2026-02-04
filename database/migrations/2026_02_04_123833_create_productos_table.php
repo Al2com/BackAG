@@ -19,7 +19,6 @@ return new class extends Migration
     $table->decimal('precio', 6, 2); // ej: 9999.99
     $table->string('ubicacion');
     $table->unsignedInteger('stock_minimo');
-    $table->decimal('cantidad', 7, 2);
     $table->timestamps();
         });
     }
