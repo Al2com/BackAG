@@ -16,7 +16,9 @@ Route::get('user',[UserController::class,'mostrar']);
 //vista parcelas
 Route::get('parcelas',[ParcelaController::class,'mostrarParcelas']);
 //vista expotaciones blade
-Route::get('explotaciones', [ExplotacionController::class,'mostrarExplotaciones']);
+Route::get('/explotaciones', [ExplotacionController::class,'mostrarExplotaciones']);
+
+
 
 
 

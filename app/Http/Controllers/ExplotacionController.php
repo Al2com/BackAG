@@ -8,26 +8,27 @@ use App\Models\Explotacion; //importa el modelo
 
 class ExplotacionController extends Controller
 {
-    // public function mostrarExplotaciones(){
+    public function mostrarExplotaciones(){
 
-    //     $explotaciones=Explotacion::all();
+            $explotaciones=Explotacion::all();
+           $numExplo = $explotaciones->count();
 
-    //     return view('explotaciones',compact('explotaciones'));
-    // }
+        return view('explotaciones',compact('explotaciones','numExplo'));
+    }
 
-    // public function numeroExplo(){
+    // public function numExplo(){
     //     $explotaciones=Explotacion::all();
     //     $numExplo = $explotaciones->count();
 
     //     //  return view('explotaciones',compact('explotaciones', 'numExplo'));
-    //     return compact('explotaciones','numexplo');
+    //     return view('explotaciones',compact('numExplo'));
 
 
     // }
-    public function numeroExplo(){
-        $numExplo = Explotacion::count(); // Cuenta directamente sin traer todos los registros
-        return response()->json(['total' => $numExplo]);
-    }
+    // public function numeroExplo(){
+    //     $numExplo = Explotacion::count(); // Cuenta directamente sin traer todos los registros
+    //     return response()->json(['total' => $numExplo]);
+    // }
 
 
 

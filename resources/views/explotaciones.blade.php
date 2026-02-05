@@ -14,6 +14,7 @@
 @endforeach
 
 <h1>Total explotaciones</h1>
-{{-- <h1>{{ $numExplo }}</h1> --}}
+
+<h1>{{$numExplo}}</h1>
 </body>
 </html>
