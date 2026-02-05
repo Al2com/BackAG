@@ -26,4 +26,10 @@ public function usuario(){
 public function parcela(){
     return $this->belongsTo(Parcela::class);
 }
+
+//herencia Fumigaciones(es el padre)
+
+public function fumigacion(){
+    return $this->hasOne(Fumigacion::class);
+}
 }

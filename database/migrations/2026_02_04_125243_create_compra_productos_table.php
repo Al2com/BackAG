@@ -15,6 +15,7 @@ return new class extends Migration
     $table->id();
     $table->foreignId('producto_id')->nullable()->constrained('productos')->nullOnDelete();
     $table->foreignId('proveedor_id')->nullable()->constrained('proveedores')->nullOnDelete();
+    $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();//relacion con users
     $table->dateTime('fecha_compra');
     $table->decimal('cantidad_compra', 7, 2);
     $table->decimal('precio', 7, 2);

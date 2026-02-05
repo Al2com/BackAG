@@ -17,5 +17,17 @@ class Fumigacion extends Model
         'descripcion'
     ];
 
-    //Un producto tiene muchas fumigaciones
+    //Fumigacion es una herencia de Operaciones
+    public function Operaciones(){
+        return $this->belongTo(Operacion::class);
+    }
+
+    //relacion con productos(aunque es la parte del 1 en Laravel se ecribe asi)la tabla intermedia no tiene modelo
+//no se si tengo que hacer referencia a ella
+
+    public function Productos(){
+        return $this->belongsToMany(Producto::class, 'fumigacion_producto');
+        ->withPivot('cantidad','dosis_introducida');
+    }
 }
+
