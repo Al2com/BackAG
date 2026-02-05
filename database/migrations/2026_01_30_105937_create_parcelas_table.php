@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::create('parcelas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('explotacion_id')->constrained('explotaciones')->onDelete('set null');
-            $table->foreignId('propietarios_id')->constrained('propietarios')->onDelete('set null');
+            $table->foreignId('explotacion_id')->constrained('explotaciones')->onDelete('cascade');
+            $table->foreignId('propietarios_id')->constrained('propietarios')->onDelete('restrict');//no deja borrar si tiene parcelas
             $table->enum('rol', ['manta', 'goteo'])->default('manta');
             $table->string('pol_parcela');
             $table->string('variedad');
+            $table->integer('num_arboles');
+            $table->dateTime('fecha_plantacion');
+            $table->text('descripcion');
             $table->timestamps();
 
         });

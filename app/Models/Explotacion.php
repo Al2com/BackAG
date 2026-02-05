@@ -9,7 +9,7 @@ class Explotacion extends Model
 
 protected $table = 'explotaciones'; //confunde la tabla para que no pase
      protected $fillable = [
-        'nomnbre',
+        'nombre',
         'ubicacion',
         'descripcion',
         'user_id',

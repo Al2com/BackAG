@@ -10,10 +10,10 @@
    <h1>Explotaciones</h1>
 
 @foreach ($explotaciones as $explotacion)
-    <p>{{ $explotacion->nombre }} - {{ $explotacion->cultivo }}</p>
+    <p>{{ $explotacion->nombre }} - {{ $explotacion->descripcion }}</p>
 @endforeach
 
 <h1>Total explotaciones</h1>
-<h1>{{ $numExplo }}</h1>
+{{-- <h1>{{ $numExplo }}</h1> --}}
 </body>
 </html>
