@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('rol', ['manta', 'goteo'])->default('manta');
             $table->string('pol_parcela');
             $table->string('variedad');
+            $table->decimal('dimension_hanegadas', 3, 3);
             $table->integer('num_arboles');
             $table->dateTime('fecha_plantacion');
             $table->text('descripcion');

@@ -10,7 +10,7 @@
    <h1>Explotaciones</h1>
 
 @foreach ($explotaciones as $explotacion)
-    <p>{{ $explotacion->nombre }} - {{ $explotacion->descripcion }}</p>
+    <p>{{ $explotacion->nombre }} - {{ $explotacion->user_id  }} -{{$explotacion->propietario_id}}</p>
 @endforeach
 
 <h1>Total explotaciones</h1>

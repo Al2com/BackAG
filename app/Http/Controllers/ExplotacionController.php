@@ -11,7 +11,7 @@ class ExplotacionController extends Controller
     public function mostrarExplotaciones(){
 
             $explotaciones=Explotacion::all();
-           $numExplo = $explotaciones->count();
+            $numExplo = $explotaciones->count();
 
         return view('explotaciones',compact('explotaciones','numExplo'));
     }
@@ -25,10 +25,10 @@ class ExplotacionController extends Controller
 
 
     // }
-    // public function numeroExplo(){
-    //     $numExplo = Explotacion::count(); // Cuenta directamente sin traer todos los registros
-    //     return response()->json(['total' => $numExplo]);
-    // }
+    public function numeroExplo(){
+        $numExplo = Explotacion::count(); // Cuenta directamente sin traer todos los registros
+        return response()->json(['total' => $numExplo]);
+    }
 
 
 
