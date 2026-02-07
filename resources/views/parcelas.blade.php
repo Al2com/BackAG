@@ -12,7 +12,7 @@
 @foreach($parcelas as $parcela)
 <p>{{$parcela->pol_parcela}}-{{$parcela->variedad}}</p>
 @endforeach
-<p>{{$TotalHng}}</p>
+<p>>Total Hanegadas{{$TotalHng}}</p>
 
 </body>
 </html>

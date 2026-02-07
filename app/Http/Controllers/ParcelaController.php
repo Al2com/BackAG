@@ -14,9 +14,15 @@ class ParcelaController extends Controller
     //     return $parcela = Parcela::all();
     // }
 
-    public function numParcelas(){
+    public function infoParcelas(){
         $numParcelas= Parcela::count();
-        return response()->json(['total'=>$numParcelas]);
+        $TotalHng=0;
+        $parcelas = Parcela::all();
+        foreach($parcelas as $parcela){
+            $TotalHng+=$parcela->dimension_hanegadas;
+
+        }
+     return response()->json(['total'=>$numParcelas,'totalHng'=>$TotalHng]);
     }
 
     //enviando a la vista
@@ -28,11 +34,12 @@ class ParcelaController extends Controller
         $parcelas=Parcela::all();
         $parcelasTotal=Parcela::count();
         foreach($parcelas as $parcela){
-            $TotalHng+=$parcela->total_hanegadas;
+            $TotalHng+=$parcela->dimension_hanegadas;
         }
-         dd($TotalHng);
+
 
         return view('parcelas',compact('parcelas','parcelasTotal','TotalHng'));
+        // return respone->json(['totalHanegadas',$TotalHng]);
     }
 
 

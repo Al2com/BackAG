@@ -12,11 +12,11 @@ Route::get('/', function () {
 //vista usuarios
 Route::get('user',[UserController::class,'mostrar']);
 //vista explotaciones
-// Route::get('explotaciones',[ExplotacionController::class,'mostrarExplotaciones']);
+// Route::get('explotaciones',[ExplotacionController::class,'Explotaciones']);
 //vista parcelas
 Route::get('/parcelas',[ParcelaController::class,'vistaParcelas'])->name('parcelas.vistaParcelas');
 //vista expotaciones blade
-Route::get('/explotaciones', [ExplotacionController::class,'mostrarExplotaciones']);
+// Route::get('/explotaciones', [ExplotacionController::class,'mostrarExplotaciones']);
 //insertar usuarios
 
 
