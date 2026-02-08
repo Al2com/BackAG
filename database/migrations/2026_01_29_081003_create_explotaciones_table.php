@@ -16,13 +16,9 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('ubicacion');
             $table->text('descripcion');
-            $table->foreignId('user_id')->constrained()->onDelate('set null'); //clave ajena con usuario
-            $table->foreignId('propietario_id')->constrained('propietarios')->onDelate('set null');//clave ajena con propietario
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null'); //clave ajena con usuario
+            $table->foreignId('propietario_id')->nullable()->constrained('propietarios')->onDelete('set null');//clave ajena con propietario
             $table->timestamps();
-
-
-
-
         });
     }
 

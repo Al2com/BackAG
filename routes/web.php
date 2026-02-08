@@ -12,14 +12,20 @@ Route::get('/', function () {
 //vista usuarios
 Route::get('user',[UserController::class,'mostrar']);
 //vista explotaciones
-// Route::get('explotaciones',[ExplotacionController::class,'Explotaciones']);
+Route::get('explotaciones',[ExplotacionController::class,'Explotaciones']);
 //vista parcelas
 Route::get('/parcelas',[ParcelaController::class,'vistaParcelas'])->name('parcelas.vistaParcelas');
 //vista expotaciones blade
 // Route::get('/explotaciones', [ExplotacionController::class,'mostrarExplotaciones']);
-//insertar usuarios
+
+//CRUD EXPLOTACIONES
+//para insertar datos 2 rutas CREAR
+Route::view('/insertarExplo', 'insertarExplo')->name('insertarExplo');
+Route::post('/almacenarExplo', [ExplotacionController::class, 'insertar'])->name('almacenarExplo');
 
 
+//para editar y modificar 
+Route::get('/explotacion/editar/{id}' , [ExplotacionesController::class, 'editar'])->name('explotacion.editar')
 
 
 

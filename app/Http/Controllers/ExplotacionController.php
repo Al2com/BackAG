@@ -8,15 +8,15 @@ use App\Models\Explotacion; //importa el modelo
 
 class ExplotacionController extends Controller
 {
-    // public function Explotaciones(){
+    public function Explotaciones(){
 
-    //         $explotaciones=Explotacion::all();
-    //         $nomExplo=$explotaciones-> pluck('nombre');
-    //         // $numExplo = $explotaciones->count();
+            $explotaciones=Explotacion::all();
+            $nomExplo=$explotaciones-> pluck('nombre');
+            $numExplo = $explotaciones->count();
 
-    //     // return view('explotaciones',compact('explotaciones','numExplo'));
-    //     return $nomExplo;
-    // }
+        return view('explotaciones',compact('explotaciones','numExplo'));
+        // return $nomExplo;
+    }
 
     // public function numExplo(){
     //     $explotaciones=Explotacion::all();
@@ -32,6 +32,24 @@ class ExplotacionController extends Controller
          $nomExplo = Explotacion::pluck('nombre');
 
         return response()->json(['total' => $numExplo , 'nom' => $nomExplo]);
+    }
+
+//INSERTAR DATOS
+
+    public function insertar(Request $request){
+
+            $explotacion=$request->validate([
+            'nombre' => 'required|max:25',
+            'ubicacion' => 'required',
+            'descripcion' => 'required',
+            'user_id' => 'required',
+            'propietario_id' => 'required',
+            ]);
+
+             Explotacion::create($explotacion);
+
+
+             return redirect()->route('insertarExplo');
     }
 
 
