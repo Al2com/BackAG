@@ -11,7 +11,7 @@ class ExplotacionController extends Controller
     public function Explotaciones(){
 
             $explotaciones=Explotacion::all();
-            $nomExplo=$explotaciones-> pluck('nombre');
+          //  $nomExplo=$explotaciones-> pluck('nombre');
             $numExplo = $explotaciones->count();
 
         return view('explotaciones',compact('explotaciones','numExplo'));
@@ -29,7 +29,7 @@ class ExplotacionController extends Controller
     // }
     public function numeroExplo(){
         $numExplo = Explotacion::count(); // Cuenta directamente sin traer todos los registros
-         $nomExplo = Explotacion::pluck('nombre');
+        $nomExplo = Explotacion::pluck('nombre');
 
         return response()->json(['total' => $numExplo , 'nom' => $nomExplo]);
     }
@@ -51,6 +51,33 @@ class ExplotacionController extends Controller
 
              return redirect()->route('insertarExplo');
     }
+
+
+    public function editar($id){
+            $explo = Explotacion::findOrFail($id);
+
+            return view('editar', compact('explo'));
+}
+
+
+public function actualizar(Request $request)
+    {
+        $validacion = $request->validate([
+            'nombre' => 'required|min:1|max:10',
+            'descripcion' => 'required',
+        ]);
+
+        Dato::findOrFail($request->id)->update($validacion);
+
+        /*  //otra forma de almacenar
+         $datos = Dato::find($id);   //podremos utilizar findOrFail($id) para que en caso de no encontrar no falle
+         $datos->nombre = $validacion['nombre'];
+         $datos->descripcion = $validacion['descripcion'];
+         $datos->update();*/
+
+        return redirect()->route('index');
+}
+
 
 
 

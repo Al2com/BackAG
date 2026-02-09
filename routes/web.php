@@ -24,8 +24,9 @@ Route::view('/insertarExplo', 'insertarExplo')->name('insertarExplo');
 Route::post('/almacenarExplo', [ExplotacionController::class, 'insertar'])->name('almacenarExplo');
 
 
-//para editar y modificar 
-Route::get('/explotacion/editar/{id}' , [ExplotacionesController::class, 'editar'])->name('explotacion.editar')
+//para editar y modificar
+Route::get('/editar/{id}' , [ExplotacionController::class, 'editar'])->name('editar');
+Route::patch('/actualizar/{id}', [ExplotacionController::class,'actualizar'])->name('actualizar');
 
 
 

@@ -9,8 +9,10 @@
 <body>
    <h1>Explotaciones</h1>
 
+
 @foreach ($explotaciones as $explotacion)
     <p>{{ $explotacion->nombre }} - {{ $explotacion->user_id  }} -{{$explotacion->propietario_id}}</p>
+ <a href="{{ route('editar', $explotacion->id)}}" >Edit</a> <!--añadimos también EDITAR-->
 @endforeach
 
 <h1>Total explotaciones</h1>
