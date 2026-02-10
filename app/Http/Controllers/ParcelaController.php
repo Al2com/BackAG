@@ -37,14 +37,7 @@ class ParcelaController extends Controller
 
     }
 
-    public function infoParcelasExplotacion(){
-        $totalesHngXExplo = Parcela::select('explotacion_id', DB::raw('SUM(dimension_hanegadas) as total_hanegadas'))
-                    ->groupBy('explotacion_id')
-                    ->get();
-        return response()->json(['totales' => $totalesHngXExplo]);
-
-
-    }
+   
 
 
     //enviando a la vista
