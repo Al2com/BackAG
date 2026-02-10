@@ -27,12 +27,33 @@ class ExplotacionController extends Controller
 
 
     // }
+
+    //CONSULTAS DESDE REACT
     public function numeroExplo(){
         $numExplo = Explotacion::count(); // Cuenta directamente sin traer todos los registros
         $nomExplo = Explotacion::pluck('nombre');
 
         return response()->json(['total' => $numExplo , 'nom' => $nomExplo]);
     }
+
+       // PARA EXPLOTACION
+
+public function resumenExplotaciones(){
+    $resumen = Explotacion::withCount('parcelas') // total de parcelas
+        ->withSum('parcelas', 'dimension_hanegadas') // suma de hanegadas
+        ->withCount(['parcelas as parcelas_goteo' => function($query){
+            $query->where('rol', 'goteo'); // cuenta parcelas goteo
+        }])
+        ->withCount(['parcelas as parcelas_manta' => function($query){
+            $query->where('rol', 'manta'); // cuenta parcelas manta
+        }])
+        ->get(['id', 'nombre', 'ubicacion']); // columnas de la tabla explotaciones
+
+    return response()->json($resumen);
+}
+
+
+
 
 //INSERTAR DATOS
 
