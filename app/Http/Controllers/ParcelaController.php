@@ -37,7 +37,14 @@ class ParcelaController extends Controller
 
     }
 
-   
+
+    public function resumenParcelas(){
+        $parcelaAll=Parcela::all();
+        return response()->json(['todasParcelas' => $parcelaAll]);
+        // return $parcelaAll;
+    }
+
+
 
 
     //enviando a la vista
@@ -45,7 +52,7 @@ class ParcelaController extends Controller
 
 
     public function vistaParcelas(){
-         $TotalHng=0;
+        $TotalHng=0;
         $parcelas=Parcela::all();
         $parcelasTotal=Parcela::count();
         foreach($parcelas as $parcela){

@@ -8,15 +8,15 @@ use App\Models\Explotacion; //importa el modelo
 
 class ExplotacionController extends Controller
 {
-    public function Explotaciones(){
+    // public function Explotaciones(){
 
-            $explotaciones=Explotacion::all();
-          //  $nomExplo=$explotaciones-> pluck('nombre');
-            $numExplo = $explotaciones->count();
+    //         $explotaciones=Explotacion::all();
+    //       //  $nomExplo=$explotaciones-> pluck('nombre');
+    //         $numExplo = $explotaciones->count();
 
-        return view('explotaciones',compact('explotaciones','numExplo'));
-        // return $nomExplo;
-    }
+    //     return view('explotaciones',compact('explotaciones','numExplo'));
+    //     // return $nomExplo;
+    // }
 
     // public function numExplo(){
     //     $explotaciones=Explotacion::all();
