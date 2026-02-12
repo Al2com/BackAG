@@ -10,9 +10,7 @@ use Illuminate\Http\Request;
 
 class ParcelaController extends Controller
 {
-    // public function mostrarParcelas(){
-    //     return $parcela = Parcela::all();
-    // }
+    
 
     public function infoParcelas(){
         $numParcelas= Parcela::count();
