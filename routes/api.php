@@ -8,7 +8,7 @@ Route::get('/parcelas', [ParcelaController::class, 'infoParcelas']);
 //Para el apartado de explotaciones
 Route::get('/explotaciones/resumen' , [ExplotacionController::class,'resumenExplotaciones']);
 //para parcelas
-Route::get('/parcelas/resumen' , [ParcelaController::class,'resumenParcelas']);
+Route::get('/parcelas/resumen' , [ParcelaController::class,'resumenDetallado']);
 
 
 

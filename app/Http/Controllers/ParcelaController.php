@@ -38,12 +38,20 @@ class ParcelaController extends Controller
     }
 
 
-    public function resumenParcelas(){
-        $parcelaAll=Parcela::all();
-        return response()->json(['todasParcelas' => $parcelaAll]);
-        // return $parcelaAll;
-    }
 
+    public function resumenDetallado() {
+    // Usamos 'with' para traer el nombre de la explotación sin hacer 100 consultas (Eager Loading)
+    $resumDatParcelas = Parcela::with('explotacion:id,nombre')
+        ->get([
+            'pol_parcela',
+            'dimension_hanegadas',
+            'variedad',
+            'explotacion_id',
+            'rol'
+        ]);
+
+    return response()->json($resumDatParcelas);
+}
 
 
 
