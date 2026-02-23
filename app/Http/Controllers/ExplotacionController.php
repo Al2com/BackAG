@@ -63,8 +63,8 @@ public function resumenExplotaciones(){
             'nombre' => 'required|max:25',
             'ubicacion' => 'required',
             'descripcion' => 'required',
-            'user_id' => 'nullable',
-            'propietario_id' => 'nullablegit ',
+            'user_id' => 'required',
+            'propietario_id' => 'required',
             ]);
 
              Explotacion::create($explotacion);

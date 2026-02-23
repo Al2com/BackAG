@@ -14,6 +14,9 @@ Route::get('/parcelas', [ParcelaController::class, 'infoParcelas']);
 //para parcelas
 Route::get('/parcelas/resumen' , [ParcelaController::class,'resumenDetallado']);
 
+//para mostrar los usuarios para el formExplotaciones
+Routes::get('/usuarios' , [UserController::class,'mostrarUsers']);
+
 
 
 

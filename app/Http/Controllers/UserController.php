@@ -5,10 +5,14 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function mostrar(){
+    public function mostrarUsers(){
 
-      return  $user= user::all();
+        $usuarios = User::all();
+        return response()->json($usuarios);
 
 
     }
+
+
+
 }
