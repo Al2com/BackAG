@@ -20,7 +20,7 @@ Route::get('/parcelas/resumen' , [ParcelaController::class,'resumenDetallado']);
 Route::get('/usuarios' , [UserController::class,'mostrarUsers']);
 
 //para mostrar los propietarios para el formExplotaciones
-Route::get('propietarios', [PropietarioController::class,'mostrarPropietarios'])
+Route::get('propietarios', [PropietarioController::class,'mostrarPropietarios']);
 
 
 

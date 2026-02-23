@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Http\Propietario;
+use App\Models\Propietario;
 
-class PropietarioControlador extends Controller
+class PropietarioController extends Controller
 {
     public function mostrarPropietarios(){
-        $propietarios= Propietarios::all();
+        $propietarios= Propietario::all();
          return response()->json(['propietarios' => $propietarios]);
     }
 }

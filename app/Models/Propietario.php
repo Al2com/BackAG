@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Propietarios extends Model
+class Propietario extends Model
 {
        protected $fillable = [
         'nomnbre',
