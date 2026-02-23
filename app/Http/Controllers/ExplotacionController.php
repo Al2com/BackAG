@@ -57,7 +57,7 @@ public function resumenExplotaciones(){
 
 //INSERTAR DATOS
 
-    public function insertar(Request $request){
+    public function crear(Request $request){
 
             $explotacion=$request->validate([
             'nombre' => 'required|max:25',
@@ -70,7 +70,7 @@ public function resumenExplotaciones(){
              Explotacion::create($explotacion);
 
 
-             return redirect()->route('insertarExplo');
+             return response()->json(['mensaje' => 'Explotacion creada'], 201);
     }
 
 
