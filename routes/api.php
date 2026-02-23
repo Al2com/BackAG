@@ -2,6 +2,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExplotacionController;
 use App\Http\Controllers\ParcelaController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PropietarioController;
 
 Route::get('/explotaciones', [ExplotacionController::class, 'numeroExplo']);
 //Para el apartado de explotaciones
@@ -15,7 +17,10 @@ Route::get('/parcelas', [ParcelaController::class, 'infoParcelas']);
 Route::get('/parcelas/resumen' , [ParcelaController::class,'resumenDetallado']);
 
 //para mostrar los usuarios para el formExplotaciones
-Routes::get('/usuarios' , [UserController::class,'mostrarUsers']);
+Route::get('/usuarios' , [UserController::class,'mostrarUsers']);
+
+//para mostrar los propietarios para el formExplotaciones
+Route::get('propietarios', [PropietarioController::class,'mostrarPropietarios'])
 
 
 

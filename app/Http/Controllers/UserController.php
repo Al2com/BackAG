@@ -8,7 +8,7 @@ class UserController extends Controller
     public function mostrarUsers(){
 
         $usuarios = User::all();
-        return response()->json($usuarios);
+        return response()->json(['usuarios' => $usuarios]);
 
 
     }
