@@ -7,7 +7,7 @@ Route::get('/explotaciones', [ExplotacionController::class, 'numeroExplo']);
 //Para el apartado de explotaciones
 Route::get('/explotaciones/resumen' , [ExplotacionController::class,'resumenExplotaciones']);
 //para crear las explotaciones
-Route::post('/explotaciones/crear' , [ExplotacionController::class,'crearExplotacion']);
+Route::post('/explotaciones/crear' , [ExplotacionController::class,'crear']);
 
 Route::get('/parcelas', [ParcelaController::class, 'infoParcelas']);
 
