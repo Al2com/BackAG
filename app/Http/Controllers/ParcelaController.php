@@ -41,7 +41,8 @@ class ParcelaController extends Controller
     // Usamos 'with' para traer el nombre de la explotación sin hacer 100 consultas (Eager Loading)
     $resumDatParcelas = Parcela::with('explotacion:id,nombre')
         ->get([
-            'pol_parcela',
+            'poligono',
+            'parcela',
             'dimension_hanegadas',
             'variedad',
             'explotacion_id',
@@ -72,7 +73,7 @@ class ParcelaController extends Controller
 
 
 
-    
+
 
 
     public function crearParcela(Request $request){
@@ -84,7 +85,7 @@ class ParcelaController extends Controller
             'parcela' => 'required',
             'rol'=>'required',
             'variedad' => 'required',
-            'num_arboles'=>'required';
+            'num_arboles'=>'required',
             'dimension_hanegadas' => 'required',
             'fecha_plantacion' => 'required',
             'descripcion' => 'required',

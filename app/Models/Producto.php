@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Producto extends Model
 {
-    $protected $fillable =[
+    protected $fillable =[
         'cantidad',
         'dosis_introducida'
     ];
@@ -14,13 +14,13 @@ class Producto extends Model
     //relacion
 
     public function Fumigacion(){
-        return $this->belongsToMany(Fumigacion::class, 'fumigacion_producto');
-          ->withPivot('cantidad', 'dosis_introducida')//referencia a la tabla intermedia
+        return $this->belongsToMany(Fumigacion::class, 'fumigacion_producto')
+          ->withPivot('cantidad', 'dosis_introducida');//referencia a la tabla intermedia
 
     }
 
     public function Proveedor(){
-        return $this->belongsToMany(Proveedor::class , 'compra_productos' )
+        return $this->belongsToMany(Proveedor::class , 'compra_productos' );
     }
 
     public function users(){

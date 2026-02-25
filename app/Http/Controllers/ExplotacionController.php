@@ -8,25 +8,6 @@ use App\Models\Explotacion; //importa el modelo
 
 class ExplotacionController extends Controller
 {
-    // public function Explotaciones(){
-
-    //         $explotaciones=Explotacion::all();
-    //       //  $nomExplo=$explotaciones-> pluck('nombre');
-    //         $numExplo = $explotaciones->count();
-
-    //     return view('explotaciones',compact('explotaciones','numExplo'));
-    //     // return $nomExplo;
-    // }
-
-    // public function numExplo(){
-    //     $explotaciones=Explotacion::all();
-    //     $numExplo = $explotaciones->count();
-
-    //     //  return view('explotaciones',compact('explotaciones', 'numExplo'));
-    //     return view('explotaciones',compact('numExplo'));
-
-
-    // }
 
     //CONSULTAS DESDE REACT
     public function numeroExplo(){

@@ -16,6 +16,6 @@ class Proveedor extends Model
     ];
 
     public function Producto(){
-        return $this->belongsToMany(Producto::class ,'compra_productos')
+        return $this->belongsToMany(Producto::class ,'compra_productos');
     }
 }
