@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('explotacion_id')->constrained('explotaciones')->onDelete('cascade');
             $table->foreignId('propietarios_id')->constrained('propietarios')->onDelete('restrict');//no deja borrar si tiene parcelas
             $table->enum('rol', ['manta', 'goteo'])->default('manta');
-            $table->string('pol_parcela');
+            $table->string('poligono');
+            $table->string('parcela');
             $table->string('variedad');
             $table->decimal('dimension_hanegadas', 3, 3);
             $table->integer('num_arboles');

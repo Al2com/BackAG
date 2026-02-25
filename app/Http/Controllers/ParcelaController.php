@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class ParcelaController extends Controller
 {
-    
+
 
     public function infoParcelas(){
         $numParcelas= Parcela::count();
@@ -72,5 +72,24 @@ class ParcelaController extends Controller
 
 
 
+    ¡
+
+
+    public function crearParcela(Request $request){
+
+            $parcela=$request->validate([
+            'parcela' => 'required|max:25',
+            'ubicacion' => 'required',
+            'variedad' => 'required',
+            'dimension_hanegadas' => 'required',
+            'fecha_plantacion' => 'required',
+            'descripcion' => 'required',
+            ]);
+
+             Parcela::create($parcela);
+
+
+             return response()->json(['mensaje' => 'Parcela creada'], 201);
+    }
 
 }

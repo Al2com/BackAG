@@ -22,6 +22,9 @@ Route::get('/usuarios' , [UserController::class,'mostrarUsers']);
 //para mostrar los propietarios para el formExplotaciones
 Route::get('propietarios', [PropietarioController::class,'mostrarPropietarios']);
 
+//para crear parcelas
+Routes::post('/parcelas/crear',[ParcelaController::class,'crearParcela'])
+
 
 
 
