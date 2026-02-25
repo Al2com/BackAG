@@ -26,7 +26,7 @@ class Fumigacion extends Model
 //no se si tengo que hacer referencia a ella
 
     public function Productos(){
-        return $this->belongsToMany(Producto::class, 'fumigacion_producto');
+        return $this->belongsToMany(Producto::class, 'fumigacion_producto')
         ->withPivot('cantidad','dosis_introducida');
     }
 }

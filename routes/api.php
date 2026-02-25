@@ -23,7 +23,7 @@ Route::get('/usuarios' , [UserController::class,'mostrarUsers']);
 Route::get('propietarios', [PropietarioController::class,'mostrarPropietarios']);
 
 //para crear parcelas
-Route::post('/parcelas/crear',[ParcelaController::class,'crearParcela'])
+Route::post('/parcelas/crear',[ParcelaController::class,'crearParcela']);
 
 
 

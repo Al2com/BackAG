@@ -72,7 +72,7 @@ class ParcelaController extends Controller
 
 
 
-    ¡
+    
 
 
     public function crearParcela(Request $request){
