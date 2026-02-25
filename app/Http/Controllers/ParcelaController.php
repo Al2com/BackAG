@@ -78,9 +78,13 @@ class ParcelaController extends Controller
     public function crearParcela(Request $request){
 
             $parcela=$request->validate([
+            'explotacion_id'=>'required',
+            'propietarios_id'=>'required',
             'poligono' => 'required|max:25',
             'parcela' => 'required',
+            'rol'=>'required',
             'variedad' => 'required',
+            'num_arboles'=>'required';
             'dimension_hanegadas' => 'required',
             'fecha_plantacion' => 'required',
             'descripcion' => 'required',
