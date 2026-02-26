@@ -8,14 +8,14 @@ class Operacion extends Model
 {
     protected $table = 'operaciones';
 
-     protected $fillable = [
+        protected $fillable = [
         'parcela_id',
         'usuario_id',
         'tipo_operacion',
         'hora_inicio',
         'duracion_minutos',
         'descripcion'
-    ];
+];
 
 //una operación pertenece usuario,
 public function usuario(){

@@ -75,4 +75,9 @@ class ParcelaController extends Controller
              return response()->json(['mensaje' => 'Parcela creada'], 201);
     }
 
+    public function listarParcelas(){
+    $parcelas = Parcela::select('id', 'poligono', 'parcela', 'variedad')->get();
+    return response()->json($parcelas);
+}
+
 }
