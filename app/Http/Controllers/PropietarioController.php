@@ -8,7 +8,7 @@ use App\Models\Propietario;
 class PropietarioController extends Controller
 {
     public function mostrarPropietarios(){
-        $propietarios= Propietario::all();
-         return response()->json(['propietarios' => $propietarios]);
+    $propietarios = Propietario::select('id', 'nombre')->get();
+    return response()->json(['propietarios' => $propietarios]);
     }
 }

@@ -12,7 +12,7 @@ class ExplotacionController extends Controller
     //CONSULTAS DESDE REACT
     public function numeroExplo(){
         $numExplo = Explotacion::count(); // Cuenta directamente sin traer todos los registros
-        $nomExplo = Explotacion::pluck('nombre');
+        $nomExplo = Explotacion::select('id', 'nombre')->get();
 
         return response()->json(['total' => $numExplo , 'nom' => $nomExplo]);
     }

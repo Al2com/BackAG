@@ -11,8 +11,18 @@ class Parcela extends Model
 {
     protected $table = 'parcelas';
 
-    protected $fillable = ['explotacion_id','propietario_id' , 'rol', 'pol_parcela','variedad',];
-
+protected $fillable = [
+    'explotacion_id',
+    'propietarios_id',
+    'rol',
+    'poligono',
+    'parcela',
+    'variedad',
+    'dimension_hanegadas',
+    'num_arboles',
+    'fecha_plantacion',
+    'descripcion'
+];
 
     //relaciones
 
