@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('poligono');
             $table->string('parcela');
             $table->string('variedad');
-            $table->decimal('dimension_hanegadas', 3, 3);
+            $table->decimal('dimension_hanegadas', 6, 3);
             $table->integer('num_arboles');
             $table->dateTime('fecha_plantacion');
             $table->text('descripcion');
