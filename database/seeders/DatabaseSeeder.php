@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
         PropietariosSeeder::class,
         ExplotacionesSeeder::class,
         ParcelasSeeder::class,
+        ProductoSeeder::class,
     ]);
 }
 }

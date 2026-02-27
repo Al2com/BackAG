@@ -13,8 +13,16 @@ return new class extends Migration
     {
         Schema::create('fumigaciones', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('operacion_id')->nullable()->constrained('operaciones')->nullOnDelete();
-            $table->string('descripcion');
+
+
+            $table->foreignId('parcela_id')->constrained('parcelas')->cascadeOnDelete();
+            $table->foreignId('usuario_id')->constrained('users')->cascadeOnDelete();
+            $table->date('fecha');
+            $table->time('hora_inicio');
+            $table->unsignedInteger('duracion_minutos');
+            $table->text('descripcion')->nullable();
+//para que las fumigaciones sean con tractor o mochila para poder descontar material del almacen
+            $table->enum('metodo_aplicacion', ['tractor', 'mochila'])->default('tractor');
             $table->timestamps();
         });
     }
