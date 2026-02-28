@@ -21,7 +21,7 @@ return new class extends Migration
             $table->time('hora_inicio');
             $table->unsignedInteger('duracion_minutos');
             $table->text('descripcion')->nullable();
-//para que las fumigaciones sean con tractor o mochila para poder descontar material del almacen
+//para que las fumigaciones sean con tractor o mochila 
             $table->enum('metodo_aplicacion', ['tractor', 'mochila'])->default('tractor');
             $table->timestamps();
         });
