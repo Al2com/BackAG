@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->string('materia_activa');
-            $table->decimal('precio', 6, 2); // ej: 9999.99
+            $table->decimal('precio', 6, 2);
             $table->string('ubicacion');
             $table->unsignedInteger('stock_minimo');
+            $table->unsignedInteger('stock_actual')->default(0);
+            $table->string('unidad');
             $table->timestamps();
         });
     }

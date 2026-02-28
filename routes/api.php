@@ -28,16 +28,14 @@ Route::get('propietarios', [PropietarioController::class,'mostrarPropietarios'])
 //para crear parcelas
 Route::post('/parcelas/crear',[ParcelaController::class,'crearParcela']);
 
-//para crear operaciones
-Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
-
 //para ver las parcelas en operaciones
 Route::get('/parcelas/lista', [ParcelaController::class, 'listarParcelas']);
 
 
 Route::get('/operaciones', [OperacionController::class, 'listar']);
 
-
+//para crear operaciones
+Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
 
 
 
