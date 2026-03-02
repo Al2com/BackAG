@@ -9,7 +9,7 @@ use App\Models\Producto;
 class ProductoController extends Controller
 {
     public function mostrarProductos(){
-        $productos=Producto::select('nombre','dosis_recomendada')->get();
+        $productos=Producto::select('nombre','dosis_recomendada','unidad')->get();
         return response()->json($productos);
 
     }

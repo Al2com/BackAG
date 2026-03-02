@@ -40,7 +40,7 @@ Route::get('/operaciones', [OperacionController::class, 'listar']);
 Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
 
 //para mostrar los productos quimicos
-Route::get('/producto/lista' , [ProductoController::class, 'mostrarProductos']);
+Route::get('/productos/lista' , [ProductoController::class, 'mostrarProductos']);
 
 
 
