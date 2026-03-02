@@ -9,7 +9,8 @@ class OperacionController extends Controller
     public function crearOperacion(Request $request){
         $operacion = $request->validate([
             'parcela_id' => 'required',
-            'usuario_id' => 'required',
+            'usuario_id' => 'nullable',
+            'operario'=> 'required',
             'tipo_operacion' => 'required',
             'hora_inicio' => 'required',
             'duracion_minutos' => 'required',

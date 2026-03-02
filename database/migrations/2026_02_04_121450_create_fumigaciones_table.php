@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('fumigaciones', function (Blueprint $table) {
             $table->id();
             $table->foreignId('parcela_id')->constrained('parcelas')->cascadeOnDelete();
-            $table->foreignId('usuario_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('usuario_id')->constrained('users')->cascadeOnDelete();//se deja por si escalo aplicacion
+            $table->string('operario');
             $table->dateTime('hora_inicio');
             $table->unsignedInteger('duracion_minutos');
             $table->text('descripcion')->nullable();

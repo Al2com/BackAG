@@ -11,6 +11,7 @@ class Operacion extends Model
         protected $fillable = [
         'parcela_id',
         'usuario_id',
+        'operario',
         'tipo_operacion',
         'hora_inicio',
         'duracion_minutos',

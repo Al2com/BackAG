@@ -16,6 +16,7 @@ return new class extends Migration
 
             $table->foreignId('parcela_id')->nullable()->constrained('parcelas')->nullOnDelete();
             $table->foreignId('usuario_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('operario');
             $table->enum('tipo_operacion', ['poda', 'riego', 'abonado', 'mantenimiento']);
             $table->dateTime('hora_inicio');
             $table->unsignedInteger('duracion_minutos');
