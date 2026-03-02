@@ -5,6 +5,8 @@ use App\Http\Controllers\ParcelaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PropietarioController;
 use App\Http\Controllers\OperacionController;
+use App\Http\Controllers\ProductoController;
+
 
 
 
@@ -37,7 +39,8 @@ Route::get('/operaciones', [OperacionController::class, 'listar']);
 //para crear operaciones
 Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
 
-
+//para mostrar los productos quimicos
+Route::get('/producto/lista' , [ProductoController::class, 'mostrarProductos']);
 
 
 

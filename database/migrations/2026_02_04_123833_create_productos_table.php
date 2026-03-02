@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('materia_activa');
             $table->decimal('precio', 6, 2);
             $table->string('ubicacion');
+            $table->decimal('dosis_recomendada', 7, 2);
             $table->unsignedInteger('stock_minimo');
             $table->unsignedInteger('stock_actual')->default(0);
             $table->string('unidad');

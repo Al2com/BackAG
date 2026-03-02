@@ -6,10 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Producto extends Model
 {
-    protected $fillable =[
-        'cantidad',
-        'dosis_introducida'
-    ];
+
+    protected $fillable = [
+    'nombre',
+    'materia_activa',
+    'precio',
+    'ubicacion',
+    'stock_minimo',
+    'stock_actual',
+    'unidad',
+    'dosis_recomendada'
+];
 
     //relacion
 

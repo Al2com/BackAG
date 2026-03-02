@@ -16,6 +16,7 @@ class ProductoSeeder extends Seeder
             'ubicacion' => 'Estante A-3',
             'stock_minimo' => 10,
             'stock_actual' => 50,
+            'dosis_recomendada' => 1,
             'unidad' => 'kg'
         ]);
 
@@ -26,6 +27,7 @@ class ProductoSeeder extends Seeder
             'ubicacion' => 'Estante B-1',
             'stock_minimo' => 5,
             'stock_actual' => 25,
+            'dosis_recomendada' => 2,
             'unidad' => 'L'
         ]);
 
@@ -36,6 +38,7 @@ class ProductoSeeder extends Seeder
             'ubicacion' => 'Estante B-2',
             'stock_minimo' => 8,
             'stock_actual' => 30,
+            'dosis_recomendada' => 3,
             'unidad' => 'L'
         ]);
 
@@ -46,6 +49,7 @@ class ProductoSeeder extends Seeder
             'ubicacion' => 'Almacén principal',
             'stock_minimo' => 20,
             'stock_actual' => 100,
+            'dosis_recomendada' => 4,
             'unidad' => 'kg'
         ]);
     }
