@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PropietarioController;
 use App\Http\Controllers\OperacionController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\FumigacionController;
 
 
 
@@ -43,6 +44,7 @@ Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']
 Route::get('/productos/lista' , [ProductoController::class, 'mostrarProductos']);
 
 
-
+//para crear fumigacion
+Route::post('/fumigaciones/crear',[FumigacionController::class,'añadirFumigacion']);
 
 
