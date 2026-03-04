@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('parcela_id')->constrained('parcelas')->cascadeOnDelete();
             $table->foreignId('usuario_id')->constrained('users')->cascadeOnDelete();//se deja por si escalo aplicacion
-            $table->string('operario');
+            $table->string('operario')->nullable();
             $table->dateTime('hora_inicio');
-            $table->unsignedInteger('duracion_minutos');
+            $table->unsignedInteger('duracion_minutos')->nullable();
             $table->text('descripcion')->nullable();
             //para que las fumigaciones sean con tractor o mochila
             $table->enum('metodo_aplicacion', ['tractor', 'mochila'])->default('tractor');
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('fumigaciones');
+        Schema::dropIfExists('fumigacion');
     }
 };
