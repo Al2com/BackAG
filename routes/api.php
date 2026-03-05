@@ -47,4 +47,8 @@ Route::get('/productos/lista' , [ProductoController::class, 'mostrarProductos'])
 //para crear fumigacion
 Route::post('/fumigaciones/crear',[FumigacionController::class,'añadirFumigacion']);
 
+//para traer la fumigaciones al menu de operaciones
+Route::get('/fumigaciones', [FumigacionController::class, 'listar']);
+
+
 
