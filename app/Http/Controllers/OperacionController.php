@@ -22,7 +22,9 @@ class OperacionController extends Controller
     }
 
     public function listar(){
-    $operaciones = Operacion::all();
-    return response()->json($operaciones);
-}
+        $operaciones = Operacion::all();
+        $totalOperaciones=$operaciones->count();
+
+        return response()->json(['total' => $totalOperaciones,'operaciones' => $operaciones]);
+    }
 }

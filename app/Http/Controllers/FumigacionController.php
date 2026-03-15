@@ -47,7 +47,8 @@ class FumigacionController extends Controller{
 
     public function listar(){
         $fumigaciones = Fumigacion::all();
-        return response()->json($fumigaciones);
+        $totalFumigaciones= $fumigaciones->count();
+        return response()->json(['fumigaciones' => $fumigaciones ,'totalFumigaciones'=> $totalFumigaciones]);
     }
 }
 
