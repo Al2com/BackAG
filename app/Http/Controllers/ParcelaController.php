@@ -46,6 +46,8 @@ class ParcelaController extends Controller
         'parcela',
         'dimension_hanegadas',
         'variedad',
+        'num_arboles',
+        'fecha_plantacion',
         'explotacion_id',
         'rol'
         ]);
@@ -79,5 +81,32 @@ class ParcelaController extends Controller
     $parcelas = Parcela::select('id', 'poligono', 'parcela', 'variedad')->get();
     return response()->json($parcelas);
 }
+
+
+//para trear los datos de la parcela y para modificarlos
+
+    public function datosParcela($id){
+        $parcela = Parcela::find($id);
+        return response()->json($parcela);
+    }
+
+    public function actualizarParcela(Request $request){
+
+        $datos =$request ->validate([
+            'explotacion_id' => 'required',
+            'propietarios_id' => 'requires',
+            'rol' => 'required|in:goteo,manta',
+            'poligono'=>'required',
+            'parcela'=> 'requiered',
+            'variedad'=> 'required',
+            'dimension_hanegadas' => 'required',
+            'num_arboles'=> 'required',
+            'fecha_plantacion'=> 'required',
+            'descripcion'=> 'required',
+
+        ]);
+
+
+    }
 
 }

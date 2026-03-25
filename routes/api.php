@@ -33,7 +33,10 @@ Route::post('/parcelas/crear',[ParcelaController::class,'crearParcela']);
 
 //para ver las parcelas en operaciones
 Route::get('/parcelas/lista', [ParcelaController::class, 'listarParcelas']);
-
+//para devolver los datos de la parcela
+Route::get('/parcelas/{id}' , [ParcelaController::class, 'datosParcela']);
+//para actualizar los datos de la parcela
+Route::put('/parcelas/{id}', [ParcelaController::class, 'actualizarParcela']);
 
 Route::get('/operaciones', [OperacionController::class, 'listar']);
 
