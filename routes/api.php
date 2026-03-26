@@ -53,5 +53,12 @@ Route::post('/fumigaciones/crear',[FumigacionController::class,'añadirFumigacio
 //para traer la fumigaciones al menu de operaciones
 Route::get('/fumigaciones', [FumigacionController::class, 'listar']);
 
+//para los roles y el token
+use App\Http\Controllers\AuthController;
+
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/registro', [AuthController::class, 'registro']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
 
 
