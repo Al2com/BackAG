@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('explotaciones', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
+            $table->string('nombre')->unique();
             $table->string('ubicacion');
             $table->text('descripcion');
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null'); //clave ajena con usuario

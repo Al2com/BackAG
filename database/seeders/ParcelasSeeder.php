@@ -27,7 +27,7 @@ class ParcelasSeeder extends Seeder
 
         for ($i = 0; $i < 20; $i++) {
             DB::table('parcelas')->insert([
-                'explotacion_id' => rand(1, 10),                           
+                'explotacion_id' => rand(1, 4),
                 'propietarios_id' => 1,
                 'rol' => $faker->randomElement(['manta', 'goteo']),
                 'poligono' => rand(1, 50),

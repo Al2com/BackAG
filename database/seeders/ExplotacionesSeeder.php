@@ -8,23 +8,47 @@ use Faker\Factory as Faker;
 
 class ExplotacionesSeeder extends Seeder
 {
-    public function run(): void
-    {
-        $faker = Faker::create('es_ES');
+  public function run(): void
+{
+    $explotaciones = [
+        [
+            'nombre' => 'La casa del pi',
+            'ubicacion' => "L'Alcudia",
+            'descripcion' => 'Explotación principal de caqui y naranja',
+            'user_id' => 1,
+            'propietario_id' => 1,
+            'created_at' => now(),
+            'updated_at' => now()
+        ],
+        [
+            'nombre' => 'Tosalet',
+            'ubicacion' => "L'Alcudia",
+            'descripcion' => 'Explotación de caqui y naranja',
+            'user_id' => 1,
+            'propietario_id' => 1,
+            'created_at' => now(),
+            'updated_at' => now()
+        ],
+        [
+            'nombre' => 'Evols',
+            'ubicacion' => "L'Alcudia",
+            'descripcion' => 'Explotación de caqui y naranja',
+            'user_id' => 1,
+            'propietario_id' => 1,
+            'created_at' => now(),
+            'updated_at' => now()
+        ],
+        [
+            'nombre' => 'Paradis',
+            'ubicacion' => 'Benimodo',
+            'descripcion' => 'Explotación de caqui',
+            'user_id' => 1,
+            'propietario_id' => 1,
+            'created_at' => now(),
+            'updated_at' => now()
+        ],
+    ];
 
-        $prefijos = ['Finca', 'Huerta', 'Mas', 'Cortijo', 'Alquería', 'Granja', 'Olivar', 'Hacienda'];
-        $sufijos = ['del Sol', 'Los Olivos', 'Santa Ana', 'San José', 'La Esperanza', 'El Roble', 'Las Palmeras', 'Monte Alto', 'del Valle', 'La Font'];
-
-        for ($i = 0; $i < 10; $i++) {  
-            DB::table('explotaciones')->insert([
-                'nombre' => $faker->randomElement($prefijos) . ' ' . $faker->randomElement($sufijos),
-                'ubicacion' => $faker->city() . ', ' . $faker->randomElement(['Valencia', 'Castellón', 'Alicante']),
-                'descripcion' => $faker->paragraph(2),
-                'user_id' => 1,
-                'propietario_id' => 1,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-        }
-    }
+    DB::table('explotaciones')->insert($explotaciones);
+}
 }
