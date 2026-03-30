@@ -7,6 +7,7 @@ use App\Http\Controllers\PropietarioController;
 use App\Http\Controllers\OperacionController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\FumigacionController;
+use App\Http\Controllers\AuthController;
 
 
 
@@ -54,8 +55,6 @@ Route::post('/fumigaciones/crear',[FumigacionController::class,'añadirFumigacio
 Route::get('/fumigaciones', [FumigacionController::class, 'listar']);
 
 //para los roles y el token
-use App\Http\Controllers\AuthController;
-
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/registro', [AuthController::class, 'registro']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
