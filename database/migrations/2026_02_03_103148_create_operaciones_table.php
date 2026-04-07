@@ -21,6 +21,9 @@ return new class extends Migration
             $table->dateTime('hora_inicio');
             $table->unsignedInteger('duracion_minutos');
             $table->text('descripcion');
+            //modificación roles
+            $table->enum('estado',['pendiente','realizado','revisado'])->default('pendiente');
+
             $table->timestamps();
         });
     }

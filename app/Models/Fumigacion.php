@@ -32,5 +32,9 @@ class Fumigacion extends Model
         return $this->belongsToMany(Producto::class, 'fumigacion_producto')
         ->withPivot('cantidad','dosis_introducida');
     }
+
+    public function parcela(){
+    return $this->belongsTo(Parcela::class, 'parcela_id');
+}
 }
 

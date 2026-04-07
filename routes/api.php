@@ -8,6 +8,7 @@ use App\Http\Controllers\OperacionController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\FumigacionController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TareasController;
 
 
 
@@ -60,4 +61,7 @@ Route::post('/registro', [AuthController::class, 'registro']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 
-
+//ruta para ver las tareas(todas)
+Route::get('/tareas', [TareasController::class, 'listar']);
+//ruta put para cambiar el estado
+Route::put('/tareas/{tipo}/{id}',[TareasController::class,'marcarRealizada']);

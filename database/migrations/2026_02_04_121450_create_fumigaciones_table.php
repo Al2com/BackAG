@@ -23,6 +23,8 @@ return new class extends Migration
             $table->enum('metodo_aplicacion', ['tractor', 'mochila'])->default('tractor');
             $table->string('turbos')->nullable();
             $table->string('mochilas')->nullable();
+            //modificación roles
+            $table->enum('estado',['pendiente','realizado','revisado'])->default('pendiente');
             $table->timestamps();
         });
     }
