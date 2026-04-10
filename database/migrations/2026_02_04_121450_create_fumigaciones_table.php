@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('turbos')->nullable();
             $table->string('mochilas')->nullable();
             //modificación roles
-            $table->enum('estado',['pendiente','realizado','revisado'])->default('pendiente');
+            $table->enum('estado',['pendiente','realizada','revisada'])->default('pendiente');
             $table->timestamps();
         });
     }

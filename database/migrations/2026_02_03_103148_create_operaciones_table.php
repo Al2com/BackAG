@@ -22,7 +22,7 @@ return new class extends Migration
             $table->unsignedInteger('duracion_minutos');
             $table->text('descripcion');
             //modificación roles
-            $table->enum('estado',['pendiente','realizado','revisado'])->default('pendiente');
+            $table->enum('estado',['pendiente','realizada','revisada'])->default('pendiente');
 
             $table->timestamps();
         });
