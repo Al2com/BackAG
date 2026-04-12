@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->string('materia_activa');
-            $table->decimal('precio', 6, 2);
+            $table->decimal('precio', 6, 2)->nullable();
             $table->string('ubicacion');
-            $table->decimal('dosis_recomendada', 7, 2);
+            $table->decimal('dosis_recomendada', 7, 2)->nullable();
             $table->unsignedInteger('stock_minimo');
             $table->unsignedInteger('stock_actual')->default(0);
-            $table->string('unidad');
+            $table->string('unidad')->nullable();
             $table->timestamps();
         });
     }

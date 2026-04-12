@@ -9,6 +9,7 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\FumigacionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TareasController;
+use App\Http\Controllers\AlmacenController;
 
 
 
@@ -63,5 +64,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 
 //ruta para ver las tareas(todas)
 Route::get('/tareas', [TareasController::class, 'listar']);
-//ruta put para cambiar el estado
+//ruta put para cambiar el estado de pendiente a realizada
 Route::put('/tareas/{tipo}/{id}',[TareasController::class,'marcarRealizada']);
+//ruta put para cambiar el estado de realizada a revisada
+Route::put('/tareas/{tipo}/{id}/revisada', [TareasController::class, 'marcarRevisada']);
+
+//ruta para añadir productos nuevos al almacen
+Route::post('/almacen/crear', [AlmacenController::class, 'crear']);

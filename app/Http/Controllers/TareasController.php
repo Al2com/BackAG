@@ -33,4 +33,18 @@ class TareasController extends Controller
 
         return response()->json(['mensaje' => 'Tarea marcada como realizada']);
     }
+
+
+    public function marcarRevisada($tipo, $id){
+        if($tipo === 'operacion'){
+            $tarea = Operacion::find($id);
+        } else {
+            $tarea = Fumigacion::find($id);
+        }
+
+        $tarea->estado = 'revisada';
+        $tarea->save();
+
+        return response()->json(['mensaje' => 'Tarea marcada como revisada']);
+    }
 }
