@@ -3,85 +3,68 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Explotacion; //importa el modelo
-
+use App\Models\Explotacion;
 
 class ExplotacionController extends Controller
 {
-
-    //CONSULTAS DESDE REACT
+    // Devuelve el número total de explotaciones y sus nombres
     public function numeroExplo(){
-        $numExplo = Explotacion::count(); // Cuenta directamente sin traer todos los registros
+        $numExplo = Explotacion::count();
         $nomExplo = Explotacion::select('id', 'nombre')->get();
 
         return response()->json(['total' => $numExplo , 'nom' => $nomExplo]);
     }
 
-       // PARA EXPLOTACION
+    // Devuelve un resumen de cada explotacion con sus parcelas, hanegadas totales, riego goteo y manta
+    public function resumenExplotaciones(){
+        $resumen = Explotacion::withCount('parcelas')
+            ->withSum('parcelas', 'dimension_hanegadas')
+            ->withCount(['parcelas as parcelas_goteo' => function($query){
+                $query->where('rol', 'goteo');
+            }])
+            ->withCount(['parcelas as parcelas_manta' => function($query){
+                $query->where('rol', 'manta');
+            }])
+            ->get(['id', 'nombre', 'ubicacion']);
 
-public function resumenExplotaciones(){
-    $resumen = Explotacion::withCount('parcelas') // total de parcelas
-        ->withSum('parcelas', 'dimension_hanegadas') // suma de hanegadas
-        ->withCount(['parcelas as parcelas_goteo' => function($query){
-            $query->where('rol', 'goteo'); // cuenta parcelas goteo
-        }])
-        ->withCount(['parcelas as parcelas_manta' => function($query){
-            $query->where('rol', 'manta'); // cuenta parcelas manta
-        }])
-        ->get(['id', 'nombre', 'ubicacion']); // columnas de la tabla explotaciones
-
-    return response()->json($resumen);
-}
-
-
-
-
-//INSERTAR DATOS
-
-    public function crear(Request $request){
-
-            $explotacion=$request->validate([
-            'nombre' => 'required|max:25',
-            'ubicacion' => 'required',
-            'descripcion' => 'required',
-            'user_id' => 'required',
-            'propietario_id' => 'required',
-            ]);
-
-             Explotacion::create($explotacion);
-
-
-             return response()->json(['mensaje' => 'Explotacion creada'], 201);
+        return response()->json($resumen);
     }
 
-
-    public function editar($id){
-            $explo = Explotacion::findOrFail($id);
-
-            return view('editar', compact('explo'));
-}
-
-
-public function actualizar(Request $request)
-    {
-        $validacion = $request->validate([
-            'nombre' => 'required|min:1|max:10',
-            'descripcion' => 'required',
+    // Crea una nueva explotacion con los datos que llegan desde el formulario
+    public function crear(Request $request){
+        $explotacion = $request->validate([
+            'nombre'         => 'required|max:25',
+            'ubicacion'      => 'required',
+            'descripcion'    => 'required',
+            'user_id'        => 'required',
+            'propietario_id' => 'required',
         ]);
 
-        Dato::findOrFail($request->id)->update($validacion);
+        Explotacion::create($explotacion);
 
-        /*  //otra forma de almacenar
-         $datos = Dato::find($id);   //podremos utilizar findOrFail($id) para que en caso de no encontrar no falle
-         $datos->nombre = $validacion['nombre'];
-         $datos->descripcion = $validacion['descripcion'];
-         $datos->update();*/
+        return response()->json(['mensaje' => 'Explotacion creada'], 201);
+    }
 
-        return redirect()->route('index');
+    // Busca una explotacion por su ID y devuelve sus datos para cargarlos en el formulario de edición
+    public function show($id){
+        $explotacion = Explotacion::findOrFail($id);
+        return response()->json($explotacion);
+    }
+
+    // Recibe los datos modificados del formulario y actualiza la explotacion en la base de datos
+    public function actualizar(Request $request, $id){
+        $explotacion = Explotacion::findOrFail($id);
+
+        $validacion = $request->validate([
+            'nombre'         => 'required|max:25',
+            'ubicacion'      => 'required',
+            'descripcion'    => 'required',
+            'user_id'        => 'required',
+            'propietario_id' => 'required',
+        ]);
+
+        $explotacion->update($validacion);
+
+        return response()->json(['mensaje' => 'Explotación actualizada correctamente'], 200);
+    }
 }
-
-
-
-
-}
-

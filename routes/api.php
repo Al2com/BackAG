@@ -11,63 +11,46 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TareasController;
 use App\Http\Controllers\AlmacenController;
 
-
-
-
+//EXPLOTACIONES
 Route::get('/explotaciones', [ExplotacionController::class, 'numeroExplo']);
-//Para el apartado de explotaciones
-Route::get('/explotaciones/resumen' , [ExplotacionController::class,'resumenExplotaciones']);
-//para crear las explotaciones
-Route::post('/explotaciones/crear' , [ExplotacionController::class,'crear']);
+Route::get('/explotaciones/resumen', [ExplotacionController::class, 'resumenExplotaciones']);
+Route::post('/explotaciones/crear', [ExplotacionController::class, 'crear']);
+Route::get('/explotaciones/{id}', [ExplotacionController::class, 'show']);
+Route::put('/explotaciones/{id}', [ExplotacionController::class, 'actualizar']);
 
+//PARCELAS
+// IMPORTANTE: las rutas estáticas SIEMPRE antes que las dinámicas {id}
 Route::get('/parcelas', [ParcelaController::class, 'infoParcelas']);
-
-//para parcelas
-Route::get('/parcelas/resumen' , [ParcelaController::class,'resumenDetallado']);
-
-//para mostrar los usuarios para el formExplotaciones
-Route::get('/usuarios' , [UserController::class,'mostrarUsers']);
-
-//para mostrar los propietarios para el formExplotaciones
-Route::get('propietarios', [PropietarioController::class,'mostrarPropietarios']);
-
-//para crear parcelas
-Route::post('/parcelas/crear',[ParcelaController::class,'crearParcela']);
-
-//para ver las parcelas en operaciones
+Route::get('/parcelas/resumen', [ParcelaController::class, 'resumenDetallado']);
 Route::get('/parcelas/lista', [ParcelaController::class, 'listarParcelas']);
-//para devolver los datos de la parcela
-Route::get('/parcelas/{id}' , [ParcelaController::class, 'datosParcela']);
-//para actualizar los datos de la parcela
-Route::put('/parcelas/{id}', [ParcelaController::class, 'actualizarParcela']);
+Route::post('/parcelas/crear', [ParcelaController::class, 'crearParcela']);
+Route::get('/parcelas/{id}', [ParcelaController::class, 'show']);
+Route::put('/parcelas/{id}', [ParcelaController::class, 'actualizar']);
 
+//USUARIOS Y PROPIETARIOS
+Route::get('/usuarios', [UserController::class, 'mostrarUsers']);
+Route::get('/propietarios', [PropietarioController::class, 'mostrarPropietarios']);
+
+//OPERACIONE
 Route::get('/operaciones', [OperacionController::class, 'listar']);
-
-//para crear operaciones
 Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
 
-//para mostrar los productos quimicos
-Route::get('/productos/lista' , [ProductoController::class, 'mostrarProductos']);
+//PRODUCTOS
+Route::get('/productos/lista', [ProductoController::class, 'mostrarProductos']);
 
-
-//para crear fumigacion
-Route::post('/fumigaciones/crear',[FumigacionController::class,'añadirFumigacion']);
-
-//para traer la fumigaciones al menu de operaciones
+//FUMIGACIONES
 Route::get('/fumigaciones', [FumigacionController::class, 'listar']);
+Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
 
-//para los roles y el token
+//AUTH
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/registro', [AuthController::class, 'registro']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
-
-//ruta para ver las tareas(todas)
+//TAREAS
 Route::get('/tareas', [TareasController::class, 'listar']);
-//ruta put para cambiar el estado de pendiente a realizada
-Route::put('/tareas/{tipo}/{id}',[TareasController::class,'marcarRealizada']);
-//ruta put para cambiar el estado de realizada a revisada
+Route::put('/tareas/{tipo}/{id}', [TareasController::class, 'marcarRealizada']);
 Route::put('/tareas/{tipo}/{id}/revisada', [TareasController::class, 'marcarRevisada']);
 
-//ruta para añadir productos nuevos al almacen
+//ALMACEN
 Route::post('/almacen/crear', [AlmacenController::class, 'crear']);

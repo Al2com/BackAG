@@ -14,6 +14,7 @@ class Parcela extends Model
 protected $fillable = [
     'explotacion_id',
     'propietarios_id',
+    'nombre',
     'rol',
     'poligono',
     'parcela',
