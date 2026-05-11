@@ -47,4 +47,11 @@ class TareasController extends Controller
 
         return response()->json(['mensaje' => 'Tarea marcada como revisada']);
     }
+
+    public function actividadReciente(){
+        $operaciones= Operacion::select(['operario', 'tipo_operacion', 'estado'])->latest()->take(3)->get() ;     
+        $fumigaciones=Fumigacion::select(['operario', 'metodo_aplicacion', 'estado'])->latest()->take(3)->get();
+        
+        return response()->json(['operaciones' => $operaciones,'fumigaciones' => $fumigaciones]);
+    }
 }

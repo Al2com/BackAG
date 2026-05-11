@@ -31,7 +31,7 @@ Route::put('/parcelas/{id}', [ParcelaController::class, 'actualizar']);
 Route::get('/usuarios', [UserController::class, 'mostrarUsers']);
 Route::get('/propietarios', [PropietarioController::class, 'mostrarPropietarios']);
 
-//OPERACIONE
+//OPERACIONES
 Route::get('/operaciones', [OperacionController::class, 'listar']);
 Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
 
@@ -51,6 +51,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::get('/tareas', [TareasController::class, 'listar']);
 Route::put('/tareas/{tipo}/{id}', [TareasController::class, 'marcarRealizada']);
 Route::put('/tareas/{tipo}/{id}/revisada', [TareasController::class, 'marcarRevisada']);
+Route::get('/tareas/actividad-reciente', [TareasController::class, 'actividadReciente']);
 
 //ALMACEN
 Route::post('/almacen/crear', [AlmacenController::class, 'crear']);
