@@ -37,6 +37,9 @@ Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']
 
 //PRODUCTOS
 Route::get('/productos/lista', [ProductoController::class, 'mostrarProductos']);
+Route::get('/productos/lista/{id}', [ProductoController::class, 'modificarProducto']);
+Route::put('/productos/lista/{id}', [ProductoController::class, 'actualizarProducto']);
+
 
 //FUMIGACIONES
 Route::get('/fumigaciones', [FumigacionController::class, 'listar']);
