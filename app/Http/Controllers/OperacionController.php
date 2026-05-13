@@ -27,4 +27,13 @@ class OperacionController extends Controller
 
         return response()->json(['total' => $totalOperaciones,'operaciones' => $operaciones]);
     }
+
+    public function opercionId($id){
+
+        $operacion = Operacion::findOrFail($id);
+        return response()->json($operacion);
+    }
+
+
+
 }
