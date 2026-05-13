@@ -19,7 +19,7 @@ Route::get('/explotaciones/{id}', [ExplotacionController::class, 'show']);
 Route::put('/explotaciones/{id}', [ExplotacionController::class, 'actualizar']);
 
 //PARCELAS
-// IMPORTANTE: las rutas estáticas SIEMPRE antes que las dinámicas {id}
+// IMPORTANTE: las rutas estaticas SIEMPRE antes que las dinamicas {id}
 Route::get('/parcelas', [ParcelaController::class, 'infoParcelas']);
 Route::get('/parcelas/resumen', [ParcelaController::class, 'resumenDetallado']);
 Route::get('/parcelas/lista', [ParcelaController::class, 'listarParcelas']);
@@ -34,6 +34,7 @@ Route::get('/propietarios', [PropietarioController::class, 'mostrarPropietarios'
 //OPERACIONES
 Route::get('/operaciones', [OperacionController::class, 'listar']);
 Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
+Route::get('/operaciones/{id}', [OperacionController::class, 'opercionId']);//estatica antes de la dinamica
 
 //PRODUCTOS
 Route::get('/productos/lista', [ProductoController::class, 'mostrarProductos']);
