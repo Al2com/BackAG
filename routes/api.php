@@ -33,7 +33,7 @@ Route::get('/propietarios', [PropietarioController::class, 'mostrarPropietarios'
 
 //OPERACIONES
 Route::get('/operaciones', [OperacionController::class, 'listar']);
-Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
+// Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
 Route::get('/operaciones/{id}', [OperacionController::class, 'opercionId']);//estatica antes de la dinamica
 
 //PRODUCTOS
@@ -44,12 +44,12 @@ Route::put('/productos/lista/{id}', [ProductoController::class, 'actualizarProdu
 
 //FUMIGACIONES
 Route::get('/fumigaciones', [FumigacionController::class, 'listar']);
-Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
+// Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
 
 //AUTH
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/registro', [AuthController::class, 'registro']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+// Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 //TAREAS
 Route::get('/tareas', [TareasController::class, 'listar']);
@@ -59,3 +59,11 @@ Route::get('/tareas/actividad-reciente', [TareasController::class, 'actividadRec
 
 //ALMACEN
 Route::post('/almacen/crear', [AlmacenController::class, 'crear']);
+
+
+//Si no esta dentro de middlewere no se sabe quien la crea
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
+    Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
+});

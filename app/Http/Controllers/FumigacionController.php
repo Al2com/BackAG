@@ -42,6 +42,8 @@ class FumigacionController extends Controller{
             ]);
         }
 
+        $fumigacion['usuario_id'] = auth()->id();
+
         return response()->json(['mensaje' => 'Fumigación creada'], 201);
     }
 

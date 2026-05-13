@@ -17,6 +17,7 @@ class OperacionController extends Controller
             'descripcion' => 'required',
         ]);
 
+        $operacion['usuario_id'] = auth()->id(); // asigna el usuario logueado
         Operacion::create($operacion);
         return response()->json(['mensaje' => 'Operación creada'], 201);
     }
