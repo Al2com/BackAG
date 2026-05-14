@@ -25,14 +25,14 @@ class Producto extends Model
           ->withPivot('cantidad', 'dosis_introducida');//referencia a la tabla intermedia
 
     }
+//se quitan por añadir CompraProducto porque va a gestionar las 3 entidades
+    // public function Proveedor(){
+    //     return $this->belongsToMany(Proveedor::class , 'compra_productos' );
+    // }
 
-    public function Proveedor(){
-        return $this->belongsToMany(Proveedor::class , 'compra_productos' );
-    }
-
-    public function users(){
-        return $this->belongsToMany(User::class,'compra_producto','producto_id','user_id')
-        ->withPivot('cantidad', 'precio', 'fecha_compra');
-    }
+    // public function users(){
+    //     return $this->belongsToMany(User::class,'compra_producto','producto_id','user_id')
+    //     ->withPivot('cantidad', 'precio', 'fecha_compra');
+    // }
 
 }
