@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Fumigacion extends Model
 {
 
-     protected $table = 'fumigaciones';
+    protected $table = 'fumigaciones';
     protected $fillable = [
     'parcela_id',
     'usuario_id',

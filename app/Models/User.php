@@ -58,11 +58,14 @@ class User extends Authenticatable
     public function operaciones(){
          return $this->hasMany(Operacion::class , 'usuario_id');
     }
-//Usuario con compra_productos
-      public function productos(){
-        return $this->belongsToMany( Producto::class,'compra_producto','user_id','producto_id')
-        ->withPivot('cantidad', 'precio', 'fecha_compra');
-}
+//Usuario con compra_productos Vieja (modificacion modelo ComprasProducto)
+    //   public function productos(){
+    //     return $this->belongsToMany( Producto::class,'compra_producto','user_id','producto_id')
+    //     ->withPivot('cantidad', 'precio', 'fecha_compra');
+    //     }
+    public function compraProducto(){
+         return $this->hasMany(CompraProducto::class);
+    }
 
 
 

@@ -10,6 +10,11 @@ use App\Http\Controllers\FumigacionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TareasController;
 use App\Http\Controllers\AlmacenController;
+use App\Http\Controllers\CompraProductoController;
+use App\Http\Controllers\ProveedorController;
+
+
+
 
 //EXPLOTACIONES
 Route::get('/explotaciones', [ExplotacionController::class, 'numeroExplo']);
@@ -60,10 +65,17 @@ Route::get('/tareas/actividad-reciente', [TareasController::class, 'actividadRec
 //ALMACEN
 Route::post('/almacen/crear', [AlmacenController::class, 'crear']);
 
+//COMPRAS PRODUCTO
+Route::get('/compras', [CompraProductoController::class, 'listar']);
+
+
+//PROVEEDORES
+Route::get('/proveedores', [ProveedorController::class, 'listar']);
 
 //Si no esta dentro de middlewere no se sabe quien la crea
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
     Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
+    Route::post('/compras/crear', [CompraProductoController::class, 'crear']);
 });
