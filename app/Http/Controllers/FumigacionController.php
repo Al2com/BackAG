@@ -52,7 +52,15 @@ class FumigacionController extends Controller{
         $totalFumigaciones= $fumigaciones->count();
         return response()->json(['fumigaciones' => $fumigaciones ,'totalFumigaciones'=> $totalFumigaciones]);
     }
-}
+
+    public function borrar($id) {
+        $fumigacion = Fumigacion::findOrFail($id);
+        //En fumigaciones hay que hacer el detach primero porque tiene una tabla intermedia con productos, si no Laravel dara error de clave foranea igual que paso con las explotaciones.
+        $fumigacion->productos()->detach(); // elimina primero los productos de la tabla intermedia
+        $fumigacion->delete();
+        return response()->json(['mensaje' => 'Fumigación eliminada correctamente']);
+    }
+    }
 
 
 

@@ -67,4 +67,13 @@ class ExplotacionController extends Controller
 
         return response()->json(['mensaje' => 'Explotación actualizada correctamente'], 200);
     }
+
+    public function borrarExplo($id){
+       $explotacion= Explotacion::findOrFail($id);
+       $explotacion->delete();
+    return response()->json(['message' => 'Explotación eliminada correctamente']);
+
+
+        
+    }
 }

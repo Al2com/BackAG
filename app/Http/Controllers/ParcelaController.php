@@ -95,4 +95,10 @@ class ParcelaController extends Controller
         $parcela->update($validacion);
         return response()->json(['mensaje' => 'Parcela actualizada correctamente'], 200);
     }
+
+    public function borrar($id) {
+    $parcela = Parcela::findOrFail($id);
+    $parcela->delete();
+    return response()->json(['mensaje' => 'Parcela eliminada correctamente']);
+}
 }

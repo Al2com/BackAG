@@ -22,6 +22,8 @@ Route::get('/explotaciones/resumen', [ExplotacionController::class, 'resumenExpl
 Route::post('/explotaciones/crear', [ExplotacionController::class, 'crear']);
 Route::get('/explotaciones/{id}', [ExplotacionController::class, 'show']);
 Route::put('/explotaciones/{id}', [ExplotacionController::class, 'actualizar']);
+Route::delete('/explotaciones/{id}', [ExplotacionController::class, 'borrarExplo']);
+
 
 //PARCELAS
 // IMPORTANTE: las rutas estaticas SIEMPRE antes que las dinamicas {id}
@@ -31,6 +33,7 @@ Route::get('/parcelas/lista', [ParcelaController::class, 'listarParcelas']);
 Route::post('/parcelas/crear', [ParcelaController::class, 'crearParcela']);
 Route::get('/parcelas/{id}', [ParcelaController::class, 'show']);
 Route::put('/parcelas/{id}', [ParcelaController::class, 'actualizar']);
+Route::delete('/parcelas/{id}', [ParcelaController::class, 'borrar']);
 
 //USUARIOS Y PROPIETARIOS
 Route::get('/usuarios', [UserController::class, 'mostrarUsers']);
@@ -40,7 +43,7 @@ Route::get('/propietarios', [PropietarioController::class, 'mostrarPropietarios'
 Route::get('/operaciones', [OperacionController::class, 'listar']);
 // Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
 Route::get('/operaciones/{id}', [OperacionController::class, 'opercionId']);//estatica antes de la dinamica
-
+Route::delete('/operaciones/{id}', [OperacionController::class, 'borrar']);
 //PRODUCTOS
 Route::get('/productos/lista', [ProductoController::class, 'mostrarProductos']);
 Route::get('/productos/lista/{id}', [ProductoController::class, 'modificarProducto']);
@@ -50,7 +53,7 @@ Route::put('/productos/lista/{id}', [ProductoController::class, 'actualizarProdu
 //FUMIGACIONES
 Route::get('/fumigaciones', [FumigacionController::class, 'listar']);
 // Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
-
+Route::delete('/fumigaciones/{id}', [FumigacionController::class, 'borrar']);
 //AUTH
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/registro', [AuthController::class, 'registro']);

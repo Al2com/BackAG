@@ -35,6 +35,11 @@ class OperacionController extends Controller
         return response()->json($operacion);
     }
 
+    public function borrar($id) {
+    $operacion = Operacion::findOrFail($id);
+    $operacion->delete();
+    return response()->json(['mensaje' => 'Operación eliminada correctamente']);
+}
 
 
 }
