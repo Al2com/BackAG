@@ -6,34 +6,35 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('fumigaciones', function (Blueprint $table) {
+
             $table->id();
+
+            // FK obligatoria — una fumigación siempre pertenece a una parcela
+            // Si se elimina la parcela, se eliminan también todas sus fumigaciones
             $table->foreignId('parcela_id')->constrained('parcelas')->cascadeOnDelete();
-            $table->foreignId('usuario_id')->nullable()->constrained('users')->cascadeOnDelete();//se deja por si escalo aplicacion
+            // FK opcional — herencia: una fumigación puede ser el desarrollo específico de una operación
+            // Si se elimina la operación, este campo queda a null pero la fumigación se conserva
+            $table->foreignId('operacion_id')->nullable()->constrained('operaciones')->nullOnDelete();
+            // FK opcional — usuario del sistema que registró la fumigación
+            // Preparada para escalar la aplicación con gestión multiusuario
+            $table->foreignId('usuario_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->string('operario')->nullable();
             $table->dateTime('hora_inicio');
             $table->unsignedInteger('duracion_minutos')->nullable();
             $table->text('descripcion')->nullable();
-            //para que las fumigaciones sean con tractor o mochila
             $table->enum('metodo_aplicacion', ['tractor', 'mochila'])->default('tractor');
             $table->string('turbos')->nullable();
             $table->string('mochilas')->nullable();
-            //modificación roles
-            $table->enum('estado',['pendiente','realizada','revisada'])->default('pendiente');
+            $table->enum('estado', ['pendiente', 'realizada', 'revisada'])->default('pendiente');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('fumigacion');
+        Schema::dropIfExists('fumigaciones');
     }
 };
