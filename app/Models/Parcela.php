@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Explotacion;
 use App\Models\Propietario;
+use App\Models\Fumigacion;
 
 
 class Parcela extends Model
@@ -41,6 +42,11 @@ protected $fillable = [
    public function operaciones(){
         return $this->hasMany(Operacion::class ,'parcela_id');//clave foranea id_parcela(esta en operaciones)
    }
+
+//con esto puedo ver es un historial de fumigaciones de cada parcela
+   public function fumigaciones(){
+    return $this->hasMany(Fumigacion::class, 'parcela_id');
+}
 
 
 }

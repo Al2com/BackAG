@@ -14,6 +14,7 @@ class OperacionController extends Controller
             'tipo_operacion' => 'required',
             'hora_inicio' => 'required',
             'duracion_minutos' => 'required',
+            'precio' => 'required',
             'descripcion' => 'required',
         ]);
 
