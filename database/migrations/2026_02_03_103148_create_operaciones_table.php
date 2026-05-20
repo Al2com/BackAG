@@ -20,6 +20,7 @@ return new class extends Migration
             $table->enum('tipo_operacion', ['poda', 'riego', 'abonado', 'mantenimiento','tractor']);
             $table->dateTime('hora_inicio');
             $table->unsignedInteger('duracion_minutos');
+            $table->decimal('precio', 8 ,2);
             $table->text('descripcion');
             //modificación roles
             $table->enum('estado',['pendiente','realizada','revisada'])->default('pendiente');

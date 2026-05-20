@@ -15,6 +15,7 @@ class Operacion extends Model
         'tipo_operacion',
         'hora_inicio',
         'duracion_minutos',
+        'precio',
         'descripcion'
 ];
 
