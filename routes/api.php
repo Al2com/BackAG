@@ -44,6 +44,7 @@ Route::get('/operaciones', [OperacionController::class, 'listar']);
 // Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
 Route::get('/operaciones/{id}', [OperacionController::class, 'opercionId']);//estatica antes de la dinamica
 Route::delete('/operaciones/{id}', [OperacionController::class, 'borrar']);
+Route::put('/operaciones/{id}', [OperacionController::class, 'actualizar']);
 //PRODUCTOS
 Route::get('/productos/lista', [ProductoController::class, 'mostrarProductos']);
 Route::get('/productos/lista/{id}', [ProductoController::class, 'modificarProducto']);
@@ -54,6 +55,9 @@ Route::put('/productos/lista/{id}', [ProductoController::class, 'actualizarProdu
 Route::get('/fumigaciones', [FumigacionController::class, 'listar']);
 // Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
 Route::delete('/fumigaciones/{id}', [FumigacionController::class, 'borrar']);
+//muestra y actualiza las fumigaciones(EditarFumigacion.jsx)
+Route::get('/fumigaciones/{id}', [FumigacionController::class, 'mostrar']);
+Route::put('/fumigaciones/{id}', [FumigacionController::class, 'actualizar']);
 //AUTH
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/registro', [AuthController::class, 'registro']);
