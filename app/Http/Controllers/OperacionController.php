@@ -42,5 +42,9 @@ class OperacionController extends Controller
     return response()->json(['mensaje' => 'Operación eliminada correctamente']);
 }
 
-
+    public function actualizar(Request $request, $id) {
+        $operacion = Operacion::findOrFail($id);
+        $operacion->update($request->all());
+        return response()->json(['mensaje' => 'Operación actualizada']);
+    }
 }
