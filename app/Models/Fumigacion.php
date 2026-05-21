@@ -16,6 +16,7 @@ class Fumigacion extends Model
     'hora_inicio',
     'duracion_minutos',
     'mochilas',
+    'precio',
     'turbos',
     'descripcion'
 ];

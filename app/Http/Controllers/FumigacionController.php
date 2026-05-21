@@ -15,6 +15,8 @@ class FumigacionController extends Controller{
             'metodo_aplicacion' => 'required',
             'hora_inicio'       => 'required',
             'descripcion'       => 'required',
+            'precio'            => 'required',
+            /*Si la fumigación es con mochila requiere de estos campos*/
             'operario'          => 'required_if:metodo_aplicacion,mochila',
             'duracion_minutos'  => 'required_if:metodo_aplicacion,mochila',
             'mochilas'          => 'required_if:metodo_aplicacion,mochila',
@@ -34,7 +36,7 @@ class FumigacionController extends Controller{
             'turbos'            => $datos['turbos'] ?? null,
         ]);
 
-        // 2. Guardar cada producto en la tabla intermedia
+           // 2. Guardar  producto en la tabla intermedia
         foreach($request->productos as $producto){
             $fumigacion->productos()->attach($producto['producto_id'], [
                 'dosis_introducida' => $producto['dosis_introducida'],
