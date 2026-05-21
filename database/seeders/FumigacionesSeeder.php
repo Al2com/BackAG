@@ -10,20 +10,11 @@ class FumigacionesSeeder extends Seeder
         $años = [2022, 2023, 2024, 2025];
         $operarios = ['Luis Pérez', 'Pepe Martinez'];
 
-        // Fumigaciones realistas por temporada del kaki
-        // Marzo-Abril: tratamientos preventivos inicio vegetación
-        // Mayo-Junio: fungicidas + insecticidas plaga
-        // Julio-Agosto: acaricidas + correctores
-        // Septiembre-Octubre: previo recolección
-        $meses = [3, 4, 5, 6, 7, 8, 9, 10];
-
         foreach ($años as $año) {
             for ($parcela_id = 1; $parcela_id <= 13; $parcela_id++) {
-                foreach ($meses as $mes) {
-                    // No todas las parcelas se fumigan todos los meses
-                    if (rand(0, 2) === 0) continue;
-
+                for ($i = 0; $i < 12; $i++) {
                     $metodo = rand(0, 1) ? 'tractor' : 'mochila';
+                    $mes = rand(3, 10);
                     $dia = rand(1, 20);
                     $hora = rand(7, 10);
 
@@ -31,7 +22,7 @@ class FumigacionesSeeder extends Seeder
                         'parcela_id'        => $parcela_id,
                         'usuario_id'        => 1,
                         'operario'          => $metodo === 'mochila' ? $operarios[array_rand($operarios)] : null,
-                        'hora_inicio'       => "$año-$mes-$dia $hora:00:00",
+                        'hora_inicio'       => sprintf('%04d-%02d-%02d %02d:00:00', $año, $mes, $dia, $hora),
                         'duracion_minutos'  => $metodo === 'mochila' ? rand(60, 240) : null,
                         'metodo_aplicacion' => $metodo,
                         'turbos'            => $metodo === 'tractor' ? rand(1, 4) : null,
@@ -41,8 +32,6 @@ class FumigacionesSeeder extends Seeder
                         'estado'            => 'realizada',
                     ]);
 
-                    // Asociar 1 o 2 productos a cada fumigación
-                    // Productos fitosanitarios: IDs 1-7 (Sercadis, Ortiva, Noble, Volquete, Omite Top, Karate, Piriproxifen)
                     $numProductos = rand(1, 2);
                     $productosIds = array_rand(array_flip(range(1, 7)), $numProductos);
                     if (!is_array($productosIds)) $productosIds = [$productosIds];
