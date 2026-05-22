@@ -12,7 +12,7 @@ class FumigacionesSeeder extends Seeder
 
         foreach ($años as $año) {
             for ($parcela_id = 1; $parcela_id <= 13; $parcela_id++) {
-                for ($i = 0; $i < 12; $i++) {
+                for ($i = 0; $i < 4; $i++) {
                     $metodo = rand(0, 1) ? 'tractor' : 'mochila';
                     $mes = rand(3, 10);
                     $dia = rand(1, 20);
