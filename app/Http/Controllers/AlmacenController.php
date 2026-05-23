@@ -23,12 +23,12 @@ class AlmacenController extends Controller
 
              return response()->json(['mensaje' => 'Producto creado en el alamacén'], 201);
     }
-
+//Info stock bajo dashboard
       public function stockBajo(){
-      $productos = Producto::whereColumn('stock_actual', '<=', 'stock_minimo')
-            ->select('id', 'nombre', 'stock_actual', 'stock_minimo', 'unidad')
-            ->get();
-      return response()->json($productos);
+            $productos = Producto::whereColumn('stock_actual', '<=', 'stock_minimo')
+                  ->select('id', 'nombre', 'stock_actual', 'stock_minimo', 'unidad')
+                  ->get();
+            return response()->json($productos);
 }
 
 }
