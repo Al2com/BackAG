@@ -71,6 +71,7 @@ Route::get('/tareas/actividad-reciente', [TareasController::class, 'actividadRec
 
 //ALMACEN
 Route::post('/almacen/crear', [AlmacenController::class, 'crear']);
+Route::get('/almacen/stock-bajo', [AlmacenController::class, 'stockBajo']);
 
 //COMPRAS PRODUCTO
 Route::get('/compras', [CompraProductoController::class, 'listar']);
