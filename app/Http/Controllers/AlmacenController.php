@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Producto;
+
 
 class AlmacenController extends Controller
 {
@@ -21,5 +23,12 @@ class AlmacenController extends Controller
 
              return response()->json(['mensaje' => 'Producto creado en el alamacén'], 201);
     }
+
+      public function stockBajo(){
+      $productos = Producto::whereColumn('stock_actual', '<=', 'stock_minimo')
+            ->select('id', 'nombre', 'stock_actual', 'stock_minimo', 'unidad')
+            ->get();
+      return response()->json($productos);
+}
 
 }
