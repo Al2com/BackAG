@@ -7,9 +7,9 @@ use Illuminate\Http\Request;
 class FumigacionController extends Controller {
 
     public function añadirFumigacion(Request $request) {
-
         $datos = $request->validate([
-            'parcela_id'        => 'required',
+            'parcela_ids'       => 'required|array',
+            'parcela_ids.*'     => 'required|exists:parcelas,id',
             'metodo_aplicacion' => 'required',
             'hora_inicio'       => 'required',
             'descripcion'       => 'required',
@@ -18,50 +18,49 @@ class FumigacionController extends Controller {
             'operario'          => 'required_if:metodo_aplicacion,mochila',
             'duracion_minutos'  => 'required_if:metodo_aplicacion,mochila',
             'mochilas'          => 'required_if:metodo_aplicacion,mochila',
-            //  si es tractor
+            // si es tractor
             'turbos'            => 'required_if:metodo_aplicacion,tractor',
             'productos'         => 'required|array',
         ]);
 
-        // 1 Crea la fumigacion
-        $fumigacion = Fumigacion::create([
-            'parcela_id'        => $datos['parcela_id'],
-            'metodo_aplicacion' => $datos['metodo_aplicacion'],
-            'hora_inicio'       => $datos['hora_inicio'],
-            'descripcion'       => $datos['descripcion'],
-            'precio'            => $datos['precio'],
-            'operario'          => $datos['operario'] ?? null,
-            'duracion_minutos'  => $datos['duracion_minutos'] ?? null,
-            'mochilas'          => $datos['mochilas'] ?? null,
-            'turbos'            => $datos['turbos'] ?? null,
-            'usuario_id'        => auth()->id(),
-        ]);
-
-        // 2. Recorremos cada productos dl formulario
-        foreach ($request->productos as $producto) {
-
-            // Guardamos el producto en la tabla intermedia fumigacion_producto
-            $fumigacion->productos()->attach($producto['producto_id'], [
-                'dosis_introducida' => $producto['dosis_introducida'],
-                'cantidad'          => $producto['dosis_introducida'],
+        // una fumigacion por cada parcela seleccionada
+        foreach ($datos['parcela_ids'] as $parcelaId) {
+            $fumigacion = Fumigacion::create([
+                'parcela_id'        => $parcelaId,
+                'metodo_aplicacion' => $datos['metodo_aplicacion'],
+                'hora_inicio'       => $datos['hora_inicio'],
+                'descripcion'       => $datos['descripcion'],
+                'precio'            => $datos['precio'],
+                'operario'          => $datos['operario'] ?? null,
+                'duracion_minutos'  => $datos['duracion_minutos'] ?? null,
+                'mochilas'          => $datos['mochilas'] ?? null,
+                'turbos'            => $datos['turbos'] ?? null,
+                'usuario_id'        => auth()->id(),
             ]);
 
-            // 3 Calculamos cuanto producto se ha gastado en total
-            // mochila: dosis x numero de mochilas | tractor: dosis x numero de turbos
-            $unidades = $datos['metodo_aplicacion'] === 'mochila'
-                ? $datos['mochilas']
-                : $datos['turbos'];
+            // asociamos los productos a cada fumigacion
+            foreach ($request->productos as $producto) {
+                $fumigacion->productos()->attach($producto['producto_id'], [
+                    'dosis_introducida' => $producto['dosis_introducida'],
+                    'cantidad'          => $producto['dosis_introducida'],
+                ]);
+            }
+        }
 
+        // el stock se descuenta una sola vez, independiente del numero de parcelas
+        // dosis x turbos/mochilas = total gastado
+        $unidades = $datos['metodo_aplicacion'] === 'mochila'
+            ? $datos['mochilas']
+            : $datos['turbos'];
+
+        foreach ($request->productos as $producto) {
             $totalGastado = $producto['dosis_introducida'] * $unidades;
-
-            // 4. Buscamos el producto y restamos del stock
-            // max(0,...) para que nunca quede en negativo
             $prod = Producto::findOrFail($producto['producto_id']);
             $prod->stock_actual = max(0, $prod->stock_actual - $totalGastado);
             $prod->save();
         }
 
-        return response()->json(['mensaje' => 'Fumigación creada'], 201);
+        return response()->json(['mensaje' => 'Fumigaciones creadas'], 201);
     }
 
     public function listar() {
@@ -75,20 +74,19 @@ class FumigacionController extends Controller {
 
     public function borrar($id) {
         $fumigacion = Fumigacion::findOrFail($id);
-        // Primero detach porque tiene tabla intermedia con productos
-        // Si no Laravel da error de clave foranea
+        // detach primero por la tabla intermedia fumigacion_producto
         $fumigacion->productos()->detach();
         $fumigacion->delete();
         return response()->json(['mensaje' => 'Fumigación eliminada correctamente']);
     }
 
-      // Devuelve una fumigacion por id para editar
+    // devuelve una fumigacion por id para editar
     public function mostrar($id) {
         $fumigacion = Fumigacion::findOrFail($id);
         return response()->json($fumigacion);
     }
 
-    // Actualiza los datos de la fumigacion
+    // actualiza los datos de la fumigacion
     public function actualizar(Request $request, $id) {
         $fumigacion = Fumigacion::findOrFail($id);
         $fumigacion->update($request->all());
