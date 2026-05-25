@@ -7,8 +7,7 @@ use Illuminate\Http\Request;
 
 class ProveedorController extends Controller
 {
-    public function listar()
-    {
+    public function listar(){
         $proveedores = Proveedor::all();
         return response()->json($proveedores);
     }

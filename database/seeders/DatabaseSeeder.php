@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             OperacionesSeeder::class,
             FumigacionesSeeder::class,  
+            ProveedoresSeeder::class,
         ]);
     }
 }

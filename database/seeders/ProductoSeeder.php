@@ -124,7 +124,7 @@ class ProductoSeeder extends Seeder
                 'ubicacion' => 'Almacén principal',
                 'stock_minimo' => 20,
                 'stock_actual' => 120,
-                'dosis_recomendada' => 3.0,
+                'dosis_recomendada' => 0.200,
                 'unidad' => 'L'
             ],
             [
@@ -134,7 +134,7 @@ class ProductoSeeder extends Seeder
                 'ubicacion' => 'Almacén principal',
                 'stock_minimo' => 25,
                 'stock_actual' => 150,
-                'dosis_recomendada' => 4.0,
+                'dosis_recomendada' => 4,
                 'unidad' => 'kg'
             ],
             [
@@ -164,7 +164,7 @@ class ProductoSeeder extends Seeder
                 'ubicacion' => 'Estante B-4',
                 'stock_minimo' => 8,
                 'stock_actual' => 35,
-                'dosis_recomendada' => 3.0,
+                'dosis_recomendada' => 0.200,
                 'unidad' => 'L'
             ],
             [
@@ -174,7 +174,7 @@ class ProductoSeeder extends Seeder
                 'ubicacion' => 'Estante B-5',
                 'stock_minimo' => 6,
                 'stock_actual' => 20,
-                'dosis_recomendada' => 1.5,
+                'dosis_recomendada' => 0.150,
                 'unidad' => 'L'
             ],
             [
@@ -184,7 +184,7 @@ class ProductoSeeder extends Seeder
                 'ubicacion' => 'Estante B-6',
                 'stock_minimo' => 5,
                 'stock_actual' => 18,
-                'dosis_recomendada' => 0.8,
+                'dosis_recomendada' => 0.10,
                 'unidad' => 'L'
             ],
         ];
