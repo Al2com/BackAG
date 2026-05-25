@@ -7,13 +7,33 @@ class FumigacionesSeeder extends Seeder
 {
     public function run(): void
     {
-        $años = [2022, 2023, 2024, 2025];
+        // productos que se pueden usar solo con mochila (herbicidas de suelo)
+        $productosMochila = [
+            ['id' => 16, 'dosis' => 0.2],  // Glifosato
+            ['id' => 17, 'dosis' => 0.15], // U46
+            ['id' => 18, 'dosis' => 0.10], // Goal
+        ];
+
+        // productos para tractor (fungicidas e insecticidas foliares)
+        $productosTractor = [
+            ['id' => 1, 'dosis' => 0.4],  // Sercadis
+            ['id' => 2, 'dosis' => 0.5],  // Ortiva
+            ['id' => 3, 'dosis' => 1.5],  // Noble
+            ['id' => 4, 'dosis' => 1.2],  // Volquete
+            ['id' => 5, 'dosis' => 0.6],  // Omite Top
+            ['id' => 6, 'dosis' => 0.3],  // Karate
+            ['id' => 7, 'dosis' => 0.5],  // Piriproxifen
+            ['id' => 8, 'dosis' => 2.5],  // Fosetil A
+        ];
+
         $operarios = ['Luis Pérez', 'Pepe Martinez'];
+        $años = [2022, 2023, 2024, 2025];
 
         foreach ($años as $año) {
             for ($parcela_id = 1; $parcela_id <= 13; $parcela_id++) {
+                // 4 fumigaciones por parcela y año, mezcla de tractor y mochila
                 for ($i = 0; $i < 4; $i++) {
-                    $metodo = rand(0, 1) ? 'tractor' : 'mochila';
+                    $metodo = $i < 2 ? 'tractor' : 'mochila'; // 2 de tractor, 2 de mochila
                     $mes = rand(3, 10);
                     $dia = rand(1, 20);
                     $hora = rand(7, 10);
@@ -32,15 +52,24 @@ class FumigacionesSeeder extends Seeder
                         'estado'            => 'realizada',
                     ]);
 
-                    $numProductos = rand(1, 2);
-                    $productosIds = array_rand(array_flip(range(1, 7)), $numProductos);
-                    if (!is_array($productosIds)) $productosIds = [$productosIds];
-
-                    foreach ($productosIds as $productoId) {
-                        $fumigacion->Productos()->attach($productoId, [
-                            'dosis_introducida' => round(rand(3, 8) / 10, 1),
-                            'cantidad'          => round(rand(3, 8) / 10, 1),
-                        ]);
+                    if ($metodo === 'mochila') {
+                        // mochila: solo herbicidas, cogemos 1 o 2 al azar
+                        $seleccion = collect($productosMochila)->random(rand(1, 2));
+                        foreach ($seleccion as $prod) {
+                            $fumigacion->Productos()->attach($prod['id'], [
+                                'dosis_introducida' => $prod['dosis'],
+                                'cantidad'          => $prod['dosis'],
+                            ]);
+                        }
+                    } else {
+                        // tractor: fungicidas/insecticidas, cogemos 1 o 2 al azar
+                        $seleccion = collect($productosTractor)->random(rand(1, 2));
+                        foreach ($seleccion as $prod) {
+                            $fumigacion->Productos()->attach($prod['id'], [
+                                'dosis_introducida' => $prod['dosis'],
+                                'cantidad'          => $prod['dosis'],
+                            ]);
+                        }
                     }
                 }
             }

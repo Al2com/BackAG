@@ -12,7 +12,7 @@ class TareasController extends Controller
 {
     public function listar(){
      $operaciones = Operacion::with('parcela')->get();
-    $fumigaciones = Fumigacion::with('parcela')->get();
+     $fumigaciones = Fumigacion::with(['parcela', 'productos'])->get();
 
         return response()->json([
             'operaciones' => $operaciones,
