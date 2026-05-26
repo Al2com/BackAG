@@ -63,15 +63,10 @@ class FumigacionController extends Controller {
         return response()->json(['mensaje' => 'Fumigaciones creadas'], 201);
     }
 
-    public function listar(){
-        $operaciones = Operacion::with('parcela')->get();
-        $fumigaciones = Fumigacion::with(['parcela', 'productos'])->get();
-        return response()->json([
-            'operaciones' => $operaciones,
-            'fumigaciones' => $fumigaciones
-        ]);
-
-    }
+  public function listar(){
+    $fumigaciones = Fumigacion::with(['parcela', 'productos'])->get();
+    return response()->json($fumigaciones); // devuelve solo fumigaciones, no operaciones
+}
     public function borrar($id) {
         $fumigacion = Fumigacion::findOrFail($id);
         // detach primero por la tabla intermedia fumigacion_producto
