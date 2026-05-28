@@ -87,3 +87,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
     Route::post('/compras/crear', [CompraProductoController::class, 'crear']);
 });
+
+
+
+
+// bórrala después de usarla
+Route::get('/reset-pass', function () {
+    \App\Models\User::where('email', 'alvaro@alvaro.com')
+        ->update(['password' => bcrypt('nueva_contraseña')]);
+    return 'Contraseña actualizada';
+});
