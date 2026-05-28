@@ -92,8 +92,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 // bórrala después de usarla
-Route::get('/reset-pass', function () {
-    \App\Models\User::where('email', 'alvaro@alvaro.com')
-        ->update(['password' => bcrypt('nueva_contraseña')]);
-    return 'Contraseña actualizada';
-});
+// Route::get('/reset-pass', function () {
+//     \App\Models\User::where('email', 'alvaro@alvaro.com')
+//         ->update(['password' => bcrypt('nueva_contraseña')]);
+//     return 'Contraseña actualizada';
+// });
+//Para establecer un rol nuevo
+// Route::get('/crear-usuario', function () {
+//     \App\Models\User::create([
+//         'name' => 'Nombre Encargado',
+//         'email' => 'encargado@test.com',
+//         'password' => bcrypt('contraseña'),
+//         'rol' => 'admin', // o el rol que uses
+//     ]);
+//     return 'Usuario creado';
+// });
