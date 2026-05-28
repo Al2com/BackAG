@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('turbos')->nullable();
             $table->string('mochilas')->nullable();
             $table->decimal('precio', 8, 2)->nullable();/*el 8 son digitos totales y el 2 digitos decimales*/ 
-            $table->integer('num_parcelas')->default(1)->after('precio');// para poder dividir el precio en gastos
+            $table->integer('num_parcelas')->default(1);// para poder dividir el precio en gastos
             $table->enum('estado', ['pendiente', 'realizada', 'revisada'])->default('pendiente');
             $table->timestamps();
         });
