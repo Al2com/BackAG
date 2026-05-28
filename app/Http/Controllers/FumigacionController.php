@@ -38,6 +38,11 @@ class FumigacionController extends Controller {
                 'usuario_id'        => auth()->id(),
             ]);
 
+
+                // divido el precio total entre el numero de parcelas seleccionadas
+                    $numParcelas = count($datos['parcela_ids']);
+                    $precioPorParcela = round($datos['precio'] / $numParcelas, 2);
+
             // asociamos los productos a cada fumigacion
             foreach ($request->productos as $producto) {
                 $fumigacion->productos()->attach($producto['producto_id'], [
@@ -47,7 +52,7 @@ class FumigacionController extends Controller {
             }
         }
 
-        // el stock se descuenta una sola vez, independiente del numero de parcelas
+        // el stock se descuenta una sola vez, independiente del número de parcelas
         // dosis x turbos/mochilas = total gastado
         $unidades = $datos['metodo_aplicacion'] === 'mochila'
             ? $datos['mochilas']
