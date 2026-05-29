@@ -68,9 +68,27 @@ class FumigacionController extends Controller {
     return response()->json(['mensaje' => 'Fumigaciones creadas'], 201);
 }
 
-        public function listar(){
+       public function listar(){
+            // cargo las fumigaciones con sus relaciones
             $fumigaciones = Fumigacion::with(['parcela', 'productos'])->get();
-            return response()->json($fumigaciones); // devuelve solo fumigaciones, no operaciones
+            
+            $fumigaciones->each(function($fum) {
+                // cojo los ids de parcelas del mismo lote sin duplicados
+                $parcelaIds = Fumigacion::where('hora_inicio', $fum->hora_inicio)
+                    ->where('metodo_aplicacion', $fum->metodo_aplicacion)
+                    ->where('turbos', $fum->turbos)
+                    ->pluck('parcela_id')
+                    ->unique();
+
+                // busco las parcelas y sumo sus hanegadas
+                $totalHanegadas = \App\Models\Parcela::whereIn('id', $parcelaIds)
+                    ->sum('dimension_hanegadas');
+
+                $fum->total_hanegadas = floatval($totalHanegadas);
+                $fum->hanegadas_parcela = floatval($fum->parcela->dimension_hanegadas ?? 0);
+            });
+
+            return response()->json($fumigaciones);
         }
 
     public function borrar($id) {
