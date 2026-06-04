@@ -63,15 +63,16 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/registro', [AuthController::class, 'registro']);
 // Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
-//TAREAS
+
+//TAREAS - el orden tiene que ser el correcto estaticas antes que dinamicas-buena practica
 Route::get('/tareas', [TareasController::class, 'listar']);
+Route::get('/tareas/actividad-reciente', [TareasController::class, 'actividadReciente']);
 Route::put('/tareas/{tipo}/{id}', [TareasController::class, 'marcarRealizada']);
 Route::put('/tareas/{tipo}/{id}/revisada', [TareasController::class, 'marcarRevisada']);
-Route::get('/tareas/actividad-reciente', [TareasController::class, 'actividadReciente']);
 
 //ALMACEN
-Route::post('/almacen/crear', [AlmacenController::class, 'crear']);
 Route::get('/almacen/stock-bajo', [AlmacenController::class, 'stockBajo']);
+//muevo ruta dentro para que esten protegidas, es decir que no se puea acceder sin login
 
 //COMPRAS PRODUCTO
 Route::get('/compras', [CompraProductoController::class, 'listar']);
@@ -86,6 +87,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
     Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
     Route::post('/compras/crear', [CompraProductoController::class, 'crear']);
+    Route::post('/almacen/crear', [AlmacenController::class, 'crear']);
+    
 });
 
 

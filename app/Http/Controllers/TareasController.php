@@ -35,22 +35,27 @@ class TareasController extends Controller{
 
     // marco una tarea como realizada, puede ser operacion o fumigacion
     // dependiendo del tipo que me llegue busco en un modelo u otro
+    // cambie find por findOrFail para que si no existe el id devuelva 404
+    // antes petaba con un error 500 si el id no existia en la base de datos
     public function marcarRealizada($tipo, $id){
         if($tipo === 'operacion'){
-            $tarea = Operacion::find($id);
+            $tarea = Operacion::findOrFail($id); // si no lo encuentra devuelbe 404 automatico
         } else {
-            $tarea = Fumigacion::find($id);
+            $tarea = Fumigacion::findOrFail($id); // igual para fumigacion
         }
         $tarea->estado = 'realizada';
         $tarea->save();
         return response()->json(['mensaje' => 'Tarea marcada como realizada']);
     }
 
+    // lo mismo que el de arriba pero para marcarla como revisada
+    // tambien use findOrFail por el mismo motivo, antes si ponias un id
+    // que no existia se caia toda la peticion con un error feo
     public function marcarRevisada($tipo, $id){
         if($tipo === 'operacion'){
-            $tarea = Operacion::find($id);
+            $tarea = Operacion::findOrFail($id); // devuelbe 404 si no existe
         } else {
-            $tarea = Fumigacion::find($id);
+            $tarea = Fumigacion::findOrFail($id);
         }
         $tarea->estado = 'revisada';
         $tarea->save();
@@ -66,4 +71,5 @@ class TareasController extends Controller{
 
         return response()->json(['operaciones' => $operaciones, 'fumigaciones' => $fumigaciones]);
     }
+
 }
