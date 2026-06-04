@@ -10,8 +10,10 @@ class Fumigacion extends Model
     protected $table = 'fumigaciones';
     protected $fillable = [
     'parcela_id',
+    'operacion_id',     // lo añadi para la herencia con operaciones, puede ser nulo
     'usuario_id',
     'operario',
+    'estado',           // pendiente, realizada o revisada  faltaba y petaba al crear
     'metodo_aplicacion',
     'hora_inicio',
     'duracion_minutos',
@@ -22,7 +24,8 @@ class Fumigacion extends Model
     'descripcion'
 ];
 
-    //Fumigacion es una herencia de Operaciones
+    // Fumigacion hereda de Operaciones, operacion_id puede ser null
+    // si la fumigacion no viene de una operacion previa
     public function Operaciones(){
         return $this->belongsTo(Operacion::class);
     }
@@ -37,4 +40,3 @@ class Fumigacion extends Model
     return $this->belongsTo(Parcela::class, 'parcela_id');
 }
 }
-
