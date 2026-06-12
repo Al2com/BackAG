@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Scopes\AdminScope;
 
 class CompraProducto extends Model
 {
@@ -15,6 +16,7 @@ class CompraProducto extends Model
         'cantidad_compra',
         'precio',
         'fecha_compra',
+        'admin_id'
     ];
 
     public function user() {
@@ -27,5 +29,9 @@ class CompraProducto extends Model
 
     public function proveedor() {
         return $this->belongsTo(Proveedor::class);
+    }
+
+    protected static function booted(): void{
+        static::addGlobalScope(new AdminScope());
     }
 }

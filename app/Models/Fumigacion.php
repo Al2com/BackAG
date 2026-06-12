@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Scopes\AdminScope;
 
 class Fumigacion extends Model
 {
@@ -21,7 +22,8 @@ class Fumigacion extends Model
     'precio',
     'num_parcelas',
     'turbos',
-    'descripcion'
+    'descripcion',
+    'admin_id'
 ];
 
     // Fumigacion hereda de Operaciones, operacion_id puede ser null
@@ -39,4 +41,8 @@ class Fumigacion extends Model
     public function parcela(){
     return $this->belongsTo(Parcela::class, 'parcela_id');
 }
+
+    protected static function booted(): void{
+        static::addGlobalScope(new AdminScope());
+    }
 }

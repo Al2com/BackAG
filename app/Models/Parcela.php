@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Explotacion;
 use App\Models\Propietario;
 use App\Models\Fumigacion;
+use App\Models\Scopes\AdminScope;
 
 
 class Parcela extends Model
@@ -23,7 +24,8 @@ protected $fillable = [
     'dimension_hanegadas',
     'num_arboles',
     'fecha_plantacion',
-    'descripcion'
+    'descripcion',
+    'admin_id'
 ];
 
     //relaciones
@@ -46,6 +48,10 @@ protected $fillable = [
 //con esto puedo ver es un historial de fumigaciones de cada parcela
    public function fumigaciones(){
     return $this->hasMany(Fumigacion::class, 'parcela_id');
+}
+
+protected static function booted(): void{
+    static::addGlobalScope(new AdminScope());
 }
 
 
