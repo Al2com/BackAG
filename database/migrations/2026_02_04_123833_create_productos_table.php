@@ -21,6 +21,7 @@ return new class extends Migration
             $table->unsignedInteger('stock_minimo');
             $table->unsignedInteger('stock_actual')->default(0);
             $table->string('unidad')->nullable();
+            $table->foreignId('admin_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
     }

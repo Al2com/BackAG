@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Scopes\AdminScope;
 
 class Operacion extends Model
 {
@@ -16,7 +17,8 @@ class Operacion extends Model
         'hora_inicio',
         'duracion_minutos',
         'precio',
-        'descripcion'
+        'descripcion',
+        'admin_id'
 ];
 
 //una operación pertenece usuario,
@@ -33,5 +35,10 @@ public function parcela(){
 
 public function fumigacion(){
     return $this->hasOne(Fumigacion::class);
+}
+
+protected static function booted(): void
+{
+    static::addGlobalScope(new AdminScope());
 }
 }

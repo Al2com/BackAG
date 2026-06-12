@@ -21,6 +21,7 @@ return new class extends Migration
             // FK opcional — usuario del sistema que registró la fumigación
             // Preparada para escalar la aplicación con gestión multiusuario
             $table->foreignId('usuario_id')->nullable()->constrained('users')->cascadeOnDelete();
+            $table->foreignId('admin_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('operario')->nullable();
             $table->dateTime('hora_inicio');
             $table->unsignedInteger('duracion_minutos')->nullable();

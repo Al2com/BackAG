@@ -25,6 +25,7 @@ return new class extends Migration
             $table->integer('num_arboles');
             $table->dateTime('fecha_plantacion');
             $table->text('descripcion');
+            $table->foreignId('admin_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
 
         });

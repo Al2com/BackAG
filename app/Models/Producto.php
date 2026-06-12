@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Scopes\AdminScope;
 
 class Producto extends Model
 {
@@ -15,7 +16,8 @@ class Producto extends Model
     'stock_minimo',
     'stock_actual',
     'unidad',
-    'dosis_recomendada'
+    'dosis_recomendada',
+    'admin_id'
 ];
 
     //relacion
@@ -24,6 +26,10 @@ class Producto extends Model
         return $this->belongsToMany(Fumigacion::class, 'fumigacion_producto')
           ->withPivot('cantidad', 'dosis_introducida');//referencia a la tabla intermedia
 
+    }
+
+    protected static function booted(): void{
+        static::addGlobalScope(new AdminScope());
     }
 //se quitan por añadir CompraProducto porque va a gestionar las 3 entidades
     // public function Proveedor(){
