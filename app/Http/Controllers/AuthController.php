@@ -31,24 +31,25 @@ class AuthController extends Controller
 
 
     public function registro(Request $request){
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users'],
-            'password' => ['required'],
-        ]);
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'email', 'unique:users'],
+        'password' => ['required'],
+    ]);
 
-        $usuario = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+    $usuario = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'rol' => 'admin',
+    ]);
 
-        return response()->json([
-            'token' => $usuario->createToken('token')->plainTextToken,
-            'usuario' => $usuario,
-            'rol' => $usuario->rol
-        ]);
-    }
+    return response()->json([
+        'token' => $usuario->createToken('token')->plainTextToken,
+        'usuario' => $usuario,
+        'rol' => $usuario->rol
+    ]);
+}
 
     public function logout(Request $request){
         $request->user()->currentAccessToken()->delete();

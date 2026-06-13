@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Scopes\AdminScope;
+use App\Models\Concerns\PerteneceAdmin;
 
 class CompraProducto extends Model
 {
+    use PerteneceAdmin;
+
     protected $table = 'compra_productos';
 
     protected $fillable = [
@@ -29,9 +31,5 @@ class CompraProducto extends Model
 
     public function proveedor() {
         return $this->belongsTo(Proveedor::class);
-    }
-
-    protected static function booted(): void{
-        static::addGlobalScope(new AdminScope());
     }
 }

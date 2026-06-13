@@ -9,29 +9,29 @@ use Illuminate\Support\Facades\Auth;
 
 class CompraProductoController extends Controller
 {
-    // GET /api/compras
+    // Filtra por user_id para que cada usuario solo vea sus compras
     public function listar()
     {
-        $compras = CompraProducto::with(['producto', 'proveedor', 'user'])->get();
+        $compras = CompraProducto::where('user_id', Auth::id())
+            ->with(['producto', 'proveedor', 'user'])
+            ->get();
         return response()->json($compras);
     }
 
-    // POST /api/compras
     public function crear(Request $request)
     {
         $datos = $request->validate([
-            'producto_id'   => 'required|exists:productos,id',
-            'proveedor_id'  => 'required|exists:proveedores,id',
+            'producto_id'     => 'required|exists:productos,id',
+            'proveedor_id'    => 'required|exists:proveedores,id',
             'cantidad_compra' => 'required|numeric|min:0',
-            'precio'        => 'required|numeric|min:0',
-            'fecha_compra'  => 'required|date',
+            'precio'          => 'required|numeric|min:0',
+            'fecha_compra'    => 'required|date',
         ]);
 
-        $datos['user_id'] = Auth::id();
+        $datos['user_id'] = Auth::id(); // ya estaba correcto
 
         $compra = CompraProducto::create($datos);
 
-        // Incrementar stock del producto
         $compra->producto->increment('stock_actual', $datos['cantidad_compra']);
 
         return response()->json(['mensaje' => 'Compra registrada', 'compra' => $compra], 201);

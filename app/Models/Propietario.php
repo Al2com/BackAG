@@ -3,14 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\PerteneceAdmin;
 
 class Propietario extends Model
 {
-       protected $fillable = [
-        'nomnbre',
+    use PerteneceAdmin;
+
+    protected $fillable = [
+        'nombre',
         'dni',
         'telefono',
-
+        'admin_id',
     ];
 
     public function explotaciones(){

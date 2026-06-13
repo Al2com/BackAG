@@ -16,80 +16,73 @@ use App\Http\Controllers\ProveedorController;
 
 
 
-//EXPLOTACIONES
-Route::get('/explotaciones', [ExplotacionController::class, 'numeroExplo']);
-Route::get('/explotaciones/resumen', [ExplotacionController::class, 'resumenExplotaciones']);
-Route::post('/explotaciones/crear', [ExplotacionController::class, 'crear']);
-Route::get('/explotaciones/{id}', [ExplotacionController::class, 'show']);
-Route::put('/explotaciones/{id}', [ExplotacionController::class, 'actualizar']);
-Route::delete('/explotaciones/{id}', [ExplotacionController::class, 'borrarExplo']);
+Route::middleware('auth:sanctum')->group(function () {
+    // EXPLOTACIONES
+    Route::get('/explotaciones', [ExplotacionController::class, 'numeroExplo']);
+    Route::get('/explotaciones/resumen', [ExplotacionController::class, 'resumenExplotaciones']);
+    Route::post('/explotaciones/crear', [ExplotacionController::class, 'crear']);
+    Route::get('/explotaciones/{id}', [ExplotacionController::class, 'show']);
+    Route::put('/explotaciones/{id}', [ExplotacionController::class, 'actualizar']);
+    Route::delete('/explotaciones/{id}', [ExplotacionController::class, 'borrarExplo']);
 
+    // PARCELAS
+    Route::get('/parcelas', [ParcelaController::class, 'infoParcelas']);
+    Route::get('/parcelas/resumen', [ParcelaController::class, 'resumenDetallado']);
+    Route::get('/parcelas/lista', [ParcelaController::class, 'listarParcelas']);
+    Route::post('/parcelas/crear', [ParcelaController::class, 'crearParcela']);
+    Route::get('/parcelas/{id}', [ParcelaController::class, 'show']);
+    Route::put('/parcelas/{id}', [ParcelaController::class, 'actualizar']);
+    Route::delete('/parcelas/{id}', [ParcelaController::class, 'borrar']);
 
-//PARCELAS
-// IMPORTANTE: las rutas estaticas SIEMPRE antes que las dinamicas {id}
-Route::get('/parcelas', [ParcelaController::class, 'infoParcelas']);
-Route::get('/parcelas/resumen', [ParcelaController::class, 'resumenDetallado']);
-Route::get('/parcelas/lista', [ParcelaController::class, 'listarParcelas']);
-Route::post('/parcelas/crear', [ParcelaController::class, 'crearParcela']);
-Route::get('/parcelas/{id}', [ParcelaController::class, 'show']);
-Route::put('/parcelas/{id}', [ParcelaController::class, 'actualizar']);
-Route::delete('/parcelas/{id}', [ParcelaController::class, 'borrar']);
+    // USUARIOS Y PROPIETARIOS & trabajadores
+    Route::get('/usuarios', [UserController::class, 'mostrarUsers']);
+    Route::get('/trabajadores', [UserController::class, 'mostrarTrabajadores']);
+    Route::post('/trabajadores', [UserController::class, 'crearTrabajador']);
+    Route::get('/propietarios', [PropietarioController::class, 'mostrarPropietarios']);
 
-//USUARIOS Y PROPIETARIOS
-Route::get('/usuarios', [UserController::class, 'mostrarUsers']);
-Route::get('/propietarios', [PropietarioController::class, 'mostrarPropietarios']);
+    // OPERACIONES
+    Route::get('/operaciones', [OperacionController::class, 'listar']);
+    Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
+    Route::get('/operaciones/{id}', [OperacionController::class, 'opercionId']);
+    Route::delete('/operaciones/{id}', [OperacionController::class, 'borrar']);
+    Route::put('/operaciones/{id}', [OperacionController::class, 'actualizar']);
 
-//OPERACIONES
-Route::get('/operaciones', [OperacionController::class, 'listar']);
-// Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
-Route::get('/operaciones/{id}', [OperacionController::class, 'opercionId']);//estatica antes de la dinamica
-Route::delete('/operaciones/{id}', [OperacionController::class, 'borrar']);
-Route::put('/operaciones/{id}', [OperacionController::class, 'actualizar']);
-//PRODUCTOS
-Route::get('/productos/lista', [ProductoController::class, 'mostrarProductos']);
-Route::get('/productos/lista/{id}', [ProductoController::class, 'modificarProducto']);
-Route::put('/productos/lista/{id}', [ProductoController::class, 'actualizarProducto']);
+    // PRODUCTOS
+    Route::get('/productos/lista', [ProductoController::class, 'mostrarProductos']);
+    Route::get('/productos/lista/{id}', [ProductoController::class, 'modificarProducto']);
+    Route::put('/productos/lista/{id}', [ProductoController::class, 'actualizarProducto']);
 
+    // FUMIGACIONES
+    Route::get('/fumigaciones', [FumigacionController::class, 'listar']);
+    Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
+    Route::delete('/fumigaciones/{id}', [FumigacionController::class, 'borrar']);
+    Route::get('/fumigaciones/{id}', [FumigacionController::class, 'mostrar']);
+    Route::put('/fumigaciones/{id}', [FumigacionController::class, 'actualizar']);
 
-//FUMIGACIONES
-Route::get('/fumigaciones', [FumigacionController::class, 'listar']);
-// Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
-Route::delete('/fumigaciones/{id}', [FumigacionController::class, 'borrar']);
-//muestra y actualiza las fumigaciones(EditarFumigacion.jsx)
-Route::get('/fumigaciones/{id}', [FumigacionController::class, 'mostrar']);
-Route::put('/fumigaciones/{id}', [FumigacionController::class, 'actualizar']);
-//AUTH
+    // TAREAS
+    Route::get('/tareas', [TareasController::class, 'listar']);
+    Route::get('/tareas/actividad-reciente', [TareasController::class, 'actividadReciente']);
+    Route::put('/tareas/{tipo}/{id}', [TareasController::class, 'marcarRealizada']);
+    Route::put('/tareas/{tipo}/{id}/revisada', [TareasController::class, 'marcarRevisada']);
+
+    // ALMACEN
+    Route::get('/almacen/stock-bajo', [AlmacenController::class, 'stockBajo']);
+    Route::post('/almacen/crear', [AlmacenController::class, 'crear']);
+
+    // COMPRAS
+    Route::get('/compras', [CompraProductoController::class, 'listar']);
+    Route::post('/compras/crear', [CompraProductoController::class, 'crear']);
+
+    // PROVEEDORES
+    Route::get('/proveedores', [ProveedorController::class, 'listar']);
+
+    // AUTH
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+// Rutas públicas
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/registro', [AuthController::class, 'registro']);
-// Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-
-
-//TAREAS - el orden tiene que ser el correcto estaticas antes que dinamicas-buena practica
-Route::get('/tareas', [TareasController::class, 'listar']);
-Route::get('/tareas/actividad-reciente', [TareasController::class, 'actividadReciente']);
-Route::put('/tareas/{tipo}/{id}', [TareasController::class, 'marcarRealizada']);
-Route::put('/tareas/{tipo}/{id}/revisada', [TareasController::class, 'marcarRevisada']);
-
-//ALMACEN
-Route::get('/almacen/stock-bajo', [AlmacenController::class, 'stockBajo']);
-//muevo ruta dentro para que esten protegidas, es decir que no se puea acceder sin login
-
-//COMPRAS PRODUCTO
-Route::get('/compras', [CompraProductoController::class, 'listar']);
-
-
-//PROVEEDORES
-Route::get('/proveedores', [ProveedorController::class, 'listar']);
-
-//Si no esta dentro de middlewere no se sabe quien la crea
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('/operaciones/crear', [OperacionController::class, 'crearOperacion']);
-    Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
-    Route::post('/compras/crear', [CompraProductoController::class, 'crear']);
-    Route::post('/almacen/crear', [AlmacenController::class, 'crear']);
-    
-});
 
 
 

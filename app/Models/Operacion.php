@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Scopes\AdminScope;
+use App\Models\Concerns\PerteneceAdmin;
 
-class Operacion extends Model
-{
+class Operacion extends Model{
+    use PerteneceAdmin;
     protected $table = 'operaciones';
 
         protected $fillable = [
@@ -37,8 +37,5 @@ public function fumigacion(){
     return $this->hasOne(Fumigacion::class);
 }
 
-protected static function booted(): void
-{
-    static::addGlobalScope(new AdminScope());
-}
+
 }

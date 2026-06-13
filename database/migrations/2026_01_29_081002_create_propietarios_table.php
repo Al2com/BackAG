@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('propietarios', function (Blueprint $table) {
@@ -16,14 +13,11 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('dni');
             $table->string('telefono');
+            $table->foreignId('admin_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
-
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('propietarios');

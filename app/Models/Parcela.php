@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Explotacion;
 use App\Models\Propietario;
 use App\Models\Fumigacion;
-use App\Models\Scopes\AdminScope;
+use App\Models\Concerns\PerteneceAdmin;
 
 
-class Parcela extends Model
-{
+
+class Parcela extends Model{
+    use PerteneceAdmin;
     protected $table = 'parcelas';
 
 protected $fillable = [
@@ -50,9 +51,7 @@ protected $fillable = [
     return $this->hasMany(Fumigacion::class, 'parcela_id');
 }
 
-protected static function booted(): void{
-    static::addGlobalScope(new AdminScope());
-}
+
 
 
 }
