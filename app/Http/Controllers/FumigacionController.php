@@ -6,106 +6,97 @@ use Illuminate\Http\Request;
 
 class FumigacionController extends Controller {
 
-        public function añadirFumigacion(Request $request) {
-    $datos = $request->validate([
-        'parcela_ids'       => 'required|array',
-        'parcela_ids.*'     => 'required|exists:parcelas,id',
-        'metodo_aplicacion' => 'required',
-        'hora_inicio'       => 'required',
-        'descripcion'       => 'required',
-        'precio'            => 'required',
-        // si es mochila
-        'operario'          => 'required_if:metodo_aplicacion,mochila',
-        'duracion_minutos'  => 'required_if:metodo_aplicacion,mochila',
-        'mochilas'          => 'required_if:metodo_aplicacion,mochila',
-        // si es tractor
-        'turbos'            => 'required_if:metodo_aplicacion,tractor',
-        'productos'         => 'required|array',
-    ]);
-
-    // cuento las parcelas y calculo el precio que le toca a cada una
-    $numParcelas = count($datos['parcela_ids']);
-    $precioPorParcela = round($datos['precio'] / $numParcelas, 2);
-
-    // creo una fumigacion por cada parcela seleccionada
-    foreach ($datos['parcela_ids'] as $parcelaId) {
-        $fumigacion = Fumigacion::create([
-            'parcela_id'        => $parcelaId,
-            'metodo_aplicacion' => $datos['metodo_aplicacion'],
-            'hora_inicio'       => $datos['hora_inicio'],
-            'descripcion'       => $datos['descripcion'],
-            'precio'            => $precioPorParcela, // precio ya dividido entre parcelas
-            'num_parcelas'      => $numParcelas,       // guardo cuantas parcelas hay para repartir litros y material en el front
-            'operario'          => $datos['operario'] ?? null,
-            'duracion_minutos'  => $datos['duracion_minutos'] ?? null,
-            'mochilas'          => $datos['mochilas'] ?? null,
-            'turbos'            => $datos['turbos'] ?? null,
-            'usuario_id'        => auth()->id(),
+    public function añadirFumigacion(Request $request) {
+        $datos = $request->validate([
+            'parcela_ids'       => 'required|array',
+            'parcela_ids.*'     => 'required|exists:parcelas,id',
+            'metodo_aplicacion' => 'required',
+            'hora_inicio'       => 'required',
+            'descripcion'       => 'required',
+            'precio'            => 'required',
+            'operario'          => 'required_if:metodo_aplicacion,mochila',
+            'duracion_minutos'  => 'required_if:metodo_aplicacion,mochila',
+            'mochilas'          => 'required_if:metodo_aplicacion,mochila',
+            'turbos'            => 'required_if:metodo_aplicacion,tractor',
+            'productos'         => 'required|array',
         ]);
 
-        // asocio los productos a cada fumigacion
-        foreach ($request->productos as $producto) {
-            $fumigacion->productos()->attach($producto['producto_id'], [
-                'dosis_introducida' => $producto['dosis_introducida'],
-                'cantidad'          => $producto['dosis_introducida'],
+        $numParcelas = count($datos['parcela_ids']);
+        $precioPorParcela = round($datos['precio'] / $numParcelas, 2);
+
+        foreach ($datos['parcela_ids'] as $parcelaId) {
+            $fumigacion = Fumigacion::create([
+                'parcela_id'        => $parcelaId,
+                'metodo_aplicacion' => $datos['metodo_aplicacion'],
+                'hora_inicio'       => $datos['hora_inicio'],
+                'descripcion'       => $datos['descripcion'],
+                'precio'            => $precioPorParcela,
+                'num_parcelas'      => $numParcelas,
+                'operario'          => $datos['operario'] ?? null,
+                'duracion_minutos'  => $datos['duracion_minutos'] ?? null,
+                'mochilas'          => $datos['mochilas'] ?? null,
+                'turbos'            => $datos['turbos'] ?? null,
+                'usuario_id'        => auth()->id(), // ya estaba correcto
             ]);
+
+            foreach ($request->productos as $producto) {
+                $fumigacion->productos()->attach($producto['producto_id'], [
+                    'dosis_introducida' => $producto['dosis_introducida'],
+                    'cantidad'          => $producto['dosis_introducida'],
+                ]);
+            }
         }
+
+        $unidades = $datos['metodo_aplicacion'] === 'mochila'
+            ? $datos['mochilas']
+            : $datos['turbos'];
+
+        foreach ($request->productos as $producto) {
+            $totalGastado = $producto['dosis_introducida'] * $unidades;
+            $prod = Producto::findOrFail($producto['producto_id']);
+            $prod->stock_actual = max(0, $prod->stock_actual - $totalGastado);
+            $prod->save();
+        }
+
+        return response()->json(['mensaje' => 'Fumigaciones creadas'], 201);
     }
 
-    // el stock se descuenta una sola vez independientemente del numero de parcelas
-    // total gastado = dosis x turbos o mochilas
-    $unidades = $datos['metodo_aplicacion'] === 'mochila'
-        ? $datos['mochilas']
-        : $datos['turbos'];
+    // Filtra por usuario_id para que cada usuario solo vea sus fumigaciones
+    public function listar(){
+        $fumigaciones = Fumigacion::where('usuario_id', auth()->id())
+            ->with(['parcela', 'productos'])
+            ->get();
 
-    foreach ($request->productos as $producto) {
-        $totalGastado = $producto['dosis_introducida'] * $unidades;
-        $prod = Producto::findOrFail($producto['producto_id']);
-        $prod->stock_actual = max(0, $prod->stock_actual - $totalGastado);
-        $prod->save();
+        $fumigaciones->each(function($fum) {
+            $parcelaIds = Fumigacion::where('usuario_id', auth()->id()) // filtra también el lote por usuario
+                ->where('hora_inicio', $fum->hora_inicio)
+                ->where('metodo_aplicacion', $fum->metodo_aplicacion)
+                ->where('turbos', $fum->turbos)
+                ->pluck('parcela_id')
+                ->unique();
+
+            $totalHanegadas = \App\Models\Parcela::whereIn('id', $parcelaIds)
+                ->sum('dimension_hanegadas');
+
+            $fum->total_hanegadas = floatval($totalHanegadas);
+            $fum->hanegadas_parcela = floatval($fum->parcela->dimension_hanegadas ?? 0);
+        });
+
+        return response()->json($fumigaciones);
     }
-
-    return response()->json(['mensaje' => 'Fumigaciones creadas'], 201);
-}
-
-       public function listar(){
-            // cargo las fumigaciones con sus relaciones
-            $fumigaciones = Fumigacion::with(['parcela', 'productos'])->get();
-            
-            $fumigaciones->each(function($fum) {
-                // cojo los ids de parcelas del mismo lote sin duplicados
-                $parcelaIds = Fumigacion::where('hora_inicio', $fum->hora_inicio)
-                    ->where('metodo_aplicacion', $fum->metodo_aplicacion)
-                    ->where('turbos', $fum->turbos)
-                    ->pluck('parcela_id')
-                    ->unique();
-
-                // busco las parcelas y sumo sus hanegadas
-                $totalHanegadas = \App\Models\Parcela::whereIn('id', $parcelaIds)
-                    ->sum('dimension_hanegadas');
-
-                $fum->total_hanegadas = floatval($totalHanegadas);
-                $fum->hanegadas_parcela = floatval($fum->parcela->dimension_hanegadas ?? 0);
-            });
-
-            return response()->json($fumigaciones);
-        }
 
     public function borrar($id) {
         $fumigacion = Fumigacion::findOrFail($id);
-        // detach primero por la tabla intermedia fumigacion_producto
         $fumigacion->productos()->detach();
         $fumigacion->delete();
         return response()->json(['mensaje' => 'Fumigación eliminada correctamente']);
     }
 
-    // devuelve una fumigacion por id para editar
     public function mostrar($id) {
         $fumigacion = Fumigacion::findOrFail($id);
         return response()->json($fumigacion);
     }
 
-    // actualiza los datos de la fumigacion
     public function actualizar(Request $request, $id) {
         $fumigacion = Fumigacion::findOrFail($id);
         $fumigacion->update($request->all());

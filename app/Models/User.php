@@ -52,7 +52,7 @@ class User extends Authenticatable
         ];
     }
     public function explotaciones(){
-        return $this->hasMany(Explotacion::class);// un propietario tiene muchas explotaciones
+        return $this->hasMany(Explotacion::class, 'admin_id');// un propietario tiene muchas explotaciones
     }
 
     //el usuario tiene michas operaciones

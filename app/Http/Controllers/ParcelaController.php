@@ -5,13 +5,14 @@ use Illuminate\Http\Request;
 
 class ParcelaController extends Controller
 {
-    // cuenta las parcelas y suma hanegadas, tipo riego para los paneles de info
     public function infoParcelas(){
-        $numParcelas = Parcela::count();
+        $parcelas = Parcela::all();
+
+        $numParcelas = $parcelas->count();
         $TotalHng = 0;
         $parGot = 0;
         $parMan = 0;
-        $parcelas = Parcela::all();
+
         foreach($parcelas as $parcela){
             $TotalHng += $parcela->dimension_hanegadas;
             if($parcela->rol === 'goteo') $parGot++;
@@ -25,12 +26,11 @@ class ParcelaController extends Controller
         ]);
     }
 
-    // trae todas las parcelas con el nombre de su explotacion para mostrarlas en la tabla
     public function resumenDetallado(){
         $resumDatParcelas = Parcela::with('explotacion:id,nombre')
             ->get([
                 'id',
-                 'nombre',
+                'nombre',
                 'poligono',
                 'parcela',
                 'dimension_hanegadas',
@@ -43,12 +43,11 @@ class ParcelaController extends Controller
         return response()->json($resumDatParcelas);
     }
 
-    // crea una parcela nueva con los datos que manda el formulario
     public function crearParcela(Request $request){
         $parcela = $request->validate([
             'explotacion_id'      => 'required',
             'propietarios_id'     => 'required',
-             'nombre'              => 'required|max:25',
+            'nombre'              => 'required|max:25',
             'poligono'            => 'required|max:25',
             'parcela'             => 'required',
             'rol'                 => 'required',
@@ -62,19 +61,16 @@ class ParcelaController extends Controller
         return response()->json(['mensaje' => 'Parcela creada'], 201);
     }
 
-    // trae solo id, nombre, poligono y variedad para los selects de operaciones
     public function listarParcelas(){
         $parcelas = Parcela::select('id', 'nombre', 'poligono', 'parcela', 'variedad')->get();
-         return response()->json($parcelas);
+        return response()->json($parcelas);
     }
 
-    // busca la parcela por id y manda sus datos al formulario de edicion
     public function show($id){
         $parcela = Parcela::findOrFail($id);
         return response()->json($parcela);
     }
 
-    // recibe los datos del formulario de edicion y los guarda en la base de datos
     public function actualizar(Request $request, $id){
         $parcela = Parcela::findOrFail($id);
 
@@ -97,8 +93,8 @@ class ParcelaController extends Controller
     }
 
     public function borrar($id) {
-    $parcela = Parcela::findOrFail($id);
-    $parcela->delete();
-    return response()->json(['mensaje' => 'Parcela eliminada correctamente']);
-}
+        $parcela = Parcela::findOrFail($id);
+        $parcela->delete();
+        return response()->json(['mensaje' => 'Parcela eliminada correctamente']);
+    }
 }

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->enum('rol', ['manta', 'goteo'])->default('manta');
             $table->integer('poligono');
             $table->integer('parcela');
-            $table->unique(['poligono', 'parcela']);
+            $table->unique(['poligono', 'parcela', 'admin_id']);
             $table->string('nombre')->nullable();
             $table->string('variedad');
             $table->decimal('dimension_hanegadas', 6, 3);
