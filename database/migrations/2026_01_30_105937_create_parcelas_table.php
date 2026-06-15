@@ -25,6 +25,8 @@ return new class extends Migration
             $table->integer('num_arboles');
             $table->dateTime('fecha_plantacion');
             $table->text('descripcion');
+            $table->decimal('impuesto_municipal', 8, 2)->nullable();
+            $table->decimal('impuesto_cequiaje', 8, 2)->nullable(); 
             $table->foreignId('admin_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
 
