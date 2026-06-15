@@ -12,7 +12,8 @@ use App\Http\Controllers\TareasController;
 use App\Http\Controllers\AlmacenController;
 use App\Http\Controllers\CompraProductoController;
 use App\Http\Controllers\ProveedorController;
-
+use App\Http\Controllers\GastoRiegoController;
+use App\Http\Controllers\GastosController;
 
 
 
@@ -78,6 +79,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // AUTH
     Route::post('/logout', [AuthController::class, 'logout']);
+
+   // GASTOS DE RIEGO
+    Route::get('/gastos-riego', [GastoRiegoController::class, 'listar']);
+    Route::post('/gastos-riego', [GastoRiegoController::class, 'guardar']);
+    Route::get('/gastos-riego/{parcelaId}/{anio}/{mes}', [GastoRiegoController::class, 'porMes']);
+    Route::delete('/gastos-riego/{id}', [GastoRiegoController::class, 'borrar']);
+
+    // RESUMEN DE GASTOS
+    Route::get('/gastos/resumen', [GastosController::class, 'resumen']);
+
+
 });
 
 // Rutas públicas
