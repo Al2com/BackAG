@@ -4,8 +4,11 @@ use Illuminate\Database\Seeder;
 use App\Models\Producto;
 class ProductoSeeder extends Seeder
 {
-    public function run(): void
-    {
+    public function run(): void{
+
+    $alvaro = \App\Models\User::where('email', 'alvaro@test.com')->first();
+
+
         $productos = [
             [
                 'nombre' => 'Sercadis',
@@ -189,7 +192,8 @@ class ProductoSeeder extends Seeder
             ],
         ];
 
-        foreach ($productos as $producto) {
+         foreach ($productos as $producto) {
+            $producto['admin_id'] = $alvaro->id;
             Producto::create($producto);
         }
     }

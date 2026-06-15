@@ -56,6 +56,8 @@ class ParcelaController extends Controller
             'dimension_hanegadas' => 'required',
             'fecha_plantacion'    => 'required',
             'descripcion'         => 'required',
+            'impuesto_municipal'  => 'nullable|numeric|min:0',
+            'impuesto_cequiaje'   => 'nullable|numeric|min:0',
         ]);
         Parcela::create($parcela);
         return response()->json(['mensaje' => 'Parcela creada'], 201);
@@ -85,7 +87,10 @@ class ParcelaController extends Controller
             'dimension_hanegadas' => 'required',
             'num_arboles'         => 'required',
             'fecha_plantacion'    => 'required',
+            'fecha_plantacion'    => 'required',
             'descripcion'         => 'required',
+            'impuesto_municipal'  => 'nullable|numeric|min:0',
+            'impuesto_cequiaje'   => 'nullable|numeric|min:0',
         ]);
 
         $parcela->update($validacion);
