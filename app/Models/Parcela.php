@@ -53,7 +53,10 @@ protected $fillable = [
     return $this->hasMany(Fumigacion::class, 'parcela_id');
 }
 
-
+//relación con entidad gastos_riego
+public function gastosRiego(){
+        return $this->hasMany(GastoRiego::class);
+    }
 
 
 }
