@@ -13,7 +13,8 @@ class FumigacionController extends Controller {
             'metodo_aplicacion' => 'required',
             'hora_inicio'       => 'required',
             'descripcion'       => 'required',
-            'precio'            => 'required',
+            'precio'            => 'required_if:metodo_aplicacion,mochila', // CAMBIO: el precio total solo aplica a mochila
+            'precio_turbo'      => 'required_if:metodo_aplicacion,tractor|numeric|min:0', // CAMBIO: precio por turbo en tractor
             'operario'          => 'required_if:metodo_aplicacion,mochila',
             'duracion_minutos'  => 'required_if:metodo_aplicacion,mochila',
             'mochilas'          => 'required_if:metodo_aplicacion,mochila',
@@ -22,7 +23,12 @@ class FumigacionController extends Controller {
         ]);
 
         $numParcelas = count($datos['parcela_ids']);
-        $precioPorParcela = round($datos['precio'] / $numParcelas, 2);
+
+        // CAMBIO: en tractor el coste se calcula por hanegadas en el resumen, no se reparte aquí.
+        // El reparto equitativo del precio total se mantiene solo para mochila.
+        $precioPorParcela = $datos['metodo_aplicacion'] === 'mochila'
+            ? round($datos['precio'] / $numParcelas, 2)
+            : null;
 
         foreach ($datos['parcela_ids'] as $parcelaId) {
             $fumigacion = Fumigacion::create([
@@ -31,12 +37,13 @@ class FumigacionController extends Controller {
                 'hora_inicio'       => $datos['hora_inicio'],
                 'descripcion'       => $datos['descripcion'],
                 'precio'            => $precioPorParcela,
+                'precio_turbo'      => $datos['metodo_aplicacion'] === 'tractor' ? $datos['precio_turbo'] : null, // CAMBIO
                 'num_parcelas'      => $numParcelas,
                 'operario'          => $datos['operario'] ?? null,
                 'duracion_minutos'  => $datos['duracion_minutos'] ?? null,
                 'mochilas'          => $datos['mochilas'] ?? null,
                 'turbos'            => $datos['turbos'] ?? null,
-                'usuario_id'        => auth()->id(), // ya estaba correcto
+                'usuario_id'        => auth()->id(),
             ]);
 
             foreach ($request->productos as $producto) {
@@ -68,7 +75,7 @@ class FumigacionController extends Controller {
             ->get();
 
         $fumigaciones->each(function($fum) {
-            $parcelaIds = Fumigacion::where('usuario_id', auth()->id()) // filtra también el lote por usuario
+            $parcelaIds = Fumigacion::where('usuario_id', auth()->id())
                 ->where('hora_inicio', $fum->hora_inicio)
                 ->where('metodo_aplicacion', $fum->metodo_aplicacion)
                 ->where('turbos', $fum->turbos)

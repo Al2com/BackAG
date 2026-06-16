@@ -47,7 +47,8 @@ class FumigacionesSeeder extends Seeder
                         'metodo_aplicacion' => $metodo,
                         'turbos'            => $metodo === 'tractor' ? rand(1, 4) : null,
                         'mochilas'          => $metodo === 'mochila' ? rand(1, 3) : null,
-                        'precio'            => $metodo === 'tractor' ? rand(80, 150) : rand(30, 70),
+                        'precio'            => $metodo === 'mochila' ? rand(30, 70) : null,
+                        'precio_turbo'      => $metodo === 'tractor' ? 60 : null,
                         'descripcion'       => 'Tratamiento fitosanitario campaña ' . $año,
                         'estado'            => 'realizada',
                     ]);

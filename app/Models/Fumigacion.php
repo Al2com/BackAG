@@ -23,8 +23,13 @@ class Fumigacion extends Model
         'precio',
         'num_parcelas',
         'turbos',
+        'precio_turbo',
         'descripcion',
         'admin_id'
+    ];
+
+    protected $casts = [
+        'precio_turbo' => 'decimal:2',
     ];
 
     public function Operaciones(){
