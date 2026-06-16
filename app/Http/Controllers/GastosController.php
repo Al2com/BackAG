@@ -6,12 +6,16 @@ use App\Models\Parcela;
 use App\Models\Operacion;
 use App\Models\Fumigacion;
 use App\Models\GastoRiego;
+use App\Services\CosteFumigacionService; // CAMBIO: import del servicio
 use Illuminate\Http\Request;
 
 class GastosController extends Controller
 {
     private const LITROS_TRACTOR = 1500;
     private const LITROS_MOCHILA = 12;
+
+    // CAMBIO: inyección del servicio de cálculo
+    public function __construct(private CosteFumigacionService $coste) {}
 
     public function resumen(Request $request)
     {
@@ -119,7 +123,7 @@ class GastosController extends Controller
         $mochila = $this->fumigacionesMetodo($fumsParcela, 'mochila');
 
         $costeOps = $opsParcela->sum(fn($o) => (float) ($o->precio ?? 0));
-        $costeFums = $fumsParcela->sum(fn($f) => (float) ($f->precio ?? 0));
+        $costeFums = collect($tractor)->sum('precio') + collect($mochila)->sum('precio');
         $costeMaterial = collect($tractor)->sum('costeMaterial') + collect($mochila)->sum('costeMaterial');
 
         $impMunicipal = (float) ($parcela->impuesto_municipal ?? 0);
@@ -182,7 +186,10 @@ class GastosController extends Controller
                 'operario'  => $fum->operario,
                 'hanegadas' => $fum->hanegadas_parcela,
                 'litros'    => round($this->calcularLitros($fum), 0),
-                'precio'    => round((float) $fum->precio, 2),
+                // CAMBIO: el tractor se calcula por hanegadas; la mochila sigue usando el precio guardado
+                'precio'    => $metodo === 'tractor'
+                    ? round($this->coste->costeTractorParcela($fum), 2)
+                    : round((float) $fum->precio, 2),
                 'duracion_minutos' => $fum->duracion_minutos,
                 'productos' => $productos,
                 'costeMaterial' => round($costeMaterial, 2),
