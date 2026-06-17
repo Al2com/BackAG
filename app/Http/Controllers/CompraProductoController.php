@@ -18,7 +18,7 @@ class CompraProductoController extends Controller
         return response()->json($compras);
     }
 
-    public function crear(Request $request)
+   public function crear(Request $request)
     {
         $datos = $request->validate([
             'producto_id'     => 'required|exists:productos,id',
@@ -28,11 +28,25 @@ class CompraProductoController extends Controller
             'fecha_compra'    => 'required|date',
         ]);
 
-        $datos['user_id'] = Auth::id(); // ya estaba correcto
+        $datos['user_id'] = Auth::id();
 
         $compra = CompraProducto::create($datos);
 
-        $compra->producto->increment('stock_actual', $datos['cantidad_compra']);
+        // Precio medio ponderado: mezcla lo que ya había con lo recién comprado
+        $producto      = $compra->producto;
+        $stockAnterior = (float) $producto->stock_actual;
+        $costeAnterior = (float) ($producto->precio ?? 0);
+        $cantidad      = (float) $datos['cantidad_compra'];
+        $precioCompra  = (float) $datos['precio'];
+
+        $stockTotal = $stockAnterior + $cantidad;
+
+        $producto->precio = $stockTotal > 0
+            ? round((($stockAnterior * $costeAnterior) + ($cantidad * $precioCompra)) / $stockTotal, 2)
+            : $precioCompra;
+
+        $producto->stock_actual = $stockTotal;
+        $producto->save();
 
         return response()->json(['mensaje' => 'Compra registrada', 'compra' => $compra], 201);
     }

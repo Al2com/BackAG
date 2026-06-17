@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('turbos')->nullable();
             $table->decimal('precio_turbo', 8, 2)->nullable();
             $table->string('mochilas')->nullable();
+            $table->decimal('litros_agua', 6, 2)->nullable(); // litros de agua por mochila (informativo)
             $table->decimal('precio', 8, 2)->nullable();/*el 8 son digitos totales y el 2 digitos decimales*/ 
             $table->integer('num_parcelas')->default(1);// para poder dividir el precio en gastos
             $table->enum('estado', ['pendiente', 'realizada', 'revisada'])->default('pendiente');

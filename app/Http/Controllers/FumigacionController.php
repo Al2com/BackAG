@@ -18,6 +18,7 @@ class FumigacionController extends Controller {
             'operario'          => 'required_if:metodo_aplicacion,mochila',
             'duracion_minutos'  => 'required_if:metodo_aplicacion,mochila',
             'mochilas'          => 'required_if:metodo_aplicacion,mochila',
+            'litros_agua'       => 'nullable|numeric|min:0',
             'turbos'            => 'required_if:metodo_aplicacion,tractor',
             'productos'         => 'required|array',
         ]);
@@ -42,14 +43,17 @@ class FumigacionController extends Controller {
                 'operario'          => $datos['operario'] ?? null,
                 'duracion_minutos'  => $datos['duracion_minutos'] ?? null,
                 'mochilas'          => $datos['mochilas'] ?? null,
+                'litros_agua'       => $datos['metodo_aplicacion'] === 'mochila' ? ($datos['litros_agua'] ?? null) : null,
                 'turbos'            => $datos['turbos'] ?? null,
                 'usuario_id'        => auth()->id(),
             ]);
 
             foreach ($request->productos as $producto) {
+                $prod = Producto::find($producto['producto_id']);
                 $fumigacion->productos()->attach($producto['producto_id'], [
                     'dosis_introducida' => $producto['dosis_introducida'],
                     'cantidad'          => $producto['dosis_introducida'],
+                    'precio'            => $prod->precio, // coste del momento, congelado
                 ]);
             }
         }

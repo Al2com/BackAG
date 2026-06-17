@@ -20,6 +20,7 @@ class Fumigacion extends Model
         'hora_inicio',
         'duracion_minutos',
         'mochilas',
+        'litros_agua',
         'precio',
         'num_parcelas',
         'turbos',
@@ -38,10 +39,12 @@ class Fumigacion extends Model
 
     public function Productos(){
         return $this->belongsToMany(Producto::class, 'fumigacion_producto')
-        ->withPivot('cantidad','dosis_introducida');
+        ->withPivot('cantidad','dosis_introducida','precio');
     }
 
     public function parcela(){
         return $this->belongsTo(Parcela::class, 'parcela_id');
     }
+
+   
 }

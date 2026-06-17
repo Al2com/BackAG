@@ -57,6 +57,9 @@ protected $fillable = [
 public function gastosRiego(){
         return $this->hasMany(GastoRiego::class);
     }
-
+//relacion con la recoleccion
+    public function recolecciones(){
+        return $this->hasMany(Recoleccion::class, 'parcela_id');
+    }
 
 }

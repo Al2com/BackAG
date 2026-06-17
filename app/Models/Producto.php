@@ -25,4 +25,6 @@ class Producto extends Model
         return $this->belongsToMany(Fumigacion::class, 'fumigacion_producto')
           ->withPivot('cantidad', 'dosis_introducida');
     }
+
+    
 }

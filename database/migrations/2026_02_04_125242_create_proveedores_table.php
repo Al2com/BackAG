@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('direccion');
             $table->string('telefono')->nullable();
             $table->string('nombre_comercial')->nullable();
-            $table->text('descripcion');
+            $table->text('descripcion')->nullable();
             $table->foreignId('admin_id')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
         });
