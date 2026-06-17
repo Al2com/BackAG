@@ -17,9 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
             health: '/up',
     )
 
-    ->withMiddleware(function (Middleware $middleware): void {
-        //
-    })
+        ->withMiddleware(function (Middleware $middleware): void {
+                $middleware->alias([
+                    'admin' => \App\Http\Middleware\EsAdmin::class,
+                ]);
+            })
+
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

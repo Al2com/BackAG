@@ -9,14 +9,14 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
+   public function up(): void{
         Schema::create('fumigacion_producto', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('producto_id')->nullable()->constrained('productos') ->cascadeOnDelete();
+            $table->foreignId('producto_id')->nullable()->constrained('productos')->cascadeOnDelete();
             $table->foreignId('fumigacion_id')->nullable()->constrained('fumigaciones')->cascadeOnDelete();
-            $table->decimal('cantidad', 7, 2); // 7 cifras totales, 2 decimales
+            $table->decimal('cantidad', 7, 2);
             $table->decimal('dosis_introducida', 7, 2);
+            // $table->decimal('precio', 8, 2)->nullable(); // coste unitario congelado al crear la fumigación
             $table->timestamps();
         });
     }
