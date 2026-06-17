@@ -1,31 +1,35 @@
 <?php
 namespace App\Http\Controllers;
+
 use App\Models\Fumigacion;
 use App\Models\Producto;
 use Illuminate\Http\Request;
 
-class FumigacionController extends Controller {
-
-    public function añadirFumigacion(Request $request) {
+class FumigacionController extends Controller
+{
+    public function añadirFumigacion(Request $request)
+    {
         $datos = $request->validate([
             'parcela_ids'       => 'required|array',
             'parcela_ids.*'     => 'required|exists:parcelas,id',
             'metodo_aplicacion' => 'required',
             'hora_inicio'       => 'required',
             'descripcion'       => 'required',
-            'precio'            => 'required_if:metodo_aplicacion,mochila', // CAMBIO: el precio total solo aplica a mochila
-            'precio_turbo'      => 'required_if:metodo_aplicacion,tractor|numeric|min:0', // CAMBIO: precio por turbo en tractor
+            'precio'            => 'required_if:metodo_aplicacion,mochila', // el precio total solo aplica a mochila
+            'precio_turbo'      => 'required_if:metodo_aplicacion,tractor|numeric|min:0', // precio por turbo en tractor
             'operario'          => 'required_if:metodo_aplicacion,mochila',
             'duracion_minutos'  => 'required_if:metodo_aplicacion,mochila',
             'mochilas'          => 'required_if:metodo_aplicacion,mochila',
             'litros_agua'       => 'nullable|numeric|min:0',
             'turbos'            => 'required_if:metodo_aplicacion,tractor',
             'productos'         => 'required|array',
+            'productos.*.producto_id'       => 'required|exists:productos,id',
+            'productos.*.dosis_introducida' => 'required|numeric|min:0',
         ]);
 
         $numParcelas = count($datos['parcela_ids']);
 
-        // CAMBIO: en tractor el coste se calcula por hanegadas en el resumen, no se reparte aquí.
+        // En tractor el coste se calcula por hanegadas en el resumen, no se reparte aquí.
         // El reparto equitativo del precio total se mantiene solo para mochila.
         $precioPorParcela = $datos['metodo_aplicacion'] === 'mochila'
             ? round($datos['precio'] / $numParcelas, 2)
@@ -38,7 +42,7 @@ class FumigacionController extends Controller {
                 'hora_inicio'       => $datos['hora_inicio'],
                 'descripcion'       => $datos['descripcion'],
                 'precio'            => $precioPorParcela,
-                'precio_turbo'      => $datos['metodo_aplicacion'] === 'tractor' ? $datos['precio_turbo'] : null, // CAMBIO
+                'precio_turbo'      => $datos['metodo_aplicacion'] === 'tractor' ? $datos['precio_turbo'] : null,
                 'num_parcelas'      => $numParcelas,
                 'operario'          => $datos['operario'] ?? null,
                 'duracion_minutos'  => $datos['duracion_minutos'] ?? null,
@@ -53,7 +57,7 @@ class FumigacionController extends Controller {
                 $fumigacion->productos()->attach($producto['producto_id'], [
                     'dosis_introducida' => $producto['dosis_introducida'],
                     'cantidad'          => $producto['dosis_introducida'],
-                    'precio'            => $prod->precio, // coste del momento, congelado
+                    'precio'            => $prod?->precio, // coste del momento, congelado
                 ]);
             }
         }
@@ -73,12 +77,13 @@ class FumigacionController extends Controller {
     }
 
     // Filtra por usuario_id para que cada usuario solo vea sus fumigaciones
-    public function listar(){
+    public function listar()
+    {
         $fumigaciones = Fumigacion::where('usuario_id', auth()->id())
             ->with(['parcela', 'productos'])
             ->get();
 
-        $fumigaciones->each(function($fum) {
+        $fumigaciones->each(function ($fum) {
             $parcelaIds = Fumigacion::where('usuario_id', auth()->id())
                 ->where('hora_inicio', $fum->hora_inicio)
                 ->where('metodo_aplicacion', $fum->metodo_aplicacion)
@@ -96,19 +101,22 @@ class FumigacionController extends Controller {
         return response()->json($fumigaciones);
     }
 
-    public function borrar($id) {
+    public function borrar($id)
+    {
         $fumigacion = Fumigacion::findOrFail($id);
         $fumigacion->productos()->detach();
         $fumigacion->delete();
         return response()->json(['mensaje' => 'Fumigación eliminada correctamente']);
     }
 
-    public function mostrar($id) {
+    public function mostrar($id)
+    {
         $fumigacion = Fumigacion::findOrFail($id);
         return response()->json($fumigacion);
     }
 
-    public function actualizar(Request $request, $id) {
+    public function actualizar(Request $request, $id)
+    {
         $fumigacion = Fumigacion::findOrFail($id);
         $fumigacion->update($request->all());
         return response()->json(['mensaje' => 'Fumigación actualizada']);
