@@ -8,15 +8,14 @@ class ProductoSeeder extends Seeder
 
     $alvaro = \App\Models\User::where('email', 'alvaro@test.com')->first();
 
-
         $productos = [
             [
                 'nombre' => 'Sercadis',
                 'materia_activa' => 'Fluxapyroxad 12.5%',
-                'precio' => 85.00,
+                'precio' => 136.40,
                 'ubicacion' => 'Estante A-1',
                 'stock_minimo' => 5,
-                'stock_actual' => 20,
+                'stock_actual' => 17,
                 'dosis_recomendada' => 0.4,
                 'unidad' => 'L'
             ],
@@ -33,22 +32,22 @@ class ProductoSeeder extends Seeder
             [
                 'nombre' => 'Noble',
                 'materia_activa' => 'Folpet 50%',
-                'precio' => 38.00,
+                'precio' => 68.20,
                 'ubicacion' => 'Estante A-3',
                 'stock_minimo' => 8,
-                'stock_actual' => 30,
+                'stock_actual' => 3,
                 'dosis_recomendada' => 1.5,
-                'unidad' => 'kg'
+                'unidad' => 'L'
             ],
             [
                 'nombre' => 'Volquete',
                 'materia_activa' => 'Captan 80%',
-                'precio' => 42.00,
+                'precio' => 252.50,
                 'ubicacion' => 'Estante A-4',
                 'stock_minimo' => 8,
-                'stock_actual' => 25,
+                'stock_actual' => 1,
                 'dosis_recomendada' => 1.2,
-                'unidad' => 'kg'
+                'unidad' => 'L'
             ],
             [
                 'nombre' => 'Omite Top',
@@ -93,20 +92,20 @@ class ProductoSeeder extends Seeder
             [
                 'nombre' => 'Corrector MN',
                 'materia_activa' => 'Manganeso quelado 6%',
-                'precio' => 22.00,
+                'precio' => 4.18,
                 'ubicacion' => 'Estante C-1',
                 'stock_minimo' => 6,
-                'stock_actual' => 25,
+                'stock_actual' => 4,
                 'dosis_recomendada' => 0.3,
                 'unidad' => 'L'
             ],
             [
                 'nombre' => 'Corrector Ca',
                 'materia_activa' => 'Calcio quelado 15%',
-                'precio' => 24.00,
+                'precio' => 3.96,
                 'ubicacion' => 'Estante C-2',
                 'stock_minimo' => 6,
-                'stock_actual' => 25,
+                'stock_actual' => 18,
                 'dosis_recomendada' => 0.4,
                 'unidad' => 'L'
             ],
@@ -161,17 +160,17 @@ class ProductoSeeder extends Seeder
                 'unidad' => 'L'
             ],
             [
-                'nombre' => 'Insecticida Glifosato',
+                'nombre' => 'Atila',
                 'materia_activa' => 'Glifosato 36%',
-                'precio' => 32.00,
+                'precio' => 3.85,
                 'ubicacion' => 'Estante B-4',
                 'stock_minimo' => 8,
-                'stock_actual' => 35,
+                'stock_actual' => 40,
                 'dosis_recomendada' => 0.200,
                 'unidad' => 'L'
             ],
             [
-                'nombre' => 'Insecticida U46',
+                'nombre' => 'Herbicida U46',
                 'materia_activa' => 'MCPA 50%',
                 'precio' => 27.00,
                 'ubicacion' => 'Estante B-5',
@@ -183,11 +182,29 @@ class ProductoSeeder extends Seeder
             [
                 'nombre' => 'Insecticida Goal',
                 'materia_activa' => 'Oxifluorfén 24%',
-                'precio' => 45.00,
+                'precio' => 26.40,
                 'ubicacion' => 'Estante B-6',
                 'stock_minimo' => 5,
-                'stock_actual' => 18,
+                'stock_actual' => 15,
                 'dosis_recomendada' => 0.10,
+                'unidad' => 'L'
+            ],
+            [
+                'nombre' => 'Closer',
+                'materia_activa' => 'Sulfoxafor',
+                'precio' => 183.95,
+                'ubicacion' => 'Estanteria A2',
+                'stock_minimo' => 2,
+                'stock_actual' => 0,
+                'unidad' => 'L'
+            ],
+            [
+                'nombre' => 'Aceite Parafina',
+                'materia_activa' => 'Aceite Parafina',
+                'precio' => 2.16,
+                'ubicacion' => 'Estanteria A3',
+                'stock_minimo' => 5,
+                'stock_actual' => 0,
                 'unidad' => 'L'
             ],
         ];

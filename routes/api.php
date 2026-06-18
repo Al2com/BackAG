@@ -60,11 +60,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/operaciones/{id}', [OperacionController::class, 'opercionId']);
         Route::delete('/operaciones/{id}', [OperacionController::class, 'borrar']);
         Route::put('/operaciones/{id}', [OperacionController::class, 'actualizar']);
-
         // PRODUCTOS (editar)
         Route::get('/productos/lista/{id}', [ProductoController::class, 'modificarProducto']);
         Route::put('/productos/lista/{id}', [ProductoController::class, 'actualizarProducto']);
-
+        Route::delete('/productos/lista/{id}', [ProductoController::class, 'eliminarProducto']);
         // FUMIGACIONES
         Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
         Route::delete('/fumigaciones/{id}', [FumigacionController::class, 'borrar']);
