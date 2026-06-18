@@ -15,6 +15,8 @@ use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\GastoRiegoController;
 use App\Http\Controllers\GastosController;
 use App\Http\Controllers\RecoleccionController;
+use App\Http\Controllers\Auth\PasswordResetController;
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -107,3 +109,6 @@ Route::middleware('auth:sanctum')->group(function () {
 // Rutas públicas
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/registro', [AuthController::class, 'registro']);
+  ///reset password 
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
+Route::post('/reset-password',  [PasswordResetController::class, 'reset']);
