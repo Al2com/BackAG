@@ -12,6 +12,7 @@ class Fumigacion extends Model
     protected $table = 'fumigaciones';
     protected $fillable = [
         'parcela_id',
+        'lote_id',
         'operacion_id',
         'usuario_id',
         'operario',

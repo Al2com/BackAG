@@ -14,12 +14,20 @@ class TareasController extends Controller{
         // añado hanegadas de cada parcela y el total del lote de tractor
         // para que el front pueda repartir litros y material proporcionalmente
         $fumigaciones->each(function($fum) {
-            // busco las fumigaciones del mismo lote por hora inicio metodo y turbos
-            $hermanas = Fumigacion::with('parcela')
-                ->where('hora_inicio', $fum->hora_inicio)
-                ->where('metodo_aplicacion', $fum->metodo_aplicacion)
-                ->where('turbos', $fum->turbos)
-                ->get();
+            // Lote exacto por lote_id. Las fumigaciones antiguas sin lote_id
+            // caen al método anterior (hora + metodo + turbos) como respaldo.
+            $consulta = Fumigacion::with('parcela');
+
+            if ($fum->lote_id) {
+                $consulta->where('lote_id', $fum->lote_id);
+            } else {
+                $consulta->whereNull('lote_id')
+                    ->where('hora_inicio', $fum->hora_inicio)
+                    ->where('metodo_aplicacion', $fum->metodo_aplicacion)
+                    ->where('turbos', $fum->turbos);
+            }
+
+            $hermanas = $consulta->get();
 
             // sumo las hanegadas de todas las parcelas del lote
             $totalHanegadas = $hermanas->sum(fn($f) => floatval($f->parcela->dimension_hanegadas ?? 0));
