@@ -34,13 +34,20 @@ class GastosController extends Controller
             $gastosRiego = $gastosRiego->filter(fn($g) => (string) $g->anio === (string) $campania)->values();
         }
 
-        // enriquezco las fumigaciones con las hanegadas del lote (igual que TareasController)
+        // enriquezco las fumigaciones con las hanegadas del lote.
+        // Agrupamos por lote_id (exacto). Las fumigaciones antiguas sin lote_id
+        // caen al método anterior (hora + metodo + turbos) como respaldo, para
+        // no romper el histórico ya guardado.
         $fumigaciones->each(function ($fum) use ($fumigaciones) {
-            $hermanas = $fumigaciones->filter(fn($f) =>
-                $f->hora_inicio === $fum->hora_inicio &&
-                $f->metodo_aplicacion === $fum->metodo_aplicacion &&
-                $f->turbos === $fum->turbos
-            );
+            $hermanas = $fum->lote_id
+                ? $fumigaciones->filter(fn($f) => $f->lote_id === $fum->lote_id)
+                : $fumigaciones->filter(fn($f) =>
+                    !$f->lote_id &&
+                    $f->hora_inicio === $fum->hora_inicio &&
+                    $f->metodo_aplicacion === $fum->metodo_aplicacion &&
+                    $f->turbos === $fum->turbos
+                );
+
             $fum->total_hanegadas = $hermanas->sum(fn($f) => (float) ($f->parcela->dimension_hanegadas ?? 0));
             $fum->hanegadas_parcela = (float) ($fum->parcela->dimension_hanegadas ?? 0);
         });

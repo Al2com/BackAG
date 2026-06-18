@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Fumigacion;
 use App\Models\Producto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str; // para generar el lote_id
 
 class FumigacionController extends Controller
 {
@@ -35,9 +36,14 @@ class FumigacionController extends Controller
             ? round($datos['precio'] / $numParcelas, 2)
             : null;
 
+        // Un único identificador de lote para todas las parcelas creadas en este envío.
+        // Así Gastos las agrupa de forma exacta y no por coincidencia de hora/turbos.
+        $loteId = (string) Str::uuid();
+
         foreach ($datos['parcela_ids'] as $parcelaId) {
             $fumigacion = Fumigacion::create([
                 'parcela_id'        => $parcelaId,
+                'lote_id'           => $loteId,
                 'metodo_aplicacion' => $datos['metodo_aplicacion'],
                 'hora_inicio'       => $datos['hora_inicio'],
                 'descripcion'       => $datos['descripcion'],
@@ -84,12 +90,20 @@ class FumigacionController extends Controller
             ->get();
 
         $fumigaciones->each(function ($fum) {
-            $parcelaIds = Fumigacion::where('usuario_id', auth()->id())
-                ->where('hora_inicio', $fum->hora_inicio)
-                ->where('metodo_aplicacion', $fum->metodo_aplicacion)
-                ->where('turbos', $fum->turbos)
-                ->pluck('parcela_id')
-                ->unique();
+            // Lote exacto por lote_id. Las fumigaciones antiguas sin lote_id
+            // caen al método anterior (hora + metodo + turbos) como respaldo.
+            $consulta = Fumigacion::where('usuario_id', auth()->id());
+
+            if ($fum->lote_id) {
+                $consulta->where('lote_id', $fum->lote_id);
+            } else {
+                $consulta->whereNull('lote_id')
+                    ->where('hora_inicio', $fum->hora_inicio)
+                    ->where('metodo_aplicacion', $fum->metodo_aplicacion)
+                    ->where('turbos', $fum->turbos);
+            }
+
+            $parcelaIds = $consulta->pluck('parcela_id')->unique();
 
             $totalHanegadas = \App\Models\Parcela::whereIn('id', $parcelaIds)
                 ->sum('dimension_hanegadas');
@@ -115,10 +129,28 @@ class FumigacionController extends Controller
         return response()->json($fumigacion);
     }
 
-    public function actualizar(Request $request, $id)
+   public function actualizar(Request $request, $id)
     {
         $fumigacion = Fumigacion::findOrFail($id);
-        $fumigacion->update($request->all());
+
+        // Validamos y solo actualizamos campos conocidos: evita guardar basura
+        // (created_at, id...) y que un valor vacío o mal tipado provoque un 500.
+        $datos = $request->validate([
+            'parcela_id'        => 'sometimes|exists:parcelas,id',
+            'metodo_aplicacion' => 'sometimes|in:tractor,mochila',
+            'hora_inicio'       => 'sometimes|date',
+            'descripcion'       => 'nullable|string',
+            'operario'          => 'nullable|string',
+            'duracion_minutos'  => 'nullable|integer|min:0',
+            'mochilas'          => 'nullable',
+            'turbos'            => 'nullable',
+            'litros_agua'       => 'nullable|numeric|min:0',
+            'precio'            => 'nullable|numeric|min:0',   // null en tractor
+            'precio_turbo'      => 'nullable|numeric|min:0',   // null en mochila
+            'estado'            => 'nullable|in:pendiente,realizada,revisada',
+        ]);
+
+        $fumigacion->update($datos);
         return response()->json(['mensaje' => 'Fumigación actualizada']);
     }
 }
