@@ -190,6 +190,7 @@ class GastosController extends Controller
                 'id'        => $fum->id,
                 'fecha'     => $this->formatearFecha($fum->hora_inicio),
                 'unidades'  => $unidades,
+                'descripcion' => $fum->descripcion,
                 'operario'  => $fum->operario,
                 'hanegadas' => $fum->hanegadas_parcela,
                 'litros'    => round($this->calcularLitros($fum), 0),
