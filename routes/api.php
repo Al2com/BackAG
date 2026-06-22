@@ -16,6 +16,7 @@ use App\Http\Controllers\GastoRiegoController;
 use App\Http\Controllers\GastosController;
 use App\Http\Controllers\RecoleccionController;
 use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\CuadernoController;
 
 
 
@@ -102,6 +103,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/recolecciones/{id}', [RecoleccionController::class, 'borrar']);
         //PROVEEDORES       
         Route::post('/proveedores', [ProveedorController::class, 'crear']);
+
+        // CUADERNO DE CAMPO (datos para rellenar la hoja de la cooperativa)
+        Route::get('/cuaderno-campo', [CuadernoController::class, 'generar']);
     });
 
 });
