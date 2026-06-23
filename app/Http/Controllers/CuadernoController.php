@@ -12,7 +12,20 @@ class CuadernoController extends Controller{
     // devolvemos las fechas distintas (máx 7) y, por cada producto usado, en qué
     // columnas lleva la X. El front lo cruza con el catálogo impreso.
     //
+    // Hay dos bloques con la misma estructura: fitosanitarios y "manejo del
+    // suelo" (herbicidas). Se reparten según la materia activa del producto.
+    //
     // GET /api/cuaderno-campo?anio=2026&cultivo=citrico   (cultivo: 'citrico' | 'kaki')
+
+    // Materias activas que van al bloque "Manejo del suelo" (herbicidas).
+    // Se clasifica por materia activa, NO por método (mochila/tractor): son
+    // cosas independientes y así no se cuela un fitosanitario aplicado a mochila.
+    private const MATERIAS_HERBICIDA = [
+        'glifosato 36%',
+        'mcpa 50%',
+        'oxifluorfén 24%',
+    ];
+
     public function generar(Request $request)
     {
         $anio    = (int) $request->query('anio', date('Y'));
@@ -31,9 +44,49 @@ class CuadernoController extends Controller{
                 return $tipo === $cultivo;
             });
 
+        // Reparto cada aplicación (producto + fecha) en dos cubos: herbicidas
+        // (manejo del suelo) y el resto (fitosanitarios).
+        $appFito  = [];
+        $appSuelo = [];
+        foreach ($fumigaciones as $f) {
+            $fecha = substr($f->hora_inicio, 0, 10); // Y-m-d
+            foreach ($f->Productos as $p) {
+                $registro = ['fecha' => $fecha, 'producto' => $p];
+                if ($this->esHerbicida($p)) {
+                    $appSuelo[] = $registro;
+                } else {
+                    $appFito[] = $registro;
+                }
+            }
+        }
+
+        $fito = $this->construirBloque($appFito);
+
+        return response()->json([
+            'anio'        => $anio,
+            'cultivo'     => $cultivo,
+            'parcelas'    => 'Todas las parcelas',
+            'fechas'      => $fito['fechas'],      // fitosanitarios (igual que antes)
+            'productos'   => $fito['productos'],
+            'manejoSuelo' => $this->construirBloque($appSuelo),
+        ]);
+    }
+
+    // ¿la materia activa del producto está en la lista de herbicidas?
+    private function esHerbicida($producto): bool
+    {
+        $materia = mb_strtolower(trim($producto->materia_activa ?? ''));
+        return in_array($materia, self::MATERIAS_HERBICIDA, true);
+    }
+
+    // De una lista de aplicaciones [fecha, producto] arma un bloque del cuaderno:
+    // las fechas distintas (columnas, máx 7) y, por producto, en qué columnas va
+    // la X. Mismo criterio para fitosanitarios y para herbicidas.
+    private function construirBloque(array $aplicaciones): array
+    {
         // Fechas distintas = columnas (ordenadas, máximo 7)
-        $fechas = $fumigaciones
-            ->map(fn ($f) => substr($f->hora_inicio, 0, 10)) // Y-m-d
+        $fechas = collect($aplicaciones)
+            ->pluck('fecha')
             ->unique()
             ->sort()
             ->values()
@@ -47,33 +100,28 @@ class CuadernoController extends Controller{
 
         // Por cada producto usado: nombre, materia activa y columnas con X
         $productos = [];
-        foreach ($fumigaciones as $f) {
-            $fecha = substr($f->hora_inicio, 0, 10);
-            if (!isset($colDeFecha[$fecha])) {
+        foreach ($aplicaciones as $a) {
+            if (!isset($colDeFecha[$a['fecha']])) {
                 continue; // tratamiento fuera de las 7 columnas
             }
-            $col = $colDeFecha[$fecha];
+            $col = $colDeFecha[$a['fecha']];
+            $p   = $a['producto'];
 
-            foreach ($f->Productos as $p) {
-                if (!isset($productos[$p->id])) {
-                    $productos[$p->id] = [
-                        'nombre'         => $p->nombre,
-                        'materia_activa' => $p->materia_activa,
-                        'columnas'       => [],
-                    ];
-                }
-                if (!in_array($col, $productos[$p->id]['columnas'])) {
-                    $productos[$p->id]['columnas'][] = $col;
-                }
+            if (!isset($productos[$p->id])) {
+                $productos[$p->id] = [
+                    'nombre'         => $p->nombre,
+                    'materia_activa' => $p->materia_activa,
+                    'columnas'       => [],
+                ];
+            }
+            if (!in_array($col, $productos[$p->id]['columnas'])) {
+                $productos[$p->id]['columnas'][] = $col;
             }
         }
 
-        return response()->json([
-            'anio'     => $anio,
-            'cultivo'  => $cultivo,
-            'parcelas' => 'Todas las parcelas',
-            'fechas'   => $fechas->map(fn ($d) => date('j/n', strtotime($d)))->values(),
+        return [
+            'fechas'    => $fechas->map(fn ($d) => date('j/n', strtotime($d)))->values(),
             'productos' => array_values($productos),
-        ]);
+        ];
     }
 }
