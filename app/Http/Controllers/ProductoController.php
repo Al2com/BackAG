@@ -33,23 +33,20 @@ class ProductoController extends Controller
     public function actualizarProducto(Request $request, $id){
         $producto = Producto::findOrFail($id);
 
-        // Validamos y de paso evitamos guardar campos basura (created_at, id...)
-        // y que un precio vacío o fuera de rango tumbe el servidor con un 500.
         $datos = $request->validate([
             'nombre'            => 'required|max:50',
             'materia_activa'    => 'required',
             'ubicacion'         => 'required',
-            'precio'            => 'nullable|numeric|min:0|max:9999.99', // columna decimal(6,2)
-            'stock_minimo'      => 'required|integer|min:0',
-            'stock_actual'      => 'nullable|integer|min:0',
-            'dosis_recomendada' => 'nullable|numeric|min:0',
+            'stock_minimo'      => 'required|numeric|min:0',
+            'stock_actual'      => 'sometimes|numeric|min:0',
+            'precio'            => 'nullable|numeric|min:0',
             'unidad'            => 'nullable',
+            'dosis_recomendada' => 'nullable',
         ]);
 
         $producto->update($datos);
         return response()->json($producto);
     }
-
     // borra un producto DELETE /api/productos/lista/{id}
     // findOrFail respeta el AdminScope: no se puede borrar el producto de otro admin
     public function eliminarProducto($id){

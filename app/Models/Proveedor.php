@@ -16,7 +16,7 @@ class Proveedor extends Model
         'telefono',
         'nombre_comercial',
         'descripcion',
-        'admin_id'
+        // 'admin_id'
     ];
 
     public function compraProducto(){

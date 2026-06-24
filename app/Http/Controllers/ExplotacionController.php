@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Explotacion;
+use Illuminate\Validation\Rule;
 
 class ExplotacionController extends Controller
 {
@@ -27,12 +28,12 @@ class ExplotacionController extends Controller
         return response()->json($resumen);
     }
 
-    public function crear(Request $request){
+   public function crear(Request $request){
         $explotacion = $request->validate([
             'nombre'         => 'required|max:25',
             'ubicacion'      => 'required',
             'descripcion'    => 'required',
-            'propietario_id' => 'required',
+            'propietario_id' => ['required', Rule::exists('propietarios', 'id')->where('admin_id', $request->user()->adminId())],
         ]);
 
         Explotacion::create($explotacion);
@@ -52,7 +53,7 @@ class ExplotacionController extends Controller
             'nombre'         => 'required|max:25',
             'ubicacion'      => 'required',
             'descripcion'    => 'required',
-            'propietario_id' => 'required',
+            'propietario_id' => ['required', Rule::exists('propietarios', 'id')->where('admin_id', $request->user()->adminId())],
         ]);
 
         $explotacion->update($validacion);

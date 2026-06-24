@@ -17,7 +17,7 @@ class Recoleccion extends Model{
         'kilos',
         'precio_medio_kg',
         'variedad',
-        'admin_id',
+        // 'admin_id',
     ];
 
     public function parcela()

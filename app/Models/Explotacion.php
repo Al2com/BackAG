@@ -15,7 +15,7 @@ class Explotacion extends Model
         'nombre',
         'ubicacion',
         'descripcion',
-        'admin_id',
+        // 'admin_id',
         'propietario_id',
     ];
 
