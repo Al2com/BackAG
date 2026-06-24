@@ -6,6 +6,7 @@ use App\Models\CompraProducto;
 use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class CompraProductoController extends Controller
 {
@@ -21,8 +22,8 @@ class CompraProductoController extends Controller
    public function crear(Request $request)
     {
         $datos = $request->validate([
-            'producto_id'     => 'required|exists:productos,id',
-            'proveedor_id'    => 'required|exists:proveedores,id',
+            'producto_id'     => ['required', Rule::exists('productos', 'id')->where('admin_id', $request->user()->adminId())],
+            'proveedor_id'    => ['required', Rule::exists('proveedores', 'id')->where('admin_id', $request->user()->adminId())],
             'cantidad_compra' => 'required|numeric|min:0',
             'precio'          => 'required|numeric|min:0',
             'fecha_compra'    => 'required|date',

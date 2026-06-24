@@ -51,6 +51,16 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+     /***********************************************
+     * ID del administrador "dueño" del inquilino actual.
+     * Un admin se pertenece a sí mismo; un trabajador, a su admin.
+     * Por qué: es la misma regla que usa el AdminScope. Tenerla en
+     *  un sitio evita que las validaciones exists (fix 1.6) y el resto usen criterios distintos y diverjan.
+     **************************************************/
+    public function adminId(): int{
+        return $this->rol === 'trabajador' ? (int) $this->admin_id : (int) $this->id;
+    }
     public function explotaciones(){
         return $this->hasMany(Explotacion::class, 'admin_id');// un propietario tiene muchas explotaciones
     }

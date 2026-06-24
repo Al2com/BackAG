@@ -26,7 +26,7 @@ protected $fillable = [
     'num_arboles',
     'fecha_plantacion',
     'descripcion',
-    'admin_id',
+    // 'admin_id',
     'impuesto_municipal',
     'impuesto_cequiaje',
 ];

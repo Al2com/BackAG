@@ -53,7 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/parcelas/{id}', [ParcelaController::class, 'borrar']);
 
         // USUARIOS / PROPIETARIOS / TRABAJADORES
-        Route::get('/usuarios', [UserController::class, 'mostrarUsers']);
+        // Route::get('/usuarios', [UserController::class, 'mostrarUsers']);
         Route::get('/trabajadores', [UserController::class, 'mostrarTrabajadores']);
         Route::post('/trabajadores', [UserController::class, 'crearTrabajador']);
         Route::get('/propietarios', [PropietarioController::class, 'mostrarPropietarios']);
@@ -110,9 +110,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 
-// Rutas públicas
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/registro', [AuthController::class, 'registro']);
-  ///reset password 
-Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
-Route::post('/reset-password',  [PasswordResetController::class, 'reset']);
+// Rutas públicas (6 intentos/min por IP, anti fuerza bruta)
+Route::middleware('throttle:6,1')->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/registro', [AuthController::class, 'registro']);
+
+    // recuperación de contraseña
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
+    Route::post('/reset-password',  [PasswordResetController::class, 'reset']);
+});

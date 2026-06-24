@@ -17,7 +17,7 @@ class GastoRiego extends Model
         'mes',
         'concepto',
         'importe',
-        'admin_id',
+        // 'admin_id',
     ];
 
     public function parcela()

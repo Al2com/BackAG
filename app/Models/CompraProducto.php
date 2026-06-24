@@ -18,7 +18,7 @@ class CompraProducto extends Model
         'cantidad_compra',
         'precio',
         'fecha_compra',
-        'admin_id'
+        // 'admin_id'
     ];
 
     public function user() {

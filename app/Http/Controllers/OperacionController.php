@@ -3,12 +3,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Operacion;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class OperacionController extends Controller
 {
     public function crearOperacion(Request $request){
         $operacion = $request->validate([
-            'parcela_id'       => 'required',
+            'parcela_id'       => ['required', Rule::exists('parcelas', 'id')->where('admin_id', $request->user()->adminId())],
             'operario'         => 'required',
             'tipo_operacion'   => 'required',
             'hora_inicio'      => 'required',
@@ -43,7 +44,19 @@ class OperacionController extends Controller
 
     public function actualizar(Request $request, $id) {
         $operacion = Operacion::findOrFail($id);
-        $operacion->update($request->all());
+
+        $datos = $request->validate([
+            'parcela_id'       => ['required', \Illuminate\Validation\Rule::exists('parcelas', 'id')->where('admin_id', $request->user()->adminId())],
+            'operario'         => 'required',
+            'tipo_operacion'   => 'required',
+            'hora_inicio'      => 'required',
+            'duracion_minutos' => 'required|integer|min:0',
+            'precio'           => 'required|numeric|min:0',
+            'descripcion'      => 'required',
+            'estado'           => 'sometimes|in:pendiente,realizada,revisada',
+        ]);
+
+        $operacion->update($datos);
         return response()->json(['mensaje' => 'Operación actualizada']);
-    }
+}
 }
