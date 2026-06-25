@@ -7,11 +7,6 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function mostrarUsers(){
-        $usuarios = User::where('rol', 'admin')->get();
-        return response()->json(['usuarios' => $usuarios]);
-    }
-
     // Lista los trabajadores (operarios) de la cuenta del usuario logueado
     public function mostrarTrabajadores(){
         $user = auth()->user();
@@ -36,7 +31,7 @@ class UserController extends Controller
         $datos = $request->validate([
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'min:6'],
+            'password' => ['required', 'min:8'],
         ]);
 
         $trabajador = User::create([

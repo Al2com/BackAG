@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 use App\Models\Parcela;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ParcelaController extends Controller
 {
@@ -43,10 +44,10 @@ class ParcelaController extends Controller
         return response()->json($resumDatParcelas);
     }
 
-    public function crearParcela(Request $request){
+   public function crearParcela(Request $request){
         $parcela = $request->validate([
-            'explotacion_id'      => 'required',
-            'propietarios_id'     => 'required',
+            'explotacion_id'      => ['required', Rule::exists('explotaciones', 'id')->where('admin_id', $request->user()->adminId())],
+            'propietarios_id'     => ['required', Rule::exists('propietarios', 'id')->where('admin_id', $request->user()->adminId())],
             'nombre'              => 'required|max:25',
             'poligono'            => 'required|max:25',
             'parcela'             => 'required',
@@ -73,12 +74,12 @@ class ParcelaController extends Controller
         return response()->json($parcela);
     }
 
-    public function actualizar(Request $request, $id){
+   public function actualizar(Request $request, $id){
         $parcela = Parcela::findOrFail($id);
 
         $validacion = $request->validate([
-            'explotacion_id'      => 'required',
-            'propietarios_id'     => 'required',
+            'explotacion_id'      => ['required', Rule::exists('explotaciones', 'id')->where('admin_id', $request->user()->adminId())],
+            'propietarios_id'     => ['required', Rule::exists('propietarios', 'id')->where('admin_id', $request->user()->adminId())],
             'nombre'              => 'required|max:25',
             'poligono'            => 'required',
             'parcela'             => 'required',
@@ -86,7 +87,6 @@ class ParcelaController extends Controller
             'variedad'            => 'required',
             'dimension_hanegadas' => 'required',
             'num_arboles'         => 'required',
-            'fecha_plantacion'    => 'required',
             'fecha_plantacion'    => 'required',
             'descripcion'         => 'required',
             'impuesto_municipal'  => 'nullable|numeric|min:0',

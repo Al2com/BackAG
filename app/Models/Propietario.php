@@ -13,7 +13,7 @@ class Propietario extends Model
         'nombre',
         'dni',
         'telefono',
-        'admin_id',
+        // 'admin_id',
     ];
 
     public function explotaciones(){

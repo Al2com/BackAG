@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\Recoleccion;
 use App\Models\Parcela;
 
@@ -22,7 +23,7 @@ class RecoleccionController extends Controller
     public function crear(Request $request)
     {
         $datos = $request->validate([
-            'parcela_id'      => 'required|exists:parcelas,id',
+            'parcela_id'      => ['required', Rule::exists('parcelas', 'id')->where('admin_id', $request->user()->adminId())],
             'fecha'           => 'required|date',
             'tipo'            => 'required|in:adelanto,normal,atraso',
             'kilos'           => 'required|numeric|min:0',

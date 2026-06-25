@@ -1,30 +1,33 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Fumigacion;
 use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; // para generar el lote_id
+use Illuminate\Validation\Rule;
 
-class FumigacionController extends Controller
-{
+class FumigacionController extends Controller{
+
+
     public function añadirFumigacion(Request $request)
     {
         $datos = $request->validate([
             'parcela_ids'       => 'required|array',
-            'parcela_ids.*'     => 'required|exists:parcelas,id',
+            'parcela_ids.*'     => ['required', Rule::exists('parcelas', 'id')->where('admin_id', $request->user()->adminId())],
             'metodo_aplicacion' => 'required',
             'hora_inicio'       => 'required',
             'descripcion'       => 'required',
-            'precio'            => 'required_if:metodo_aplicacion,mochila', // el precio total solo aplica a mochila
-            'precio_turbo'      => 'required_if:metodo_aplicacion,tractor|numeric|min:0', // precio por turbo en tractor
+            'precio'            => 'required_if:metodo_aplicacion,mochila',
+            'precio_turbo'      => 'required_if:metodo_aplicacion,tractor|numeric|min:0',
             'operario'          => 'required_if:metodo_aplicacion,mochila',
             'duracion_minutos'  => 'required_if:metodo_aplicacion,mochila',
             'mochilas'          => 'required_if:metodo_aplicacion,mochila',
             'litros_agua'       => 'nullable|numeric|min:0',
             'turbos'            => 'required_if:metodo_aplicacion,tractor',
             'productos'         => 'required|array',
-            'productos.*.producto_id'       => 'required|exists:productos,id',
+            'productos.*.producto_id'       => ['required', Rule::exists('productos', 'id')->where('admin_id', $request->user()->adminId())],
             'productos.*.dosis_introducida' => 'required|numeric|min:0',
         ]);
 
@@ -129,25 +132,21 @@ class FumigacionController extends Controller
         return response()->json($fumigacion);
     }
 
-   public function actualizar(Request $request, $id)
-    {
+    public function actualizar(Request $request, $id){
         $fumigacion = Fumigacion::findOrFail($id);
 
-        // Validamos y solo actualizamos campos conocidos: evita guardar basura
-        // (created_at, id...) y que un valor vacío o mal tipado provoque un 500.
         $datos = $request->validate([
-            'parcela_id'        => 'sometimes|exists:parcelas,id',
-            'metodo_aplicacion' => 'sometimes|in:tractor,mochila',
-            'hora_inicio'       => 'sometimes|date',
-            'descripcion'       => 'nullable|string',
+            'metodo_aplicacion' => 'required|in:tractor,mochila',
+            'hora_inicio'       => 'required',
+            'descripcion'       => 'required',
+            'precio'            => 'nullable|numeric|min:0',
+            'precio_turbo'      => 'nullable|numeric|min:0',
             'operario'          => 'nullable|string',
             'duracion_minutos'  => 'nullable|integer|min:0',
             'mochilas'          => 'nullable',
-            'turbos'            => 'nullable',
             'litros_agua'       => 'nullable|numeric|min:0',
-            'precio'            => 'nullable|numeric|min:0',   // null en tractor
-            'precio_turbo'      => 'nullable|numeric|min:0',   // null en mochila
-            'estado'            => 'nullable|in:pendiente,realizada,revisada',
+            'turbos'            => 'nullable',
+            'estado'            => 'sometimes|in:pendiente,realizada,revisada',
         ]);
 
         $fumigacion->update($datos);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GastoRiego;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class GastoRiegoController extends Controller
 {
@@ -12,7 +13,7 @@ class GastoRiegoController extends Controller
     public function guardar(Request $request)
     {
         $datos = $request->validate([
-            'parcela_id'    => 'required|exists:parcelas,id',
+            'parcela_id'    => ['required', Rule::exists('parcelas', 'id')->where('admin_id', $request->user()->adminId())],
             'anio'          => 'required|integer|min:2000|max:2100',
             'mes'           => 'required|integer|min:1|max:12',
             'agua'          => 'nullable|numeric|min:0',
