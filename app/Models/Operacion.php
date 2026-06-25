@@ -18,7 +18,7 @@ class Operacion extends Model{
         'duracion_minutos',
         'precio',
         'descripcion',
-        'admin_id'
+        // 'admin_id'
 ];
 
 //una operación pertenece usuario,

@@ -34,7 +34,7 @@ class AuthController extends Controller
     $request->validate([
         'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'email', 'unique:users'],
-        'password' => ['required'],
+        'password' => ['required', \Illuminate\Validation\Rules\Password::min(8)->letters()->numbers()],
     ]);
 
     $usuario = User::create([

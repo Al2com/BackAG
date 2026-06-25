@@ -27,7 +27,7 @@ class Fumigacion extends Model
         'turbos',
         'precio_turbo',
         'descripcion',
-        'admin_id'
+        // 'admin_id'
     ];
 
     protected $casts = [
