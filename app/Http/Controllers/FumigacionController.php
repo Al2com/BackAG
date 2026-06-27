@@ -25,7 +25,8 @@ class FumigacionController extends Controller{
             'duracion_minutos'  => 'required_if:metodo_aplicacion,mochila',
             'mochilas'          => 'required_if:metodo_aplicacion,mochila',
             'litros_agua'       => 'nullable|numeric|min:0',
-            'turbos'            => 'required_if:metodo_aplicacion,tractor',
+            // turbos admite decimales: 0.5 = medio turbo (750 L), 1.33 = 1995 L, etc.
+            'turbos'            => 'required_if:metodo_aplicacion,tractor|nullable|numeric|min:0.01|max:99.99',
             'productos'         => 'required|array',
             'productos.*.producto_id'       => ['required', Rule::exists('productos', 'id')->where('admin_id', $request->user()->adminId())],
             'productos.*.dosis_introducida' => 'required|numeric|min:0',
@@ -145,7 +146,8 @@ class FumigacionController extends Controller{
             'duracion_minutos'  => 'nullable|integer|min:0',
             'mochilas'          => 'nullable',
             'litros_agua'       => 'nullable|numeric|min:0',
-            'turbos'            => 'nullable',
+            // turbos admite decimales, mismo criterio que en alta
+            'turbos'            => 'nullable|numeric|min:0.01|max:99.99',
             'estado'            => 'sometimes|in:pendiente,realizada,revisada',
         ]);
 

@@ -27,7 +27,7 @@ return new class extends Migration
             $table->unsignedInteger('duracion_minutos')->nullable();
             $table->text('descripcion')->nullable();
             $table->enum('metodo_aplicacion', ['tractor', 'mochila'])->default('tractor');
-            $table->string('turbos')->nullable();
+            $table->decimal('turbos', 5, 2)->nullable();
             $table->decimal('precio_turbo', 8, 2)->nullable();
             $table->string('mochilas')->nullable();
             $table->decimal('litros_agua', 6, 2)->nullable(); // litros de agua por mochila (informativo)
