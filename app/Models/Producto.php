@@ -18,7 +18,6 @@ class Producto extends Model
         'stock_actual',
         'unidad',
         'dosis_recomendada',
-        'admin_id'
     ];
 
     public function Fumigacion(){
@@ -26,5 +25,12 @@ class Producto extends Model
           ->withPivot('cantidad', 'dosis_introducida');
     }
 
-    
+    // Punto único para descontar consumo del almacén (abonado y fumigaciones
+    // lo llaman igual). Nunca deja el stock en negativo. Si en el futuro se
+    // quiere un histórico de movimientos, este es el sitio donde registrarlo.
+    public function descontarStock(float $cantidad): void
+    {
+        $this->stock_actual = max(0, $this->stock_actual - $cantidad);
+        $this->save();
+    }
 }

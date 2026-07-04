@@ -1,16 +1,13 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Fumigacion;
 use App\Models\Producto;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str; // para generar el lote_id
 use Illuminate\Validation\Rule;
 
-class FumigacionController extends Controller{
-
-
+class FumigacionController extends Controller
+{
     public function añadirFumigacion(Request $request)
     {
         $datos = $request->validate([
@@ -19,14 +16,13 @@ class FumigacionController extends Controller{
             'metodo_aplicacion' => 'required',
             'hora_inicio'       => 'required',
             'descripcion'       => 'required',
-            'precio'            => 'required_if:metodo_aplicacion,mochila',
-            'precio_turbo'      => 'required_if:metodo_aplicacion,tractor|numeric|min:0',
+            'precio'            => 'required_if:metodo_aplicacion,mochila', // el precio total solo aplica a mochila
+            'precio_turbo'      => 'required_if:metodo_aplicacion,tractor|numeric|min:0', // precio por turbo en tractor
             'operario'          => 'required_if:metodo_aplicacion,mochila',
             'duracion_minutos'  => 'required_if:metodo_aplicacion,mochila',
             'mochilas'          => 'required_if:metodo_aplicacion,mochila',
             'litros_agua'       => 'nullable|numeric|min:0',
-            // turbos admite decimales: 0.5 = medio turbo (750 L), 1.33 = 1995 L, etc.
-            'turbos'            => 'required_if:metodo_aplicacion,tractor|nullable|numeric|min:0.01|max:99.99',
+            'turbos'            => 'required_if:metodo_aplicacion,tractor',
             'productos'         => 'required|array',
             'productos.*.producto_id'       => ['required', Rule::exists('productos', 'id')->where('admin_id', $request->user()->adminId())],
             'productos.*.dosis_introducida' => 'required|numeric|min:0',
@@ -40,14 +36,31 @@ class FumigacionController extends Controller{
             ? round($datos['precio'] / $numParcelas, 2)
             : null;
 
-        // Un único identificador de lote para todas las parcelas creadas en este envío.
-        // Así Gastos las agrupa de forma exacta y no por coincidencia de hora/turbos.
-        $loteId = (string) Str::uuid();
+        $unidades = $datos['metodo_aplicacion'] === 'mochila'
+            ? $datos['mochilas']
+            : $datos['turbos'];
+
+        // comprobamos el stock de TODOS los productos antes de crear nada:
+        // si uno falla, no queremos fumigaciones ya creadas con productos a medias
+        foreach ($request->productos as $producto) {
+            $prod = Producto::find($producto['producto_id']);
+            $totalGastado = $producto['dosis_introducida'] * $unidades;
+            if (!$prod || $prod->stock_actual < $totalGastado) {
+                return response()->json([
+                    'mensaje' => 'No hay stock suficiente para registrar esta fumigación.',
+                    'errors'  => [
+                        'productos' => [
+                            'Stock de "' . ($prod->nombre ?? 'producto') . '": ' . ($prod->stock_actual ?? 0) . ' ' . ($prod->unidad ?? '')
+                                . '. Necesario: ' . $totalGastado . '.',
+                        ],
+                    ],
+                ], 422);
+            }
+        }
 
         foreach ($datos['parcela_ids'] as $parcelaId) {
             $fumigacion = Fumigacion::create([
                 'parcela_id'        => $parcelaId,
-                'lote_id'           => $loteId,
                 'metodo_aplicacion' => $datos['metodo_aplicacion'],
                 'hora_inicio'       => $datos['hora_inicio'],
                 'descripcion'       => $datos['descripcion'],
@@ -72,15 +85,10 @@ class FumigacionController extends Controller{
             }
         }
 
-        $unidades = $datos['metodo_aplicacion'] === 'mochila'
-            ? $datos['mochilas']
-            : $datos['turbos'];
-
         foreach ($request->productos as $producto) {
             $totalGastado = $producto['dosis_introducida'] * $unidades;
             $prod = Producto::findOrFail($producto['producto_id']);
-            $prod->stock_actual = max(0, $prod->stock_actual - $totalGastado);
-            $prod->save();
+            $prod->descontarStock((float) $totalGastado);
         }
 
         return response()->json(['mensaje' => 'Fumigaciones creadas'], 201);
@@ -94,20 +102,12 @@ class FumigacionController extends Controller{
             ->get();
 
         $fumigaciones->each(function ($fum) {
-            // Lote exacto por lote_id. Las fumigaciones antiguas sin lote_id
-            // caen al método anterior (hora + metodo + turbos) como respaldo.
-            $consulta = Fumigacion::where('usuario_id', auth()->id());
-
-            if ($fum->lote_id) {
-                $consulta->where('lote_id', $fum->lote_id);
-            } else {
-                $consulta->whereNull('lote_id')
-                    ->where('hora_inicio', $fum->hora_inicio)
-                    ->where('metodo_aplicacion', $fum->metodo_aplicacion)
-                    ->where('turbos', $fum->turbos);
-            }
-
-            $parcelaIds = $consulta->pluck('parcela_id')->unique();
+            $parcelaIds = Fumigacion::where('usuario_id', auth()->id())
+                ->where('hora_inicio', $fum->hora_inicio)
+                ->where('metodo_aplicacion', $fum->metodo_aplicacion)
+                ->where('turbos', $fum->turbos)
+                ->pluck('parcela_id')
+                ->unique();
 
             $totalHanegadas = \App\Models\Parcela::whereIn('id', $parcelaIds)
                 ->sum('dimension_hanegadas');
@@ -133,7 +133,8 @@ class FumigacionController extends Controller{
         return response()->json($fumigacion);
     }
 
-    public function actualizar(Request $request, $id){
+    public function actualizar(Request $request, $id)
+    {
         $fumigacion = Fumigacion::findOrFail($id);
 
         $datos = $request->validate([
@@ -146,8 +147,7 @@ class FumigacionController extends Controller{
             'duracion_minutos'  => 'nullable|integer|min:0',
             'mochilas'          => 'nullable',
             'litros_agua'       => 'nullable|numeric|min:0',
-            // turbos admite decimales, mismo criterio que en alta
-            'turbos'            => 'nullable|numeric|min:0.01|max:99.99',
+            'turbos'            => 'nullable',
             'estado'            => 'sometimes|in:pendiente,realizada,revisada',
         ]);
 

@@ -23,7 +23,7 @@ class GastosController extends Controller
 
         // el scope global ya filtra por admin
         $parcelas    = Parcela::with('explotacion:id,nombre')->get();
-        $operaciones = Operacion::with('parcela')->get();
+        $operaciones = Operacion::with(['parcela', 'producto'])->get();
         $fumigaciones = Fumigacion::with(['parcela', 'productos'])->get();
         $gastosRiego = GastoRiego::all();
 
@@ -34,20 +34,13 @@ class GastosController extends Controller
             $gastosRiego = $gastosRiego->filter(fn($g) => (string) $g->anio === (string) $campania)->values();
         }
 
-        // enriquezco las fumigaciones con las hanegadas del lote.
-        // Agrupamos por lote_id (exacto). Las fumigaciones antiguas sin lote_id
-        // caen al método anterior (hora + metodo + turbos) como respaldo, para
-        // no romper el histórico ya guardado.
+        // enriquezco las fumigaciones con las hanegadas del lote (igual que TareasController)
         $fumigaciones->each(function ($fum) use ($fumigaciones) {
-            $hermanas = $fum->lote_id
-                ? $fumigaciones->filter(fn($f) => $f->lote_id === $fum->lote_id)
-                : $fumigaciones->filter(fn($f) =>
-                    !$f->lote_id &&
-                    $f->hora_inicio === $fum->hora_inicio &&
-                    $f->metodo_aplicacion === $fum->metodo_aplicacion &&
-                    $f->turbos === $fum->turbos
-                );
-
+            $hermanas = $fumigaciones->filter(fn($f) =>
+                $f->hora_inicio === $fum->hora_inicio &&
+                $f->metodo_aplicacion === $fum->metodo_aplicacion &&
+                $f->turbos === $fum->turbos
+            );
             $fum->total_hanegadas = $hermanas->sum(fn($f) => (float) ($f->parcela->dimension_hanegadas ?? 0));
             $fum->hanegadas_parcela = (float) ($fum->parcela->dimension_hanegadas ?? 0);
         });
@@ -97,15 +90,24 @@ class GastosController extends Controller
         $agrupadas = [];
         foreach ($opsParcela as $op) {
             $agrupadas[$op->tipo_operacion][$op->operario][] = [
-                'fecha'  => $this->formatearFecha($op->hora_inicio),
-                'horas'  => (float) ($op->duracion_minutos ?? 0) / 60,
-                'precio' => (float) ($op->precio ?? 0),
+                'fecha'    => $this->formatearFecha($op->hora_inicio),
+                'horas'    => (float) ($op->duracion_minutos ?? 0) / 60,
+                'precio'   => (float) ($op->precio ?? 0),
+                // solo relevante en abonado: qué producto y cuánta dosis se aplicó
+                'producto' => ($op->tipo_operacion === 'abonado' && $op->producto)
+                    ? [
+                        'nombre' => $op->producto->nombre,
+                        'dosis'  => (float) ($op->dosis ?? 0),
+                        'unidad' => $op->producto->unidad ?? '',
+                    ]
+                    : null,
             ];
         }
         $operacionesSalida = [];
         foreach ($agrupadas as $tipo => $porOperario) {
             $precioTipo = 0;
             $operariosSalida = [];
+            $materiales = [];
             foreach ($porOperario as $operario => $entradas) {
                 $horas = array_sum(array_column($entradas, 'horas'));
                 $precioTipo += array_sum(array_column($entradas, 'precio'));
@@ -118,11 +120,25 @@ class GastosController extends Controller
                     'horas'    => round($horas, 1),
                     'detalle'  => $detalle,
                 ];
+
+                // abonado: una fila de material por cada operación con producto, con su propio coste
+                foreach ($entradas as $e) {
+                    if ($e['producto']) {
+                        $materiales[] = [
+                            'fecha'  => $e['fecha'],
+                            'nombre' => $e['producto']['nombre'],
+                            'dosis'  => $e['producto']['dosis'],
+                            'unidad' => $e['producto']['unidad'],
+                            'coste'  => $e['precio'],
+                        ];
+                    }
+                }
             }
             $operacionesSalida[] = [
                 'tipo'       => $tipo,
                 'precioTipo' => round($precioTipo, 2),
                 'operarios'  => $operariosSalida,
+                'materiales' => $materiales,
             ];
         }
 
@@ -190,7 +206,6 @@ class GastosController extends Controller
                 'id'        => $fum->id,
                 'fecha'     => $this->formatearFecha($fum->hora_inicio),
                 'unidades'  => $unidades,
-                'descripcion' => $fum->descripcion,
                 'operario'  => $fum->operario,
                 'hanegadas' => $fum->hanegadas_parcela,
                 'litros'    => round($this->calcularLitros($fum), 0),

@@ -14,11 +14,12 @@ class Operacion extends Model{
         'usuario_id',
         'operario',
         'tipo_operacion',
+        'producto_id',
+        'dosis',
         'hora_inicio',
         'duracion_minutos',
         'precio',
         'descripcion',
-        // 'admin_id'
 ];
 
 //una operación pertenece usuario,
@@ -37,5 +38,9 @@ public function fumigacion(){
     return $this->hasOne(Fumigacion::class);
 }
 
+// producto consumido cuando tipo_operacion = 'abonado'
+public function producto(){
+    return $this->belongsTo(Producto::class);
+}
 
 }
