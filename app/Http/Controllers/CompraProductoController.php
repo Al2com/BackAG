@@ -10,11 +10,15 @@ use Illuminate\Validation\Rule;
 
 class CompraProductoController extends Controller
 {
-    // Filtra por user_id para que cada usuario solo vea sus compras
+    // El AdminScope del modelo ya filtra por admin_id (todo el que pertenezca
+    // a la misma explotación). Antes había además un where('user_id', Auth::id())
+    // que dejaba ver solo las compras registradas por el propio usuario logueado:
+    // eso es incorrecto para la vista de "Detalle" del almacén, que debe mostrar
+    // todas las compras de la explotación, las haya registrado quien las haya registrado.
     public function listar()
     {
-        $compras = CompraProducto::where('user_id', Auth::id())
-            ->with(['producto', 'proveedor', 'user'])
+        $compras = CompraProducto::with(['producto', 'proveedor', 'user'])
+            ->orderByDesc('fecha_compra')
             ->get();
         return response()->json($compras);
     }

@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Operacion;
+use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -16,10 +17,33 @@ class OperacionController extends Controller
             'duracion_minutos' => 'required',
             'precio'           => 'required',
             'descripcion'      => 'required',
+            // solo aplican a abonado: producto consumido y dosis (la dosis ya es el total gastado)
+            'producto_id'      => ['nullable', 'required_if:tipo_operacion,abonado', Rule::exists('productos', 'id')->where('admin_id', $request->user()->adminId())],
+            'dosis'            => 'nullable|required_if:tipo_operacion,abonado|numeric|min:0.01',
         ]);
 
+        // abonado: no se crea la operación si no hay stock suficiente del producto
+        if ($operacion['tipo_operacion'] === 'abonado') {
+            $producto = Producto::find($operacion['producto_id']);
+            if (!$producto || $producto->stock_actual < $operacion['dosis']) {
+                return response()->json([
+                    'mensaje' => 'No hay stock suficiente para registrar esta operación.',
+                    'errors'  => [
+                        'dosis' => ['Stock disponible: ' . ($producto->stock_actual ?? 0) . ' ' . ($producto->unidad ?? '') . '. Necesario: ' . $operacion['dosis'] . '.'],
+                    ],
+                ], 422);
+            }
+        }
+
         $operacion['usuario_id'] = auth()->id(); // ya estaba correcto, se eliminó usuario_id de la validación
-        Operacion::create($operacion);
+        $nuevaOperacion = Operacion::create($operacion);
+
+        // abonado descuenta del almacén: la dosis introducida en el formulario ya es el consumo total
+        if ($nuevaOperacion->tipo_operacion === 'abonado' && $nuevaOperacion->producto_id) {
+            $producto = Producto::find($nuevaOperacion->producto_id);
+            $producto?->descontarStock((float) $nuevaOperacion->dosis);
+        }
+
         return response()->json(['mensaje' => 'Operación creada'], 201);
     }
 
@@ -46,7 +70,7 @@ class OperacionController extends Controller
         $operacion = Operacion::findOrFail($id);
 
         $datos = $request->validate([
-            'parcela_id'       => ['required', \Illuminate\Validation\Rule::exists('parcelas', 'id')->where('admin_id', $request->user()->adminId())],
+            'parcela_id'       => ['required', Rule::exists('parcelas', 'id')->where('admin_id', $request->user()->adminId())],
             'operario'         => 'required',
             'tipo_operacion'   => 'required',
             'hora_inicio'      => 'required',
@@ -58,5 +82,5 @@ class OperacionController extends Controller
 
         $operacion->update($datos);
         return response()->json(['mensaje' => 'Operación actualizada']);
-}
+    }
 }
