@@ -19,6 +19,7 @@ class Operacion extends Model{
         'hora_inicio',
         'duracion_minutos',
         'precio',
+        'precio_material',
         'descripcion',
 ];
 
