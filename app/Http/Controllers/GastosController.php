@@ -90,9 +90,10 @@ class GastosController extends Controller
         $agrupadas = [];
         foreach ($opsParcela as $op) {
             $agrupadas[$op->tipo_operacion][$op->operario][] = [
-                'fecha'    => $this->formatearFecha($op->hora_inicio),
-                'horas'    => (float) ($op->duracion_minutos ?? 0) / 60,
-                'precio'   => (float) ($op->precio ?? 0),
+                'fecha'           => $this->formatearFecha($op->hora_inicio),
+                'horas'           => (float) ($op->duracion_minutos ?? 0) / 60,
+                'precio'          => (float) ($op->precio ?? 0), // total: mano de obra + material
+                'precioMaterial'  => (float) ($op->precio_material ?? 0),
                 // solo relevante en abonado: qué producto y cuánta dosis se aplicó
                 'producto' => ($op->tipo_operacion === 'abonado' && $op->producto)
                     ? [
@@ -105,12 +106,14 @@ class GastosController extends Controller
         }
         $operacionesSalida = [];
         foreach ($agrupadas as $tipo => $porOperario) {
-            $precioTipo = 0;
+            $precioTipo = 0; // acumula solo la parte de mano de obra (el total menos el material)
             $operariosSalida = [];
             $materiales = [];
             foreach ($porOperario as $operario => $entradas) {
                 $horas = array_sum(array_column($entradas, 'horas'));
-                $precioTipo += array_sum(array_column($entradas, 'precio'));
+                $totalOperario = array_sum(array_column($entradas, 'precio'));
+                $materialOperario = array_sum(array_column($entradas, 'precioMaterial'));
+                $precioTipo += ($totalOperario - $materialOperario);
                 $detalle = implode(' · ', array_map(
                     fn($e) => $e['fecha'] . ' ' . number_format($e['horas'], 1) . 'h',
                     $entradas
@@ -121,7 +124,7 @@ class GastosController extends Controller
                     'detalle'  => $detalle,
                 ];
 
-                // abonado: una fila de material por cada operación con producto, con su propio coste
+                // abonado: una fila de material por cada operación con producto, con SOLO su coste de material
                 foreach ($entradas as $e) {
                     if ($e['producto']) {
                         $materiales[] = [
@@ -129,7 +132,7 @@ class GastosController extends Controller
                             'nombre' => $e['producto']['nombre'],
                             'dosis'  => $e['producto']['dosis'],
                             'unidad' => $e['producto']['unidad'],
-                            'coste'  => $e['precio'],
+                            'coste'  => $e['precioMaterial'],
                         ];
                     }
                 }

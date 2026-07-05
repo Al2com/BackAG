@@ -20,6 +20,9 @@ class OperacionController extends Controller
             // solo aplican a abonado: producto consumido y dosis (la dosis ya es el total gastado)
             'producto_id'      => ['nullable', 'required_if:tipo_operacion,abonado', Rule::exists('productos', 'id')->where('admin_id', $request->user()->adminId())],
             'dosis'            => 'nullable|required_if:tipo_operacion,abonado|numeric|min:0.01',
+            // parte de 'precio' que corresponde solo a material (el resto es mano de obra);
+            // la manda el front ya calculada, aquí solo se persiste para poder desglosarla en Gastos
+            'precio_material'  => 'nullable|numeric|min:0',
         ]);
 
         // abonado: no se crea la operación si no hay stock suficiente del producto
