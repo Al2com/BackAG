@@ -21,7 +21,7 @@ class ProductoSeeder extends Seeder
     {
         // [nombre, materia_activa, ubicacion, stock(cantidad), unidad, precio]
         $catalogo = [
-            ['Albelda ce',            'Aceite de parafina 79%',             'Almacén',       0,  'L',   null],
+            ['Albelda ce',            'Aceite de parafina 79%',             'Almacén',       50, 'L',   2.59],
             ['Cesar',                 'Hexitiazox 10%',                     'Almacén',       0,  'kg',  null],
             ['Poseidon',              'Piridaben 10%',                      'Almacén',       0,  'L',   null],
             ['Dinamite',              'Acequinocil 16,4%',                  'Almacén',       0,  'L',   null],
@@ -61,12 +61,12 @@ class ProductoSeeder extends Seeder
             ['Corrector Ca',          'Calcio quelado 15%',                 'Almacén',       0,  'l',   3.96],
             ['Aminoácidos',           'Aminoácidos libres 40%',             'Almacén',       0,  'L',   null],
             ['Abono Amoniaco',        'Nitrógeno amoniacal 20%',            'Almacén',       0,  'L',   null],
-            ['Abono 15-15-15',        'NPK 15-15-15',                       'Almacén',       0,  'kg',  null],
+            ['Abono 15-15-15',        'NPK 15-15-15',                       'Almacén',       0,  'kg',  0.51],
             ['Abono Calcio',          'Calcio 18% + Boro 0.2%',             'Almacén',       10, 'l',   3.96],
-            ['Abono Fem',             'Ácidos húmicos y fúlvicos 12%',      'Almacén',       0,  'L',   null],
-            ['Insecticida Glifosato', 'Glifosato 36%',                      'Almacén',       0,  'l',   3.85],
-            ['Insecticida U46',       'MCPA 50%',                           'Almacén',       0,  'l',   4.00],
-            ['Insecticida Goal',      'Oxifluorfén 24%',                    'Almacén',       0,  'l',   25.85],
+            ['Labin',                 'Ácidos húmicos y fúlvicos 24%',      'Almacén',       8,  'l',   4.50],
+            ['Insecticida Glifosato', 'Glifosato 36%',                      'Almacén',       20,  'l',   3.85],
+            ['Insecticida U46',       'MCPA 50%',                           'Almacén',       10,  'l',   4.00],
+            ['Insecticida Goal',      'Oxifluorfén 24%',                    'Almacén',       10,  'l',   25.85],
             ['Movento o-teq',         'Spirotetramat 15%',                  'Estanteria A9', 0,  null,  125.00],
         ];
 
