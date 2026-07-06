@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('producto_id')->nullable()->after('tipo_operacion')
                 ->constrained('productos')->nullOnDelete();
             $table->decimal('dosis', 8, 2)->nullable()->after('producto_id');
-            $table->decimal('precio_material', 8, 2)->nullable()->after('precio');
+         
         });
     }
 
