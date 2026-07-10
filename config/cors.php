@@ -11,7 +11,7 @@ return [
     'allowed_methods' => ['*'],
     'allowed_origins' =>[
     'http://localhost:5173',
-    'https://3905f6f0.agrogestion.pages.dev', // tu dominio real de Cloudflare Pages
+    'https://agrogestion.pages.dev', // tu dominio real de Cloudflare Pages
     ],//Cors
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
