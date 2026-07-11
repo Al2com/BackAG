@@ -81,63 +81,63 @@ class GastosController extends Controller
         return 1 / ($fum->num_parcelas ?: 1);
     }
 
-   private function resumenParcela($parcela, $operaciones, $fumigaciones, $gastosRiego)
-{
-    $opsParcela = $operaciones->filter(fn($o) => $o->parcela_id === $parcela->id);
-    $fumsParcela = $fumigaciones->filter(fn($f) => $f->parcela_id === $parcela->id);
+    private function resumenParcela($parcela, $operaciones, $fumigaciones, $gastosRiego)
+    {
+        $opsParcela = $operaciones->filter(fn($o) => $o->parcela_id === $parcela->id);
+        $fumsParcela = $fumigaciones->filter(fn($f) => $f->parcela_id === $parcela->id);
 
-    // operaciones agrupadas por tipo; cada operación individual se conserva como su propia fila
-    $agrupadas = [];
-    foreach ($opsParcela as $op) {
-        $agrupadas[$op->tipo_operacion][] = [
-            'operario'        => $op->operario,
-            'fecha'           => $this->formatearFecha($op->hora_inicio),
-            'horas'           => (float) ($op->duracion_minutos ?? 0) / 60,
-            'precio'          => (float) ($op->precio ?? 0), // total: mano de obra + material
-            'precioMaterial'  => (float) ($op->precio_material ?? 0),
-            // solo relevante en abonado: qué producto y cuánta dosis se aplicó
-            'producto' => ($op->tipo_operacion === 'abonado' && $op->producto)
-                ? [
-                    'nombre' => $op->producto->nombre,
-                    'dosis'  => (float) ($op->dosis ?? 0),
-                    'unidad' => $op->producto->unidad ?? '',
-                ]
-                : null,
-        ];
-    }
-    $operacionesSalida = [];
-    foreach ($agrupadas as $tipo => $entradas) {
-        // precio de mano de obra de cada fila = precio total de la operación menos el material aplicado
-        $filas = array_map(fn($e) => [
-            'operario' => $e['operario'],
-            'fecha'    => $e['fecha'],
-            'horas'    => round($e['horas'], 1),
-            'precio'   => round($e['precio'] - $e['precioMaterial'], 2),
-        ], $entradas);
-
-        $precioTipo = array_sum(array_column($filas, 'precio'));
-
-        // abonado: una fila de material por cada operación con producto, con SOLO su coste de material
-        $materiales = [];
-        foreach ($entradas as $e) {
-            if ($e['producto']) {
-                $materiales[] = [
-                    'fecha'  => $e['fecha'],
-                    'nombre' => $e['producto']['nombre'],
-                    'dosis'  => $e['producto']['dosis'],
-                    'unidad' => $e['producto']['unidad'],
-                    'coste'  => $e['precioMaterial'],
-                ];
-            }
+        // operaciones agrupadas por tipo; cada operación individual se conserva como su propia fila
+        $agrupadas = [];
+        foreach ($opsParcela as $op) {
+            $agrupadas[$op->tipo_operacion][] = [
+                'operario'        => $op->operario,
+                'fecha'           => $this->formatearFecha($op->hora_inicio),
+                'horas'           => (float) ($op->duracion_minutos ?? 0) / 60,
+                'precio'          => (float) ($op->precio ?? 0), // total: mano de obra + material
+                'precioMaterial'  => (float) ($op->precio_material ?? 0),
+                // solo relevante en abonado: qué producto y cuánta dosis se aplicó
+                'producto' => ($op->tipo_operacion === 'abonado' && $op->producto)
+                    ? [
+                        'nombre' => $op->producto->nombre,
+                        'dosis'  => (float) ($op->dosis ?? 0),
+                        'unidad' => $op->producto->unidad ?? '',
+                    ]
+                    : null,
+            ];
         }
+        $operacionesSalida = [];
+        foreach ($agrupadas as $tipo => $entradas) {
+            // precio de mano de obra de cada fila = precio total de la operación menos el material aplicado
+            $filas = array_map(fn($e) => [
+                'operario' => $e['operario'],
+                'fecha'    => $e['fecha'],
+                'horas'    => round($e['horas'], 1),
+                'precio'   => round($e['precio'] - $e['precioMaterial'], 2),
+            ], $entradas);
 
-        $operacionesSalida[] = [
-            'tipo'       => $tipo,
-            'precioTipo' => round($precioTipo, 2),
-            'filas'      => $filas,
-            'materiales' => $materiales,
-        ];
-    }
+            $precioTipo = array_sum(array_column($filas, 'precio'));
+
+            // abonado: una fila de material por cada operación con producto, con SOLO su coste de material
+            $materiales = [];
+            foreach ($entradas as $e) {
+                if ($e['producto']) {
+                    $materiales[] = [
+                        'fecha'  => $e['fecha'],
+                        'nombre' => $e['producto']['nombre'],
+                        'dosis'  => $e['producto']['dosis'],
+                        'unidad' => $e['producto']['unidad'],
+                        'coste'  => $e['precioMaterial'],
+                    ];
+                }
+            }
+
+            $operacionesSalida[] = [
+                'tipo'       => $tipo,
+                'precioTipo' => round($precioTipo, 2),
+                'filas'      => $filas,
+                'materiales' => $materiales,
+            ];
+        }
 
         $tractor = $this->fumigacionesMetodo($fumsParcela, 'tractor');
         $mochila = $this->fumigacionesMetodo($fumsParcela, 'mochila');
