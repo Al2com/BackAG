@@ -14,9 +14,12 @@ use App\Http\Controllers\CompraProductoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\GastoRiegoController;
 use App\Http\Controllers\GastosController;
+use App\Http\Controllers\AnalisisController;
 use App\Http\Controllers\RecoleccionController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\CuadernoController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\BackupController;
 
 
 
@@ -33,6 +36,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/tareas/{tipo}/{id}', [TareasController::class, 'marcarRealizada']); // el trabajador marca hecho
     Route::get('/almacen/stock-bajo', [AlmacenController::class, 'stockBajo']);     // dashboard
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // ===== CONFIGURACIÓN: personal de cada usuario, cualquier rol =====
+    Route::put('/settings/tema', [SettingsController::class, 'actualizarTema']);
+    Route::post('/settings/foto-perfil', [SettingsController::class, 'subirFotoPerfil']);
+    Route::delete('/settings/foto-perfil', [SettingsController::class, 'borrarFotoPerfil']);
 
     // ===== SOLO ADMINISTRADOR =====
     Route::middleware('admin')->group(function () {
@@ -95,6 +103,9 @@ Route::middleware('auth:sanctum')->group(function () {
         // RESUMEN DE GASTOS
         Route::get('/gastos/resumen', [GastosController::class, 'resumen']);
 
+        // ANALISIS: gasto por hanegada de una parcela vs media del resto
+        Route::get('/analisis/resumen', [AnalisisController::class, 'resumenParcela']);
+
         // RECOLECCIONES
         Route::get('/recolecciones', [RecoleccionController::class, 'listar']);
         Route::post('/recolecciones/crear', [RecoleccionController::class, 'crear']);
@@ -106,6 +117,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // CUADERNO DE CAMPO (datos para rellenar la hoja de la cooperativa)
         Route::get('/cuaderno-campo', [CuadernoController::class, 'generar']);
+
+        // COPIA DE SEGURIDAD (datos del inquilino completo: solo admin)
+        Route::get('/backup/tiene-datos', [BackupController::class, 'tieneDatos']);
+        Route::get('/backup/csv', [BackupController::class, 'exportarCsv']);
+        Route::get('/backup/json', [BackupController::class, 'exportarJson']);
+        Route::post('/backup/importar', [BackupController::class, 'importar']);
     });
 
 });
