@@ -11,9 +11,6 @@ use Illuminate\Http\Request;
 
 class GastosController extends Controller
 {
-    private const LITROS_TRACTOR = 1500;
-    private const LITROS_MOCHILA = 12;
-
     // CAMBIO: inyección del servicio de cálculo
     public function __construct(private CosteFumigacionService $coste) {}
 
@@ -35,15 +32,7 @@ class GastosController extends Controller
         }
 
         // enriquezco las fumigaciones con las hanegadas del lote (igual que TareasController)
-        $fumigaciones->each(function ($fum) use ($fumigaciones) {
-            $hermanas = $fumigaciones->filter(fn($f) =>
-                $f->hora_inicio === $fum->hora_inicio &&
-                $f->metodo_aplicacion === $fum->metodo_aplicacion &&
-                $f->turbos === $fum->turbos
-            );
-            $fum->total_hanegadas = $hermanas->sum(fn($f) => (float) ($f->parcela->dimension_hanegadas ?? 0));
-            $fum->hanegadas_parcela = (float) ($fum->parcela->dimension_hanegadas ?? 0);
-        });
+        $fumigaciones = $this->coste->enriquecerHanegadas($fumigaciones);
 
         $porParcela = $parcelas->map(fn($p) => $this->resumenParcela($p, $operaciones, $fumigaciones, $gastosRiego));
 
@@ -59,26 +48,6 @@ class GastosController extends Controller
             'porExplotacion' => $porExplotacion,
             'porParcela'     => $porParcela->values(),
         ]);
-    }
-
-    private function calcularLitros($fum)
-    {
-        $unidades = $fum->metodo_aplicacion === 'tractor' ? $fum->turbos : $fum->mochilas;
-        $litrosPorUnidad = $fum->metodo_aplicacion === 'tractor' ? self::LITROS_TRACTOR : self::LITROS_MOCHILA;
-        $litrosTotales = $unidades * $litrosPorUnidad;
-
-        if ($fum->metodo_aplicacion === 'tractor' && $fum->total_hanegadas > 0) {
-            return $litrosTotales * ($fum->hanegadas_parcela / $fum->total_hanegadas);
-        }
-        return $litrosTotales / ($fum->num_parcelas ?: 1);
-    }
-
-    private function calcularProporcion($fum)
-    {
-        if ($fum->metodo_aplicacion === 'tractor' && $fum->total_hanegadas > 0) {
-            return $fum->hanegadas_parcela / $fum->total_hanegadas;
-        }
-        return 1 / ($fum->num_parcelas ?: 1);
     }
 
     private function resumenParcela($parcela, $operaciones, $fumigaciones, $gastosRiego)
@@ -126,6 +95,16 @@ class GastosController extends Controller
                         'nombre' => $e['producto']['nombre'],
                         'dosis'  => $e['producto']['dosis'],
                         'unidad' => $e['producto']['unidad'],
+                        'coste'  => $e['precioMaterial'],
+                    ];
+                } elseif ($e['precioMaterial'] > 0) {
+                    // mantenimiento (y cualquier otro tipo sin producto de almacén): el material
+                    // lo escribe el usuario a mano, sin producto ni dosis asociados
+                    $materiales[] = [
+                        'fecha'  => $e['fecha'],
+                        'nombre' => 'Material',
+                        'dosis'  => null,
+                        'unidad' => '',
                         'coste'  => $e['precioMaterial'],
                     ];
                 }
@@ -181,7 +160,7 @@ class GastosController extends Controller
         $salida = [];
         foreach ($fumsParcela->filter(fn($f) => $f->metodo_aplicacion === $metodo) as $fum) {
             $unidades = $metodo === 'tractor' ? $fum->turbos : $fum->mochilas;
-            $proporcion = $this->calcularProporcion($fum);
+            $proporcion = $this->coste->calcularProporcion($fum);
 
             $productos = [];
             $costeMaterial = 0;
@@ -199,20 +178,25 @@ class GastosController extends Controller
                 ];
             }
 
+            // CAMBIO: el tractor se calcula por hanegadas; la mochila sigue usando el precio guardado
+            $precioOperacion = $metodo === 'tractor'
+                ? round($this->coste->costeTractorParcela($fum), 2)
+                : round((float) $fum->precio, 2);
+
             $salida[] = [
                 'id'        => $fum->id,
                 'fecha'     => $this->formatearFecha($fum->hora_inicio),
                 'unidades'  => $unidades,
                 'operario'  => $fum->operario,
                 'hanegadas' => $fum->hanegadas_parcela,
-                'litros'    => round($this->calcularLitros($fum), 0),
-                // CAMBIO: el tractor se calcula por hanegadas; la mochila sigue usando el precio guardado
-                'precio'    => $metodo === 'tractor'
-                    ? round($this->coste->costeTractorParcela($fum), 2)
-                    : round((float) $fum->precio, 2),
+                'litros'    => round($this->coste->calcularLitros($fum), 0),
+                'precio'    => $precioOperacion,
                 'duracion_minutos' => $fum->duracion_minutos,
                 'productos' => $productos,
                 'costeMaterial' => round($costeMaterial, 2),
+                // coste de operación + todos los productos: única fuente de verdad
+                // para la fila "Total" que pinta el front bajo cada fumigación
+                'total'     => round($precioOperacion + $costeMaterial, 2),
             ];
         }
         return $salida;

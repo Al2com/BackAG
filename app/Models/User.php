@@ -9,6 +9,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 
 class User extends Authenticatable
@@ -26,7 +27,10 @@ class User extends Authenticatable
         'email',
         'password',
         'rol',
-        'admin_id'
+        'admin_id',
+        'tema',
+        'foto_perfil',
+        'foto_perfil_thumb',
     ];
 
     /**
@@ -38,6 +42,28 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    /**
+     * Rutas de foto_perfil/foto_perfil_thumb se guardan relativas al disco
+     * 'public'; se añaden como URL absoluta para que el front no tenga que
+     * conocer la convención de almacenamiento.
+     *
+     * @var list<string>
+     */
+    protected $appends = [
+        'foto_perfil_url',
+        'foto_perfil_thumb_url',
+    ];
+
+    public function getFotoPerfilUrlAttribute(): ?string
+    {
+        return $this->foto_perfil ? Storage::disk('public')->url($this->foto_perfil) : null;
+    }
+
+    public function getFotoPerfilThumbUrlAttribute(): ?string
+    {
+        return $this->foto_perfil_thumb ? Storage::disk('public')->url($this->foto_perfil_thumb) : null;
+    }
 
     /**
      * Get the attributes that should be cast.

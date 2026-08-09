@@ -129,7 +129,9 @@ class FumigacionController extends Controller
 
     public function mostrar($id)
     {
-        $fumigacion = Fumigacion::findOrFail($id);
+        // eager load: coste_operacion/total/desglose_productos leen la
+        // relación 'productos', si no se precarga sale una query por producto
+        $fumigacion = Fumigacion::with('productos')->findOrFail($id);
         return response()->json($fumigacion);
     }
 
