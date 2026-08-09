@@ -86,10 +86,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // ALMACEN
         Route::post('/almacen/crear', [AlmacenController::class, 'crear']);
+        Route::get('/almacen/resumen', [AlmacenController::class, 'resumenGeneral']);
 
         // COMPRAS
         Route::get('/compras', [CompraProductoController::class, 'listar']);
         Route::post('/compras/crear', [CompraProductoController::class, 'crear']);
+        Route::get('/productos/{id}/compras', [CompraProductoController::class, 'historial']);
+        Route::get('/productos/{id}/compras/resumen', [CompraProductoController::class, 'resumen']);
 
         // PROVEEDORES
         Route::get('/proveedores', [ProveedorController::class, 'listar']);

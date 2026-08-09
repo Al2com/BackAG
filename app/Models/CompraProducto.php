@@ -21,6 +21,12 @@ class CompraProducto extends Model
         // 'admin_id'
     ];
 
+    // sin este cast, fecha_compra llega como string plano y no se puede
+    // formatear con ->format() en el resumen de compras
+    protected $casts = [
+        'fecha_compra' => 'date',
+    ];
+
     public function user() {
         return $this->belongsTo(User::class);
     }
