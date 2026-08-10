@@ -108,6 +108,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // ANALISIS: gasto por hanegada de una parcela vs media del resto
         Route::get('/analisis/resumen', [AnalisisController::class, 'resumenParcela']);
+        // ANALISIS: gasto/hanegada, litros y dosis diferenciados por método (tractor/mochila)
+        Route::get('/analisis/costes-metodo', [AnalisisController::class, 'costesPorMetodo']);
+        // ANALISIS: rentabilidad por parcela (ingresos de recolección menos costes)
+        Route::get('/analisis/rentabilidad', [AnalisisController::class, 'rentabilidad']);
+        // ANALISIS: rentabilidad total (todas las parcelas) por año, para el histórico
+        Route::get('/analisis/rentabilidad-historico', [AnalisisController::class, 'rentabilidadPorAnio']);
 
         // RECOLECCIONES
         Route::get('/recolecciones', [RecoleccionController::class, 'listar']);
