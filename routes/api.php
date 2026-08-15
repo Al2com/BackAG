@@ -13,6 +13,7 @@ use App\Http\Controllers\AlmacenController;
 use App\Http\Controllers\CompraProductoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\GastoRiegoController;
+use App\Http\Controllers\RiegoMantaController;
 use App\Http\Controllers\GastosController;
 use App\Http\Controllers\AnalisisController;
 use App\Http\Controllers\RecoleccionController;
@@ -97,11 +98,20 @@ Route::middleware('auth:sanctum')->group(function () {
         // PROVEEDORES
         Route::get('/proveedores', [ProveedorController::class, 'listar']);
 
-        // GASTOS DE RIEGO
+        // GASTOS DE RIEGO (goteo: agua/abono; mantenimiento de ambos tipos de parcela)
         Route::get('/gastos-riego', [GastoRiegoController::class, 'listar']);
         Route::post('/gastos-riego', [GastoRiegoController::class, 'guardar']);
         Route::get('/gastos-riego/{parcelaId}/{anio}/{mes}', [GastoRiegoController::class, 'porMes']);
         Route::delete('/gastos-riego/{id}', [GastoRiegoController::class, 'borrar']);
+
+        // RIEGO A MANTA (evento por día, individual o en grupo con lote_id)
+        Route::get('/riego-manta', [RiegoMantaController::class, 'listar']);
+        Route::get('/riego-manta/calendario', [RiegoMantaController::class, 'calendario']);
+        Route::post('/riego-manta', [RiegoMantaController::class, 'guardar']);
+        Route::put('/riego-manta/lote/{loteId}', [RiegoMantaController::class, 'actualizarLote']);
+        Route::delete('/riego-manta/lote/{loteId}', [RiegoMantaController::class, 'borrarLote']);
+        Route::put('/riego-manta/{id}', [RiegoMantaController::class, 'actualizar']);
+        Route::delete('/riego-manta/{id}', [RiegoMantaController::class, 'borrar']);
 
         // RESUMEN DE GASTOS
         Route::get('/gastos/resumen', [GastosController::class, 'resumen']);
