@@ -6,6 +6,7 @@ use App\Models\Parcela;
 use App\Models\Operacion;
 use App\Models\Fumigacion;
 use App\Models\GastoRiego;
+use App\Models\RiegoManta;
 use App\Services\CosteFumigacionService; // CAMBIO: import del servicio
 use Illuminate\Http\Request;
 
@@ -22,19 +23,24 @@ class GastosController extends Controller
         $parcelas    = Parcela::with('explotacion:id,nombre')->get();
         $operaciones = Operacion::with(['parcela', 'producto'])->get();
         $fumigaciones = Fumigacion::with(['parcela', 'productos'])->get();
+        // riego: gastos_riego (goteo/mantenimiento) + riegos_manta (introducidos
+        // desde el nuevo componente de Riego); aquí solo se LEEN como detalle,
+        // la introducción de datos vive en RiegoController/RiegoMantaController
         $gastosRiego = GastoRiego::all();
+        $riegosManta = RiegoManta::all();
 
         // filtro por campaña (año)
         if ($campania && $campania !== 'todas') {
             $operaciones = $operaciones->filter(fn($o) => str_starts_with((string) $o->hora_inicio, $campania))->values();
             $fumigaciones = $fumigaciones->filter(fn($f) => str_starts_with((string) $f->hora_inicio, $campania))->values();
             $gastosRiego = $gastosRiego->filter(fn($g) => (string) $g->anio === (string) $campania)->values();
+            $riegosManta = $riegosManta->filter(fn($r) => str_starts_with((string) $r->fecha, $campania))->values();
         }
 
         // enriquezco las fumigaciones con las hanegadas del lote (igual que TareasController)
         $fumigaciones = $this->coste->enriquecerHanegadas($fumigaciones);
 
-        $porParcela = $parcelas->map(fn($p) => $this->resumenParcela($p, $operaciones, $fumigaciones, $gastosRiego));
+        $porParcela = $parcelas->map(fn($p) => $this->resumenParcela($p, $operaciones, $fumigaciones, $gastosRiego, $riegosManta));
 
         $porExplotacion = $porParcela
             ->groupBy('explotacion')
@@ -50,7 +56,7 @@ class GastosController extends Controller
         ]);
     }
 
-    private function resumenParcela($parcela, $operaciones, $fumigaciones, $gastosRiego)
+    private function resumenParcela($parcela, $operaciones, $fumigaciones, $gastosRiego, $riegosManta)
     {
         $opsParcela = $operaciones->filter(fn($o) => $o->parcela_id === $parcela->id);
         $fumsParcela = $fumigaciones->filter(fn($f) => $f->parcela_id === $parcela->id);
@@ -130,7 +136,15 @@ class GastosController extends Controller
         $impuestosTotal = $impMunicipal + $impCequiaje;
 
         $riegoParcela = $gastosRiego->filter(fn($g) => $g->parcela_id === $parcela->id)
-            ->map(fn($g) => ['concepto' => $g->concepto, 'importe' => (float) $g->importe])
+            ->map(fn($g) => ['concepto' => $g->concepto, 'importe' => (float) $g->importe, 'fecha' => null])
+            ->concat(
+                $riegosManta->filter(fn($r) => $r->parcela_id === $parcela->id)
+                    ->map(fn($r) => [
+                        'concepto' => 'manta',
+                        'importe' => (float) $r->importe,
+                        'fecha' => $this->formatearFecha($r->fecha),
+                    ])
+            )
             ->values();
         $riegoTotal = $riegoParcela->sum('importe');
 

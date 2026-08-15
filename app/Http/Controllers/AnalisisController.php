@@ -6,15 +6,18 @@ use App\Models\Parcela;
 use App\Models\Operacion;
 use App\Models\Fumigacion;
 use App\Models\Recoleccion;
-use App\Models\GastoRiego;
 use App\Services\CosteFumigacionService;
+use App\Services\RiegoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class AnalisisController extends Controller
 {
-    public function __construct(private CosteFumigacionService $coste) {}
+    public function __construct(
+        private CosteFumigacionService $coste,
+        private RiegoService $riego
+    ) {}
 
     /**
      * Rango [inicio, fin] a partir de fecha_inicio/fecha_fin, o del año
@@ -141,14 +144,16 @@ class AnalisisController extends Controller
             ->groupBy('parcela_id')
             ->pluck('total', 'parcela_id');
 
-        // gastos_riego solo guarda año/mes, no una fecha: se filtra por los
-        // años que cubre el rango seleccionado
+        // riego (gastos_riego + riegos_manta): única fuente de verdad compartida
+        // con GastosController. gastos_riego solo guarda año/mes, así que se
+        // filtra por los años que cubre el rango; riegos_manta por fecha exacta
         $anios = range((int) $inicio->format('Y'), (int) $fin->format('Y'));
-        $costeRiegoPorParcela = GastoRiego::whereIn('parcela_id', $ids)
-            ->whereIn('anio', $anios)
-            ->selectRaw('parcela_id, SUM(importe) as total')
-            ->groupBy('parcela_id')
-            ->pluck('total', 'parcela_id');
+        $costeRiegoPorParcela = $this->riego->costeTotalPorParcela(
+            $ids,
+            $anios,
+            $inicio->toDateString(),
+            $fin->toDateString()
+        );
 
         // reparto por hanegadas de fumigaciones en lote: igual criterio que
         // en costesPorMetodo, se cargan todas las del periodo y se enriquecen
@@ -210,9 +215,7 @@ class AnalisisController extends Controller
             ->groupBy('anio')
             ->pluck('total', 'anio');
 
-        $costeRiegoPorAnio = GastoRiego::selectRaw('anio, SUM(importe) as total')
-            ->groupBy('anio')
-            ->pluck('total', 'anio');
+        $costeRiegoPorAnio = $this->riego->costeTotalPorAnio();
 
         // igual que en costesPorMetodo/rentabilidad: se cargan TODAS las
         // fumigaciones (sin filtrar por fecha) para que el reparto por
