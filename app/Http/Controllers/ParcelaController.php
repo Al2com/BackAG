@@ -65,7 +65,7 @@ class ParcelaController extends Controller
     }
 
     public function listarParcelas(){
-        $parcelas = Parcela::select('id', 'nombre', 'poligono', 'parcela', 'variedad')->get();
+        $parcelas = Parcela::select('id', 'nombre', 'poligono', 'parcela', 'variedad','dimension_hanegadas')->get();
         return response()->json($parcelas);
     }
 
