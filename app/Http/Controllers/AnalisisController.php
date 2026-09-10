@@ -351,27 +351,45 @@ class AnalisisController extends Controller
     }
 
     /**
-     * Desglose € producto vs € mano de obra y litros totales aplicados en la parcela.
+     * Desglose € producto vs € mano de obra y litros totales aplicados en la parcela,
+     * tanto combinado (para el cálculo del gasto total de la parcela) como separado
+     * por método de aplicación (tractor / mochila), ya que ambos usan calculadoras
+     * de mano de obra distintas y no tiene sentido mezclarlos en el desglose visual.
      */
     private function costeFumigacionParcela(Collection $fumsParcela): array
     {
-        $costeProducto = 0.0;
-        $costeManoObra = 0.0;
-        $litros = 0.0;
+        $porMetodo = [
+            'tractor' => ['costeProducto' => 0.0, 'costeManoObra' => 0.0, 'litros' => 0.0],
+            'mochila' => ['costeProducto' => 0.0, 'costeManoObra' => 0.0, 'litros' => 0.0],
+        ];
 
         foreach ($fumsParcela as $fum) {
-            $costeManoObra += $fum->metodo_aplicacion === 'tractor'
+            $metodo = $fum->metodo_aplicacion === 'tractor' ? 'tractor' : 'mochila';
+            $porMetodo[$metodo]['costeManoObra'] += $metodo === 'tractor'
                 ? $this->coste->costeTractorParcela($fum)
                 : $this->coste->costeMochilaParcela($fum);
-            $costeProducto += $this->coste->costeMaterialParcela($fum);
-            $litros += $this->coste->calcularLitros($fum);
+            $porMetodo[$metodo]['costeProducto'] += $this->coste->costeMaterialParcela($fum);
+            $porMetodo[$metodo]['litros'] += $this->coste->calcularLitros($fum);
         }
+
+        $redondear = fn(array $m) => [
+            'costeProducto' => round($m['costeProducto'], 2),
+            'costeManoObra' => round($m['costeManoObra'], 2),
+            'litros' => round($m['litros'], 0),
+            'costeTotal' => round($m['costeProducto'] + $m['costeManoObra'], 2),
+        ];
+
+        $costeProducto = $porMetodo['tractor']['costeProducto'] + $porMetodo['mochila']['costeProducto'];
+        $costeManoObra = $porMetodo['tractor']['costeManoObra'] + $porMetodo['mochila']['costeManoObra'];
+        $litros = $porMetodo['tractor']['litros'] + $porMetodo['mochila']['litros'];
 
         return [
             'costeProducto' => round($costeProducto, 2),
             'costeManoObra' => round($costeManoObra, 2),
             'litros' => round($litros, 0),
             'costeTotal' => $costeProducto + $costeManoObra,
+            'tractor' => $redondear($porMetodo['tractor']),
+            'mochila' => $redondear($porMetodo['mochila']),
         ];
     }
 
