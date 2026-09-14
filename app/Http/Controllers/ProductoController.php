@@ -18,6 +18,7 @@ class ProductoController extends Controller
         'ubicacion',
         'dosis_recomendada',
         'stock_actual',
+        'stock_minimo',
         'unidad')->get();
         return response()->json($productos);
 

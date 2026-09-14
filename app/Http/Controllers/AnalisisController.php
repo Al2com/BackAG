@@ -294,6 +294,16 @@ class AnalisisController extends Controller
         // media del resto de parcelas del mismo admin (el scope global ya las filtra)
         $mediaResto = $this->mediaGastoPorHanegadaResto($parcela, $tipo, $operaciones, $fumigaciones);
 
+        $rentabilidad = $this->rentabilidadHanegada(
+            $parcela,
+            $anio,
+            $tipo,
+            $operaciones,
+            $fumigaciones,
+            $datosParcela['costeTotal'],
+            $hanegadas
+        );
+
         return response()->json([
             'parcela' => [
                 'id' => $parcela->id,
@@ -309,7 +319,108 @@ class AnalisisController extends Controller
                 'gastoPorHanegadaParcela' => round($gastoPorHanegada, 2),
                 'gastoPorHanegadaMediaResto' => round($mediaResto, 2),
             ],
+            'rentabilidad' => $rentabilidad,
         ]);
+    }
+
+    /**
+     * Margen (ingresos de recolección - gastos) por hanegada de la parcela,
+     * y su posición frente al resto de parcelas de la MISMA EXPLOTACIÓN en
+     * el mismo año: percentil exacto (0-100) y categoría por cuartiles
+     * (superior = alta, dos centrales = media, inferior = baja). Categoría
+     * y percentil son null si no hay al menos otra parcela de la explotación
+     * con hanegadas para poder comparar.
+     */
+    private function rentabilidadHanegada(
+        Parcela $parcela,
+        string $anio,
+        string $tipo,
+        Collection $operaciones,
+        Collection $fumigaciones,
+        float $gastoTotalParcela,
+        float $hanegadasParcela
+    ): array {
+        $ingresoParcela = (float) (Recoleccion::where('parcela_id', $parcela->id)
+            ->whereRaw('YEAR(fecha) = ?', [(int) $anio])
+            ->selectRaw('SUM(kilos * precio_medio_kg) as total')
+            ->value('total') ?? 0);
+
+        $margenParcela = $ingresoParcela - $gastoTotalParcela;
+        $margenPorHanegada = $hanegadasParcela > 0 ? $margenParcela / $hanegadasParcela : null;
+
+        $parcelasExplotacion = $parcela->explotacion_id
+            ? Parcela::where('explotacion_id', $parcela->explotacion_id)
+                ->where('id', '!=', $parcela->id)
+                ->get()
+            : collect();
+
+        $idsExplotacion = $parcelasExplotacion->pluck('id');
+        $ingresosPorParcela = $idsExplotacion->isEmpty()
+            ? collect()
+            : Recoleccion::whereIn('parcela_id', $idsExplotacion)
+                ->whereRaw('YEAR(fecha) = ?', [(int) $anio])
+                ->selectRaw('parcela_id, SUM(kilos * precio_medio_kg) as total')
+                ->groupBy('parcela_id')
+                ->pluck('total', 'parcela_id');
+
+        $ratiosResto = $parcelasExplotacion
+            ->filter(fn($p) => (float) $p->dimension_hanegadas > 0)
+            ->map(function ($p) use ($tipo, $operaciones, $fumigaciones, $ingresosPorParcela) {
+                $datos = $this->costeParcelaTipo($p, $tipo, $operaciones, $fumigaciones);
+                $ingreso = (float) $ingresosPorParcela->get($p->id, 0);
+                return ($ingreso - $datos['costeTotal']) / (float) $p->dimension_hanegadas;
+            })
+            ->values();
+
+        if ($margenPorHanegada === null || $ratiosResto->isEmpty()) {
+            return [
+                'ingresoTotal' => round($ingresoParcela, 2),
+                'margen' => round($margenParcela, 2),
+                'margenPorHanegada' => $margenPorHanegada !== null ? round($margenPorHanegada, 2) : null,
+                'categoria' => null,
+                'percentil' => null,
+                'muestras' => $ratiosResto->count(),
+            ];
+        }
+
+        $todos = $ratiosResto->push($margenPorHanegada)->sort()->values();
+        $n = $todos->count();
+
+        $menores = $todos->filter(fn($v) => $v < $margenPorHanegada)->count();
+        $iguales = $todos->filter(fn($v) => $v === $margenPorHanegada)->count();
+        $percentil = (($menores + $iguales / 2) / $n) * 100;
+
+        $q1 = $this->percentilValor($todos, 25);
+        $q3 = $this->percentilValor($todos, 75);
+        $categoria = $margenPorHanegada > $q3 ? 'alta' : ($margenPorHanegada <= $q1 ? 'baja' : 'media');
+
+        return [
+            'ingresoTotal' => round($ingresoParcela, 2),
+            'margen' => round($margenParcela, 2),
+            'margenPorHanegada' => round($margenPorHanegada, 2),
+            'categoria' => $categoria,
+            'percentil' => round($percentil, 1),
+            'muestras' => $n,
+        ];
+    }
+
+    /**
+     * Percentil por interpolación lineal (mismo método que numpy/Excel) sobre
+     * una colección de valores ya ordenada ascendentemente (índices 0..n-1).
+     */
+    private function percentilValor(Collection $ordenados, float $p): float
+    {
+        $n = $ordenados->count();
+        if ($n === 0) return 0.0;
+        if ($n === 1) return (float) $ordenados->first();
+
+        $idx = ($p / 100) * ($n - 1);
+        $lo = (int) floor($idx);
+        $hi = (int) ceil($idx);
+        $valorLo = (float) $ordenados[$lo];
+        $valorHi = (float) $ordenados[$hi];
+
+        return $valorLo + ($valorHi - $valorLo) * ($idx - $lo);
     }
 
     /**
