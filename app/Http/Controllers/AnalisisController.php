@@ -86,6 +86,19 @@ class AnalisisController extends Controller
             ];
         }
 
+        // comparativa con el resto de parcelas, por método: solo tiene sentido
+        // si se ha filtrado por una parcela concreta (si no, ya se estan
+        // agregando TODAS las parcelas del admin y no hay "resto" con quien comparar)
+        if ($parcela) {
+            $mediaResto = $this->mediaRestoPorMetodo($parcela, $fumigaciones);
+            foreach (['tractor', 'mochila'] as $metodo) {
+                $metodos[$metodo]['comparativa'] = [
+                    'gastoTotalMediaResto' => round($mediaResto[$metodo]['gastoTotal'], 2),
+                    'gastoPorHanegadaMediaResto' => round($mediaResto[$metodo]['gastoPorHanegada'], 2),
+                ];
+            }
+        }
+
         return response()->json([
             'parcela' => $parcela ? [
                 'id' => $parcela->id,
@@ -95,6 +108,62 @@ class AnalisisController extends Controller
             'periodo' => ['inicio' => $inicio->toDateString(), 'fin' => $fin->toDateString()],
             'metodos' => $metodos,
         ]);
+    }
+
+    /**
+     * Coste (mano de obra + material) atribuido a $p por método, a partir de
+     * fumigaciones YA cargadas para todo el periodo (y ya enriquecidas con
+     * hanegadas de lote): mismo criterio de reparto que costesPorMetodo.
+     *
+     * @return array{tractor: float, mochila: float}
+     */
+    private function costeMetodoParcela(Parcela $p, Collection $fumigaciones): array
+    {
+        $fumsParcela = $fumigaciones->filter(fn($f) => $f->parcela_id === $p->id);
+
+        $resultado = [];
+        foreach (['tractor', 'mochila'] as $metodo) {
+            $fumsMetodo = $fumsParcela->filter(fn($f) => $f->metodo_aplicacion === $metodo);
+            $resultado[$metodo] = $fumsMetodo->sum(
+                fn($f) => $this->coste->costeOperacionParcela($f) + $this->coste->costeMaterialParcela($f)
+            );
+        }
+
+        return $resultado;
+    }
+
+    /**
+     * Media del resto de parcelas del admin, por método (tractor/mochila),
+     * en € totales y en €/hanegada. Misma media simple entre parcelas que
+     * mediaRestoPorTipo, para que ambas comparativas se lean igual.
+     *
+     * @return array{tractor: array{gastoTotal: float, gastoPorHanegada: float}, mochila: array{gastoTotal: float, gastoPorHanegada: float}}
+     */
+    private function mediaRestoPorMetodo(Parcela $parcelaSeleccionada, Collection $fumigaciones): array
+    {
+        $resto = Parcela::where('id', '!=', $parcelaSeleccionada->id)->get()
+            ->filter(fn($p) => (float) $p->dimension_hanegadas > 0);
+
+        $datosPorMetodo = ['tractor' => collect(), 'mochila' => collect()];
+        foreach ($resto as $p) {
+            $costes = $this->costeMetodoParcela($p, $fumigaciones);
+            foreach (['tractor', 'mochila'] as $metodo) {
+                $datosPorMetodo[$metodo]->push([
+                    'costeTotal' => $costes[$metodo],
+                    'gastoPorHanegada' => $costes[$metodo] / (float) $p->dimension_hanegadas,
+                ]);
+            }
+        }
+
+        $resultado = [];
+        foreach (['tractor', 'mochila'] as $metodo) {
+            $datos = $datosPorMetodo[$metodo];
+            $resultado[$metodo] = $datos->isEmpty()
+                ? ['gastoTotal' => 0.0, 'gastoPorHanegada' => 0.0]
+                : ['gastoTotal' => $datos->avg('costeTotal'), 'gastoPorHanegada' => $datos->avg('gastoPorHanegada')];
+        }
+
+        return $resultado;
     }
 
     /**
@@ -291,8 +360,9 @@ class AnalisisController extends Controller
         $hanegadas = (float) $parcela->dimension_hanegadas;
         $gastoPorHanegada = $hanegadas > 0 ? $datosParcela['costeTotal'] / $hanegadas : 0.0;
 
-        // media del resto de parcelas del mismo admin (el scope global ya las filtra)
-        $mediaResto = $this->mediaGastoPorHanegadaResto($parcela, $tipo, $operaciones, $fumigaciones);
+        // media del resto de parcelas del mismo admin, para ESE mismo tipo y año
+        // (el scope global ya las filtra por admin)
+        $mediaResto = $this->mediaRestoPorTipo($parcela, $tipo, $operaciones, $fumigaciones);
 
         $rentabilidad = $this->rentabilidadHanegada(
             $parcela,
@@ -316,8 +386,10 @@ class AnalisisController extends Controller
             'gastoPorHanegada' => round($gastoPorHanegada, 2),
             'fumigacion' => $datosParcela['fumigacion'],
             'comparativa' => [
+                'gastoTotalParcela' => round($datosParcela['costeTotal'], 2),
                 'gastoPorHanegadaParcela' => round($gastoPorHanegada, 2),
-                'gastoPorHanegadaMediaResto' => round($mediaResto, 2),
+                'gastoTotalMediaResto' => round($mediaResto['gastoTotal'], 2),
+                'gastoPorHanegadaMediaResto' => round($mediaResto['gastoPorHanegada'], 2),
             ],
             'rentabilidad' => $rentabilidad,
         ]);
@@ -504,17 +576,35 @@ class AnalisisController extends Controller
         ];
     }
 
-    private function mediaGastoPorHanegadaResto(Parcela $parcelaSeleccionada, string $tipo, Collection $operaciones, Collection $fumigaciones): float
+    /**
+     * Media del resto de parcelas del admin para ESE tipo y año, en € totales
+     * y en €/hanegada. Ambas son medias simples entre parcelas (no un total
+     * agregado dividido entre hanegadas totales), asi que una parcela grande
+     * no pesa mas que una pequeña en la comparativa.
+     *
+     * @return array{gastoTotal: float, gastoPorHanegada: float}
+     */
+    private function mediaRestoPorTipo(Parcela $parcelaSeleccionada, string $tipo, Collection $operaciones, Collection $fumigaciones): array
     {
         $resto = Parcela::where('id', '!=', $parcelaSeleccionada->id)->get();
 
-        $ratios = $resto
+        $datos = $resto
             ->filter(fn($p) => (float) $p->dimension_hanegadas > 0)
             ->map(function ($p) use ($tipo, $operaciones, $fumigaciones) {
-                $datos = $this->costeParcelaTipo($p, $tipo, $operaciones, $fumigaciones);
-                return $datos['costeTotal'] / (float) $p->dimension_hanegadas;
+                $costeTotal = $this->costeParcelaTipo($p, $tipo, $operaciones, $fumigaciones)['costeTotal'];
+                return [
+                    'costeTotal' => $costeTotal,
+                    'gastoPorHanegada' => $costeTotal / (float) $p->dimension_hanegadas,
+                ];
             });
 
-        return $ratios->isEmpty() ? 0.0 : $ratios->avg();
+        if ($datos->isEmpty()) {
+            return ['gastoTotal' => 0.0, 'gastoPorHanegada' => 0.0];
+        }
+
+        return [
+            'gastoTotal' => $datos->avg('costeTotal'),
+            'gastoPorHanegada' => $datos->avg('gastoPorHanegada'),
+        ];
     }
 }
