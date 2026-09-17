@@ -197,9 +197,13 @@ class BackupController extends Controller
                 foreach (self::TABLAS as $tabla => $info) {
                     $mapaIds[$tabla] = [];
                     $filas = $contenido['tablas'][$tabla] ?? [];
+                    // una copia puede traer columnas que ya no existen en
+                    // destino (si se elimina alguna en una version posterior):
+                    // se descartan en vez de romper la importacion entera
+                    $columnasDestino = Schema::getColumnListing($tabla);
 
                     foreach ($filas as $fila) {
-                        $fila = (array) $fila;
+                        $fila = array_intersect_key((array) $fila, array_flip($columnasDestino));
                         $idAntiguo = $fila['id'] ?? null;
                         unset($fila['id']);
 

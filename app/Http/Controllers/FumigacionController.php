@@ -94,29 +94,13 @@ class FumigacionController extends Controller
         return response()->json(['mensaje' => 'Fumigaciones creadas'], 201);
     }
 
-    // Filtra por usuario_id para que cada usuario solo vea sus fumigaciones
-    public function listar()
+    // Contador del panel. El aislamiento lo hace el scope global por admin
+    // (PerteneceAdmin), asi que cuenta todas las fumigaciones de la explotacion
+    // y no solo las del usuario logueado, igual que Gastos y Analisis.
+    // El listado de la pantalla de operaciones vive en TareasController::listar
+    public function contar()
     {
-        $fumigaciones = Fumigacion::where('usuario_id', auth()->id())
-            ->with(['parcela', 'productos'])
-            ->get();
-
-        $fumigaciones->each(function ($fum) {
-            $parcelaIds = Fumigacion::where('usuario_id', auth()->id())
-                ->where('hora_inicio', $fum->hora_inicio)
-                ->where('metodo_aplicacion', $fum->metodo_aplicacion)
-                ->where('turbos', $fum->turbos)
-                ->pluck('parcela_id')
-                ->unique();
-
-            $totalHanegadas = \App\Models\Parcela::whereIn('id', $parcelaIds)
-                ->sum('dimension_hanegadas');
-
-            $fum->total_hanegadas = floatval($totalHanegadas);
-            $fum->hanegadas_parcela = floatval($fum->parcela->dimension_hanegadas ?? 0);
-        });
-
-        return response()->json($fumigaciones);
+        return response()->json(['total' => Fumigacion::count()]);
     }
 
     public function borrar($id)

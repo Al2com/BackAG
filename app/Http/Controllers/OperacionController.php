@@ -50,12 +50,13 @@ class OperacionController extends Controller
         return response()->json(['mensaje' => 'Operación creada'], 201);
     }
 
-    // Filtra por usuario_id para que cada usuario solo vea sus operaciones
-    public function listar(){
-        $operaciones = Operacion::where('usuario_id', auth()->id())->get();
-        $totalOperaciones = $operaciones->count();
-
-        return response()->json(['total' => $totalOperaciones, 'operaciones' => $operaciones]);
+    // Contador del panel. El aislamiento lo hace el scope global por admin
+    // (PerteneceAdmin), asi que cuenta todas las operaciones de la explotacion
+    // y no solo las del usuario logueado, igual que Gastos y Analisis.
+    // El listado de la pantalla de operaciones vive en TareasController::listar
+    public function contar()
+    {
+        return response()->json(['total' => Operacion::count()]);
     }
 
     public function opercionId($id){

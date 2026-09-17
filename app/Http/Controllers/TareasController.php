@@ -74,8 +74,13 @@ class TareasController extends Controller{
     // de actividad reciente del dashboard, ordenadas por fecha de creacion
     // latest ultimas y take(3) las 3
     public function actividadReciente(){
-        $operaciones = Operacion::select(['operario', 'tipo_operacion', 'estado'])->latest()->take(3)->get();
-        $fumigaciones = Fumigacion::select(['operario', 'metodo_aplicacion', 'estado'])->latest()->take(3)->get();
+        $operaciones = Operacion::select(['id', 'operario', 'tipo_operacion', 'estado'])->latest()->take(3)->get();
+        $fumigaciones = Fumigacion::select(['id', 'operario', 'metodo_aplicacion', 'estado'])->latest()->take(3)->get();
+
+        // el panel solo pinta operario, metodo y estado: sin quitar los
+        // accessors del modelo, 'desglose_productos' carga los productos de
+        // cada fumigacion (una consulta por fila) y los serializa enteros
+        $fumigaciones->each->setAppends([]);
 
         return response()->json(['operaciones' => $operaciones, 'fumigaciones' => $fumigaciones]);
     }
