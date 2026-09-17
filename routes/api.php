@@ -29,8 +29,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // ===== ABIERTAS A TODOS (incluido trabajador): dashboard + operaciones =====
     Route::get('/explotaciones', [ExplotacionController::class, 'numeroExplo']);   // contador dashboard
     Route::get('/parcelas', [ParcelaController::class, 'infoParcelas']);           // contador dashboard
-    Route::get('/operaciones', [OperacionController::class, 'listar']);            // dashboard
-    Route::get('/fumigaciones', [FumigacionController::class, 'listar']);          // dashboard
+    Route::get('/operaciones', [OperacionController::class, 'contar']);            // contador del dashboard
+    Route::get('/fumigaciones', [FumigacionController::class, 'contar']);          // contador del dashboard
     Route::get('/productos/lista', [ProductoController::class, 'mostrarProductos']); // dashboard
     Route::get('/tareas', [TareasController::class, 'listar']);                    // pantalla operaciones
     Route::get('/tareas/actividad-reciente', [TareasController::class, 'actividadReciente']); // dashboard

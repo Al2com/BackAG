@@ -88,6 +88,10 @@ class GastosController extends Controller
                 'fecha'    => $e['fecha'],
                 'horas'    => round($e['horas'], 1),
                 'precio'   => round($e['precio'] - $e['precioMaterial'], 2),
+                // material de ESA operacion, aparte de la mano de obra de
+                // 'precio', para poder mostrar ambos por separado sin tener
+                // que emparejar filas y materiales por fecha
+                'precioMaterial' => round($e['precioMaterial'], 2),
             ], $entradas);
 
             $precioTipo = array_sum(array_column($filas, 'precio'));
@@ -136,13 +140,17 @@ class GastosController extends Controller
         $impuestosTotal = $impMunicipal + $impCequiaje;
 
         $riegoParcela = $gastosRiego->filter(fn($g) => $g->parcela_id === $parcela->id)
-            ->map(fn($g) => ['concepto' => $g->concepto, 'importe' => (float) $g->importe, 'fecha' => null])
+            // el goteo no tiene hanegadas asociadas: es un recibo mensual
+            ->map(fn($g) => ['concepto' => $g->concepto, 'importe' => (float) $g->importe, 'fecha' => null, 'hanegadas' => null])
             ->concat(
                 $riegosManta->filter(fn($r) => $r->parcela_id === $parcela->id)
                     ->map(fn($r) => [
                         'concepto' => 'manta',
                         'importe' => (float) $r->importe,
                         'fecha' => $this->formatearFecha($r->fecha),
+                        // hanegadas regadas EN ESE riego (las de la parcela en
+                        // el momento de registrarlo, no las actuales)
+                        'hanegadas' => (float) $r->hanegadas,
                     ])
             )
             ->values();
