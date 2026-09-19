@@ -21,6 +21,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\CuadernoController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\ConsultorController;
 
 
 
@@ -142,7 +143,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/backup/csv', [BackupController::class, 'exportarCsv']);
         Route::get('/backup/json', [BackupController::class, 'exportarJson']);
         Route::post('/backup/importar', [BackupController::class, 'importar']);
+
+
+            Route::post('/consultor', [ConsultorController::class, 'consultar']);
     });
+
+
+
 
 });
 
