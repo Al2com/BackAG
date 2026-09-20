@@ -15,7 +15,7 @@ class ConsultorController extends Controller
 
         $anioActual = now()->year;
 
-        $parcelas = Parcela::all(['id', 'nombre', 'poligono', 'parcela', 'dimension_hanegadas']);
+        $parcelas = Parcela::all(['id', 'nombre', 'poligono', 'parcela', 'variedad', 'dimension_hanegadas']);
 
         $operaciones = Operacion::with('parcela')
             ->whereYear('hora_inicio', $anioActual)
