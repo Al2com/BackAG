@@ -30,7 +30,7 @@ class ConsultorController extends Controller
         $contexto .= "PARCELAS DE LA EXPLOTACIÓN:\n";
         foreach ($parcelas as $p) {
             $nombre = $p->nombre ?: "Pol.{$p->poligono}-Par.{$p->parcela}";
-            $contexto .= "- {$nombre} (ID:{$p->id}, {$p->dimension_hanegadas} hanegadas)\n";
+            $contexto .= "- {$nombre} (ID:{$p->id}, {$p->dimension_hanegadas} hanegadas)\n";$contexto .= "- {$nombre} (ID:{$p->id}, variedad: {$p->variedad}, {$p->dimension_hanegadas} hanegadas)\n";
         }
 
         $contexto .= "\nOPERACIONES {$anioActual}:\n";
