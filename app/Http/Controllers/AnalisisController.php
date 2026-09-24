@@ -355,14 +355,14 @@ class AnalisisController extends Controller
             ->values();
         $fumigaciones = $this->coste->enriquecerHanegadas($fumigaciones);
 
-        $datosParcela = $this->costeParcelaTipo($parcela, $tipo, $operaciones, $fumigaciones);
+        $datosParcela = $this->costeParcelaTipo($parcela, $anio, $tipo, $operaciones, $fumigaciones);
 
         $hanegadas = (float) $parcela->dimension_hanegadas;
         $gastoPorHanegada = $hanegadas > 0 ? $datosParcela['costeTotal'] / $hanegadas : 0.0;
 
         // media del resto de parcelas del mismo admin, para ESE mismo tipo y año
         // (el scope global ya las filtra por admin)
-        $mediaResto = $this->mediaRestoPorTipo($parcela, $tipo, $operaciones, $fumigaciones);
+        $mediaResto = $this->mediaRestoPorTipo($parcela, $anio, $tipo, $operaciones, $fumigaciones);
 
         $rentabilidad = $this->rentabilidadHanegada(
             $parcela,
@@ -437,8 +437,8 @@ class AnalisisController extends Controller
 
         $ratiosResto = $parcelasExplotacion
             ->filter(fn($p) => (float) $p->dimension_hanegadas > 0)
-            ->map(function ($p) use ($tipo, $operaciones, $fumigaciones, $ingresosPorParcela) {
-                $datos = $this->costeParcelaTipo($p, $tipo, $operaciones, $fumigaciones);
+            ->map(function ($p) use ($anio, $tipo, $operaciones, $fumigaciones, $ingresosPorParcela) {
+                $datos = $this->costeParcelaTipo($p, $anio, $tipo, $operaciones, $fumigaciones);
                 $ingreso = (float) $ingresosPorParcela->get($p->id, 0);
                 return ($ingreso - $datos['costeTotal']) / (float) $p->dimension_hanegadas;
             })
@@ -499,7 +499,7 @@ class AnalisisController extends Controller
      * Calcula el coste de una parcela para el tipo seleccionado, reutilizando
      * el reparto proporcional por hanegadas ya existente en CosteFumigacionService.
      */
-    private function costeParcelaTipo(Parcela $parcela, string $tipo, Collection $operaciones, Collection $fumigaciones): array
+    private function costeParcelaTipo(Parcela $parcela, string $anio, string $tipo, Collection $operaciones, Collection $fumigaciones): array
     {
         $opsParcela = $operaciones->filter(fn($o) => $o->parcela_id === $parcela->id);
         $fumsParcela = $fumigaciones->filter(fn($f) => $f->parcela_id === $parcela->id);
@@ -522,7 +522,23 @@ class AnalisisController extends Controller
             ];
         }
 
-        // tipo_operacion concreto (poda, riego, abonado, mantenimiento, tractor)
+        // el riego no se guarda como Operacion (vive en gastos_riego/riegos_manta):
+        // misma fuente de verdad que GastosController y rentabilidad(), vía RiegoService
+        if ($tipo === 'riego') {
+            $costeRiego = $this->riego->costeTotalPorParcela(
+                [$parcela->id],
+                [(int) $anio],
+                "$anio-01-01",
+                "$anio-12-31"
+            )->get($parcela->id, 0.0);
+
+            return [
+                'costeTotal' => (float) $costeRiego,
+                'fumigacion' => null,
+            ];
+        }
+
+        // tipo_operacion concreto (poda, abonado, mantenimiento, tractor)
         $costeTipo = $opsParcela
             ->filter(fn($o) => $o->tipo_operacion === $tipo)
             ->sum(fn($o) => (float) ($o->precio ?? 0));
@@ -584,14 +600,14 @@ class AnalisisController extends Controller
      *
      * @return array{gastoTotal: float, gastoPorHanegada: float}
      */
-    private function mediaRestoPorTipo(Parcela $parcelaSeleccionada, string $tipo, Collection $operaciones, Collection $fumigaciones): array
+    private function mediaRestoPorTipo(Parcela $parcelaSeleccionada, string $anio, string $tipo, Collection $operaciones, Collection $fumigaciones): array
     {
         $resto = Parcela::where('id', '!=', $parcelaSeleccionada->id)->get();
 
         $datos = $resto
             ->filter(fn($p) => (float) $p->dimension_hanegadas > 0)
-            ->map(function ($p) use ($tipo, $operaciones, $fumigaciones) {
-                $costeTotal = $this->costeParcelaTipo($p, $tipo, $operaciones, $fumigaciones)['costeTotal'];
+            ->map(function ($p) use ($anio, $tipo, $operaciones, $fumigaciones) {
+                $costeTotal = $this->costeParcelaTipo($p, $anio, $tipo, $operaciones, $fumigaciones)['costeTotal'];
                 return [
                     'costeTotal' => $costeTotal,
                     'gastoPorHanegada' => $costeTotal / (float) $p->dimension_hanegadas,
