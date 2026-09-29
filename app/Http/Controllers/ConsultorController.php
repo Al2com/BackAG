@@ -6,6 +6,7 @@ use App\Http\Requests\ConsultorRequest;
 use App\Services\ConsultorContextoService;
 use App\Services\ConsultorPromptService;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Carbon;
 
 class ConsultorController extends Controller
@@ -19,8 +20,6 @@ class ConsultorController extends Controller
     {
         $pregunta = $request->input('pregunta');
 
-        // Determina la campaña: si la pregunta menciona un año concreto o "campaña anterior",
-        // ajustamos el rango; si no, usamos la campaña actual.
         [$inicio, $fin] = $this->resolverRangoCampana($pregunta);
 
         $etiquetaCampana = $this->contexto->etiquetaCampana($inicio, $fin)
@@ -35,14 +34,27 @@ class ConsultorController extends Controller
             pregunta: $pregunta
         );
 
+        $apiKey = config('services.groq.api_key');
+        $modelo = config('services.groq.modelo');
+        $url    = config('services.groq.url');
+
+        // Si la clave no está configurada, falla rápido con un mensaje claro
+        if (empty($apiKey)) {
+            Log::error('ConsultorController: GROQ_API_KEY no está configurada en .env');
+            return response()->json([
+                'error'   => true,
+                'message' => 'El consultor no está configurado. Contacta con el administrador.',
+            ], 500);
+        }
+
         try {
             $respuesta = Http::timeout(45)
                 ->withHeaders([
-                    'Authorization' => 'Bearer ' . config('services.groq.api_key'),
+                    'Authorization' => 'Bearer ' . $apiKey,
                     'Content-Type'  => 'application/json',
                 ])
-                ->post(config('services.groq.url'), [
-                    'model'       => config('services.groq.modelo'),
+                ->post($url, [
+                    'model'       => $modelo,
                     'temperature' => 0.1,
                     'max_tokens'  => 1000,
                     'messages'    => [
@@ -65,6 +77,13 @@ class ConsultorController extends Controller
         }
 
         if (!$respuesta->successful()) {
+            // Loguea el error real de Groq para poder diagnosticarlo
+            Log::error('ConsultorController: error de Groq', [
+                'status' => $respuesta->status(),
+                'body'   => $respuesta->body(),
+                'modelo' => $modelo,
+                'url'    => $url,
+            ]);
             return response()->json([
                 'error'   => true,
                 'message' => 'El servicio de consultor no está disponible ahora. Inténtalo más tarde.',
@@ -75,6 +94,7 @@ class ConsultorController extends Controller
         $texto = $datos['choices'][0]['message']['content'] ?? null;
 
         if (!$texto) {
+            Log::warning('ConsultorController: respuesta vacía de Groq', ['body' => $respuesta->body()]);
             return response()->json([
                 'error'   => true,
                 'message' => 'El consultor devolvió una respuesta vacía. Inténtalo de nuevo.',
@@ -86,47 +106,31 @@ class ConsultorController extends Controller
         ]);
     }
 
-    // Extrae un año de la pregunta (p. ej. "campaña 2024", "en 2023") y ajusta el rango.
-    // Si no hay año explícito, usa la campaña actual.
     private function resolverRangoCampana(string $pregunta): array
     {
         $campanaActual = $this->contexto->campanaActual();
         $inicio = $campanaActual['inicio'];
         $fin    = $campanaActual['fin'];
 
-        // Busca patrones como "2024/2025", "campaña 2024", "en 2023", "año 2022"
         if (preg_match('/\b(20\d{2})\s*[\/\-]\s*(20\d{2})\b/', $pregunta, $m)) {
             $anioIni = (int) $m[1];
             $inicio = Carbon::create($anioIni, ConsultorContextoService::INICIO_CAMPANIA_MES, ConsultorContextoService::INICIO_CAMPANIA_DIA)->startOfDay();
             $fin    = Carbon::create($anioIni + 1, ConsultorContextoService::FIN_CAMPANIA_MES, ConsultorContextoService::FIN_CAMPANIA_DIA)->endOfDay();
         } elseif (preg_match('/\b(20\d{2})\b/', $pregunta, $m)) {
-            $anio = (int) $m[1];
-            // Si el año está dentro de una campaña, tomamos esa campaña completa
-            if ($anio >= 10) {
-                // si el año mencionado podría ser inicio de campaña
-                $inicioCandidata = Carbon::create($anio, ConsultorContextoService::INICIO_CAMPANIA_MES, ConsultorContextoService::INICIO_CAMPANIA_DIA)->startOfDay();
-                $finCandidata    = Carbon::create($anio + 1, ConsultorContextoService::FIN_CAMPANIA_MES, ConsultorContextoService::FIN_CAMPANIA_DIA)->endOfDay();
-                $inicio = $inicioCandidata;
-                $fin    = $finCandidata;
-            }
+            $anio   = (int) $m[1];
+            $inicio = Carbon::create($anio, ConsultorContextoService::INICIO_CAMPANIA_MES, ConsultorContextoService::INICIO_CAMPANIA_DIA)->startOfDay();
+            $fin    = Carbon::create($anio + 1, ConsultorContextoService::FIN_CAMPANIA_MES, ConsultorContextoService::FIN_CAMPANIA_DIA)->endOfDay();
         }
 
         return [$inicio, $fin];
     }
 
-    // Elimina marcas de Markdown que saldrían como caracteres sueltos en texto plano.
-    // No toca guiones bajos ni guiones normales para no romper nombres de productos.
     private function sanearRespuesta(string $texto): string
     {
-        // Asteriscos en cualquier posición
         $texto = str_replace('*', '', $texto);
-        // Comillas invertidas en cualquier posición
         $texto = str_replace('`', '', $texto);
-        // Almohadillas solo al inicio de línea (no rompe "Parcela #3")
         $texto = preg_replace('/^#+\s*/m', '', $texto);
-        // Más de dos saltos de línea consecutivos → dos
         $texto = preg_replace('/\n{3,}/', "\n\n", $texto);
-
         return trim($texto);
     }
 }
