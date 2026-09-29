@@ -24,7 +24,10 @@ class ConsultorContextoService
 
     // Si el contexto supera este tamaño se comprime a solo TOTALES y
     // el detalle línea a línea del módulo que mencione la pregunta.
-    public const LIMITE_CARACTERES = 40000;
+    // Límite calculado para caber en los 8 000 TPM de la cuenta Groq:
+    // 8000 - 1000 (respuesta) - ~725 (prompt fijo) ≈ 6275 tokens ≈ 25 000 chars.
+    // Se usa 20 000 como margen de seguridad.
+    public const LIMITE_CARACTERES = 20000;
 
     // Palabras clave → módulo. El consultor detecta qué módulo ampliar
     // cuando el contexto completo no cabe.
@@ -133,6 +136,13 @@ class ConsultorContextoService
             $contextoCortado .= "\n\n" . $bloqueDetalle['parcelas'] . "\n\n" . $bloqueDetalle['almacen'];
         }
         $contextoCortado .= "\n\n[Contexto resumido por volumen de datos. El detalle completo de otros módulos no se incluye en esta consulta.]";
+
+        // Salvaguarda final: aunque el contexto comprimido supere el límite,
+        // lo truncamos en duro para no superar el presupuesto de tokens del modelo.
+        if (mb_strlen($contextoCortado) > self::LIMITE_CARACTERES) {
+            $contextoCortado = mb_substr($contextoCortado, 0, self::LIMITE_CARACTERES - 100)
+                . "\n\n[Texto truncado por límite de contexto]";
+        }
 
         return $contextoCortado;
     }
