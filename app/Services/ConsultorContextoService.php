@@ -29,13 +29,13 @@ class ConsultorContextoService
     // Palabras clave → módulo. El consultor detecta qué módulo ampliar
     // cuando el contexto completo no cabe.
     private const MAPA_MODULOS = [
-        'gastos'        => ['gasto', 'coste', 'factura', 'pagado', 'pago', 'precio', 'importe', 'operacion', 'operación'],
-        'fumigaciones'  => ['fumig', 'caldo', 'tratamiento', 'plaga', 'fitosanitario', 'mochila', 'tractor', 'herbicida', 'fungicida', 'insecticida'],
+        'gastos'          => ['gasto', 'coste', 'factura', 'pagado', 'pago', 'precio', 'importe', 'operacion', 'operación'],
+        'fumigaciones'    => ['fumig', 'caldo', 'tratamiento', 'plaga', 'fitosanitario', 'mochila', 'tractor', 'herbicida', 'fungicida', 'insecticida'],
         'fertilizaciones' => ['abono', 'fertilizante', 'fertilizacion', 'fertilización', 'abonar', 'nitrógeno', 'nitrogeno'],
-        'almacen'       => ['stock', 'almacén', 'almacen', 'producto', 'existencias', 'inventario'],
-        'recolecciones' => ['cosecha', 'kg', 'kilo', 'recolec', 'produccion', 'producción', 'fruta', 'ingreso', 'venta'],
-        'parcelas'      => ['parcela', 'superficie', 'hanegada', 'hectárea', 'hectarea', 'poligono', 'polígono'],
-        'riego'         => ['riego', 'agua', 'goteo', 'manta', 'regar'],
+        'almacen'         => ['stock', 'almacén', 'almacen', 'producto', 'existencias', 'inventario'],
+        'recolecciones'   => ['cosecha', 'kg', 'kilo', 'recolec', 'produccion', 'producción', 'fruta', 'ingreso', 'venta'],
+        'parcelas'        => ['parcela', 'superficie', 'hanegada', 'hectárea', 'hectarea', 'poligono', 'polígono'],
+        'riego'           => ['riego', 'agua', 'goteo', 'manta', 'regar'],
     ];
 
     public function __construct(
@@ -73,10 +73,10 @@ class ConsultorContextoService
         }
 
         // Carga de datos con el scope de admin ya aplicado por los modelos
-        $parcelas      = Parcela::with(['explotacion:id,nombre', 'propietario:id,nombre'])->get();
-        $parcelaIds    = $parcelas->pluck('id');
+        $parcelas   = Parcela::with(['explotacion:id,nombre', 'propietario:id,nombre'])->get();
+        $parcelaIds = $parcelas->pluck('id');
 
-        $operaciones   = Operacion::with(['parcela:id,nombre,poligono,parcela', 'producto:id,nombre,unidad'])
+        $operaciones = Operacion::with(['parcela:id,nombre,poligono,parcela', 'producto:id,nombre,unidad'])
             ->whereBetween('hora_inicio', [$inicio, $fin])
             ->get();
 
@@ -89,9 +89,9 @@ class ConsultorContextoService
             ->whereBetween('fecha', [$inicio, $fin])
             ->get();
 
-        $productos     = Producto::all();
+        $productos = Producto::all();
 
-        $costesRiego   = $this->riegoService->costeTotalPorParcela(
+        $costesRiego = $this->riegoService->costeTotalPorParcela(
             $parcelaIds,
             [$inicio->year, $fin->year],
             $inicio->toDateString(),
@@ -103,17 +103,17 @@ class ConsultorContextoService
             $parcelas, $operaciones, $todasFumigaciones, $recolecciones, $costesRiego
         );
 
-        $bloquesTotales = $this->formatearTotales($totalesPorParcela, $etiqueta ?? $this->etiquetaCampana($inicio, $fin));
+        $bloquesTotales = $this->formatearTotales($totalesPorParcela, $this->etiquetaCampana($inicio, $fin));
 
         // ---- DETALLE POR MÓDULO ----
         $bloqueDetalle = [
-            'gastos'        => $this->bloqueGastos($parcelas, $operaciones, $costesRiego, $todasFumigaciones),
-            'fumigaciones'  => $this->bloqueFumigaciones($parcelas, $todasFumigaciones),
+            'gastos'          => $this->bloqueGastos($parcelas, $operaciones, $costesRiego, $todasFumigaciones),
+            'fumigaciones'    => $this->bloqueFumigaciones($parcelas, $todasFumigaciones),
             'fertilizaciones' => $this->bloqueFertilizaciones($parcelas, $operaciones),
-            'almacen'       => $this->bloqueAlmacen($productos),
-            'recolecciones' => $this->bloqueRecolecciones($parcelas, $recolecciones),
-            'parcelas'      => $this->bloqueParcelas($parcelas),
-            'riego'         => $this->bloqueRiego($parcelas, $inicio, $fin),
+            'almacen'         => $this->bloqueAlmacen($productos),
+            'recolecciones'   => $this->bloqueRecolecciones($parcelas, $recolecciones),
+            'parcelas'        => $this->bloqueParcelas($parcelas),
+            'riego'           => $this->bloqueRiego($parcelas, $inicio, $fin),
         ];
 
         $contextoCompleto = $bloquesTotales . "\n\n" . implode("\n\n", $bloqueDetalle);
@@ -129,7 +129,7 @@ class ConsultorContextoService
         if ($moduloDetectado && isset($bloqueDetalle[$moduloDetectado])) {
             $contextoCortado .= "\n\n" . $bloqueDetalle[$moduloDetectado];
         } else {
-            // sin coincidencia: añadimos al menos parcelas y almacén que son pequeños
+            // sin coincidencia: añadimos parcelas y almacén que son los más cortos
             $contextoCortado .= "\n\n" . $bloqueDetalle['parcelas'] . "\n\n" . $bloqueDetalle['almacen'];
         }
         $contextoCortado .= "\n\n[Contexto resumido por volumen de datos. El detalle completo de otros módulos no se incluye en esta consulta.]";
@@ -168,9 +168,9 @@ class ConsultorContextoService
                     + $this->costeFumigacion->costeMaterialParcela($f)
                 );
 
-            $gastoRiego   = (float) $costesRiego->get($p->id, 0);
-            $gastoImptos  = (float) ($p->impuesto_municipal ?? 0) + (float) ($p->impuesto_cequiaje ?? 0);
-            $gastoTotal   = round($gastoOps + $gastoFum + $gastoRiego + $gastoImptos, 2);
+            $gastoRiego  = (float) $costesRiego->get($p->id, 0);
+            $gastoImptos = (float) ($p->impuesto_municipal ?? 0) + (float) ($p->impuesto_cequiaje ?? 0);
+            $gastoTotal  = round($gastoOps + $gastoFum + $gastoRiego + $gastoImptos, 2);
 
             $recoParcela  = $recolecciones->where('parcela_id', $p->id);
             $kgTotal      = round((float) $recoParcela->sum('kilos'), 2);
@@ -178,13 +178,13 @@ class ConsultorContextoService
             $ganancia     = round($ingresoTotal - $gastoTotal, 2);
 
             $totales[$p->id] = [
-                'nombre'       => $p->nombre ?: "Pol.{$p->poligono}-Par.{$p->parcela}",
-                'explotacion'  => $p->explotacion->nombre ?? 'Sin explotación',
-                'hanegadas'    => (float) ($p->dimension_hanegadas ?? 0),
-                'gasto_total'  => $gastoTotal,
-                'kg_total'     => $kgTotal,
+                'nombre'        => $p->nombre ?: "Pol.{$p->poligono}-Par.{$p->parcela}",
+                'explotacion'   => $p->explotacion->nombre ?? 'Sin explotación',
+                'hanegadas'     => (float) ($p->dimension_hanegadas ?? 0),
+                'gasto_total'   => $gastoTotal,
+                'kg_total'      => $kgTotal,
                 'ingreso_total' => $ingresoTotal,
-                'ganancia'     => $ganancia,
+                'ganancia'      => $ganancia,
             ];
         }
 
@@ -203,9 +203,9 @@ class ConsultorContextoService
         }
 
         // Sumas globales
-        $gastoGlobal   = array_sum(array_column($totales, 'gasto_total'));
-        $kgGlobal      = array_sum(array_column($totales, 'kg_total'));
-        $ingresoGlobal = array_sum(array_column($totales, 'ingreso_total'));
+        $gastoGlobal    = array_sum(array_column($totales, 'gasto_total'));
+        $kgGlobal       = array_sum(array_column($totales, 'kg_total'));
+        $ingresoGlobal  = array_sum(array_column($totales, 'ingreso_total'));
         $gananciaGlobal = array_sum(array_column($totales, 'ganancia'));
 
         $lineas[] = "  TOTAL EXPLOTACIONES"
@@ -258,9 +258,9 @@ class ConsultorContextoService
             $p = $parcelas->firstWhere('id', $f->parcela_id);
             $nombreParcela = $p ? ($p->nombre ?: "Pol.{$p->poligono}-Par.{$p->parcela}") : "parcela#{$f->parcela_id}";
             $explotacion   = $p ? ($p->explotacion->nombre ?? '') : '';
-            $fecha = $f->hora_inicio ? Carbon::parse($f->hora_inicio)->format('d/m/Y') : 'sin fecha';
-            $metodo = $f->metodo_aplicacion ?? '';
-            $litros = round($this->costeFumigacion->calcularLitros($f), 0);
+            $fecha   = $f->hora_inicio ? Carbon::parse($f->hora_inicio)->format('d/m/Y') : 'sin fecha';
+            $metodo  = $f->metodo_aplicacion ?? '';
+            $litros  = round($this->costeFumigacion->calcularLitros($f), 0);
             $costeOp = round($this->costeFumigacion->costeOperacionParcela($f), 2);
             $costeMat = round($this->costeFumigacion->costeMaterialParcela($f), 2);
             $productos = $f->productos->map(fn($prod) => $prod->nombre)->implode(', ');
@@ -285,9 +285,9 @@ class ConsultorContextoService
             $p = $parcelas->firstWhere('id', $op->parcela_id);
             $nombreParcela = $p ? ($p->nombre ?: "Pol.{$p->poligono}-Par.{$p->parcela}") : "parcela#{$op->parcela_id}";
             $explotacion   = $p ? ($p->explotacion->nombre ?? '') : '';
-            $fecha = $op->hora_inicio ? Carbon::parse($op->hora_inicio)->format('d/m/Y') : 'sin fecha';
+            $fecha    = $op->hora_inicio ? Carbon::parse($op->hora_inicio)->format('d/m/Y') : 'sin fecha';
             $producto = $op->producto ? "{$op->producto->nombre} ({$op->dosis} {$op->producto->unidad})" : 'producto no especificado';
-            $precio = round((float) ($op->precio ?? 0), 2);
+            $precio   = round((float) ($op->precio ?? 0), 2);
 
             $lineas[] = "  {$fecha} | {$nombreParcela} ({$explotacion})"
                 . " | {$producto}"
@@ -323,7 +323,7 @@ class ConsultorContextoService
             $p = $parcelas->firstWhere('id', $r->parcela_id);
             $nombreParcela = $p ? ($p->nombre ?: "Pol.{$p->poligono}-Par.{$p->parcela}") : "parcela#{$r->parcela_id}";
             $explotacion   = $p ? ($p->explotacion->nombre ?? '') : '';
-            $fecha = Carbon::parse($r->fecha)->format('d/m/Y');
+            $fecha   = Carbon::parse($r->fecha)->format('d/m/Y');
             $ingreso = round((float) $r->kilos * (float) $r->precio_medio_kg, 2);
 
             $lineas[] = "  {$fecha} | {$nombreParcela} ({$explotacion})"
@@ -342,7 +342,7 @@ class ConsultorContextoService
     {
         $lineas = ["PARCELAS:"];
         foreach ($parcelas as $p) {
-            $nombre = $p->nombre ?: "Pol.{$p->poligono}-Par.{$p->parcela}";
+            $nombre      = $p->nombre ?: "Pol.{$p->poligono}-Par.{$p->parcela}";
             $propietario = $p->propietario->nombre ?? 'sin propietario';
             $lineas[] = "  {$nombre} | explotación: " . ($p->explotacion->nombre ?? 'sin explotación')
                 . " | propietario: {$propietario}"
@@ -361,7 +361,6 @@ class ConsultorContextoService
 
     private function bloqueRiego($parcelas, Carbon $inicio, Carbon $fin): string
     {
-        // Cargamos con scope ya aplicado por los modelos
         $gastosRiego = GastoRiego::whereIn('parcela_id', $parcelas->pluck('id'))
             ->whereIn('anio', [$inicio->year, $fin->year])
             ->get();
@@ -371,18 +370,16 @@ class ConsultorContextoService
 
         $lineas = ["RIEGO:"];
         foreach ($parcelas as $p) {
-            $nombre = $p->nombre ?: "Pol.{$p->poligono}-Par.{$p->parcela}";
+            $nombre      = $p->nombre ?: "Pol.{$p->poligono}-Par.{$p->parcela}";
             $explotacion = $p->explotacion->nombre ?? '';
 
-            $gastosP = $gastosRiego->where('parcela_id', $p->id);
-            foreach ($gastosP as $g) {
+            foreach ($gastosRiego->where('parcela_id', $p->id) as $g) {
                 $lineas[] = "  {$nombre} ({$explotacion}) | {$g->concepto}"
                     . " | año {$g->anio} mes {$g->mes}"
                     . " | importe: " . number_format((float) $g->importe, 2, ',', '.') . " €";
             }
 
-            $mantaP = $riegosManta->where('parcela_id', $p->id);
-            foreach ($mantaP as $r) {
+            foreach ($riegosManta->where('parcela_id', $p->id) as $r) {
                 $fecha = Carbon::parse($r->fecha)->format('d/m/Y');
                 $lineas[] = "  {$nombre} ({$explotacion}) | riego manta | {$fecha}"
                     . " | {$r->hanegadas} hanegadas"
