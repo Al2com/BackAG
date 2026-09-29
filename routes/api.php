@@ -145,7 +145,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/backup/importar', [BackupController::class, 'importar']);
 
 
-            Route::post('/consultor', [ConsultorController::class, 'consultar']);
+        // CONSULTOR IA: límite de 10 peticiones por minuto para no disparar costes
+        Route::middleware('throttle:10,1')->post('/consultor', [ConsultorController::class, 'consultar']);
     });
 
 
