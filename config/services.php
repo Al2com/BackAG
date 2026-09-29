@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'groq' => [
+        'api_key' => env('GROQ_API_KEY'),
+        'modelo'  => env('GROQ_MODELO', 'llama-3.3-70b-versatile'),
+        'url'     => 'https://api.groq.com/openai/v1/chat/completions',
+    ],
+
 ];
