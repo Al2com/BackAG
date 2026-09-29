@@ -39,7 +39,7 @@ class AlmacenController extends Controller
      */
     public function resumenGeneral(Request $request)
     {
-        $gastoPorAnio = CompraProducto::selectRaw('YEAR(fecha_compra) as anio, SUM(cantidad_compra * precio) as gasto')
+        $gastoPorAnio = CompraProducto::selectRaw(yearSql('fecha_compra') . ' as anio, SUM(cantidad_compra * precio) as gasto')
             ->groupBy('anio')->orderBy('anio')
             ->get();
 
