@@ -67,7 +67,7 @@ class ConsultorController extends Controller
         $contexto .= "DATOS POR PARCELA {$anioActual} (gastos y recolección):\n";
 
         foreach ($parcelas as $p) {
-            $nombre = $p->nombre ?: "Pol.{$p->poligono}-Par.{$p->parcela}";
+            $nombre = $p->nombre ?: 'Sin nombre';
 
             $gastosTipo = $operacionesPorParcelaYTipo->get($p->id, collect());
             $gastoOperaciones = round((float) $gastosTipo->sum(), 2);
@@ -83,7 +83,7 @@ class ConsultorController extends Controller
                 ? "{$filaIngreso->kilos} kg, ingreso " . round((float) $filaIngreso->ingreso, 2) . '€'
                 : 'sin recolección registrada';
 
-            $contexto .= "- {$nombre} (ID:{$p->id}, variedad: {$p->variedad}, {$p->dimension_hanegadas} hanegadas): "
+            $contexto .= "- {$nombre} (Pol.{$p->poligono} - Par.{$p->parcela}, ID:{$p->id}, variedad: {$p->variedad}, {$p->dimension_hanegadas} hanegadas): "
                 . ($detalleTipos ? "{$detalleTipos}, " : '')
                 . "fumigación {$gastoFumigacion}€, riego {$gastoRiego}€, impuestos {$impuestos}€, "
                 . "gasto total {$gastoTotal}€ | recolección: {$recoleccion}\n";
