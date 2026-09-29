@@ -276,11 +276,11 @@ class AnalisisController extends Controller
      */
     public function rentabilidadPorAnio(Request $request)
     {
-        $ingresosPorAnio = Recoleccion::selectRaw('YEAR(fecha) as anio, SUM(kilos * precio_medio_kg) as total')
+        $ingresosPorAnio = Recoleccion::selectRaw(yearSql('fecha') . ' as anio, SUM(kilos * precio_medio_kg) as total')
             ->groupBy('anio')
             ->pluck('total', 'anio');
 
-        $costeOperacionesPorAnio = Operacion::selectRaw('YEAR(hora_inicio) as anio, SUM(precio) as total')
+        $costeOperacionesPorAnio = Operacion::selectRaw(yearSql('hora_inicio') . ' as anio, SUM(precio) as total')
             ->groupBy('anio')
             ->pluck('total', 'anio');
 
@@ -413,7 +413,7 @@ class AnalisisController extends Controller
         float $hanegadasParcela
     ): array {
         $ingresoParcela = (float) (Recoleccion::where('parcela_id', $parcela->id)
-            ->whereRaw('YEAR(fecha) = ?', [(int) $anio])
+            ->whereYear('fecha', (int) $anio)
             ->selectRaw('SUM(kilos * precio_medio_kg) as total')
             ->value('total') ?? 0);
 
@@ -430,7 +430,7 @@ class AnalisisController extends Controller
         $ingresosPorParcela = $idsExplotacion->isEmpty()
             ? collect()
             : Recoleccion::whereIn('parcela_id', $idsExplotacion)
-                ->whereRaw('YEAR(fecha) = ?', [(int) $anio])
+                ->whereYear('fecha', (int) $anio)
                 ->selectRaw('parcela_id, SUM(kilos * precio_medio_kg) as total')
                 ->groupBy('parcela_id')
                 ->pluck('total', 'parcela_id');

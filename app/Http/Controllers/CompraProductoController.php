@@ -115,7 +115,7 @@ class CompraProductoController extends Controller
         // gasto por año: histórico completo, sin el filtro de fechas, para ver
         // la evolución multi-año aunque la tabla esté acotada a un periodo
         $gastoPorAnio = CompraProducto::where('producto_id', $id)
-            ->selectRaw('YEAR(fecha_compra) as anio, SUM(cantidad_compra * precio) as gasto')
+            ->selectRaw(yearSql('fecha_compra') . ' as anio, SUM(cantidad_compra * precio) as gasto')
             ->groupBy('anio')->orderBy('anio')
             ->get();
 

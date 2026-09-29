@@ -61,7 +61,7 @@ class RiegoService
             ->groupBy('anio')
             ->pluck('total', 'anio');
 
-        $riegoMantaPorAnio = RiegoManta::selectRaw('YEAR(fecha) as anio, SUM(importe) as total')
+        $riegoMantaPorAnio = RiegoManta::selectRaw(yearSql('fecha') . ' as anio, SUM(importe) as total')
             ->groupBy('anio')
             ->pluck('total', 'anio');
 
