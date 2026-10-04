@@ -24,7 +24,7 @@ class PropietariosSeeder extends Seeder
                 'updated_at' => now()
             ],
             [
-                'nombre'     => 'Andrés Marín',
+                'nombre'     => 'Invitado',
                 'dni'        => '23456789B',
                 'telefono'   => '963 234 567',
                 'admin_id'   => $invitado->id,
