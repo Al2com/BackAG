@@ -140,9 +140,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // COPIA DE SEGURIDAD (datos del inquilino completo: solo admin)
         Route::get('/backup/tiene-datos', [BackupController::class, 'tieneDatos']);
-        Route::get('/backup/csv', [BackupController::class, 'exportarCsv']);
-        Route::get('/backup/json', [BackupController::class, 'exportarJson']);
-        Route::post('/backup/importar', [BackupController::class, 'importar']);
+        // exportar e importar son operaciones pesadas: límite de 5 por minuto
+        // por usuario para que no se puedan usar para saturar el servidor
+        Route::middleware('throttle:5,1')->group(function () {
+            Route::get('/backup/csv', [BackupController::class, 'exportarCsv']);
+            Route::get('/backup/json', [BackupController::class, 'exportarJson']);
+            Route::post('/backup/importar', [BackupController::class, 'importar']);
+        });
 
 
         // CONSULTOR IA: límite de 10 peticiones por minuto para no disparar costes

@@ -1,45 +1,15 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController; //fijarse en la rota tal cual esta
-use App\Http\Controllers\ExplotacionController; //fijarse en la rota tal cual esta
-use App\Http\Controllers\ParcelaController; //importar el controlador
 
 Route::get('/', function () {
     return view('welcome');
 });
-//vista usuarios
-Route::get('user',[UserController::class,'mostrar']);
-//vista explotaciones
-Route::get('explotaciones',[ExplotacionController::class,'Explotaciones']);
-//vista parcelas
-Route::get('/parcelas',[ParcelaController::class,'vistaParcelas'])->name('parcelas.vistaParcelas');
-//vista expotaciones blade
-// Route::get('/explotaciones', [ExplotacionController::class,'mostrarExplotaciones']);
 
-//CRUD EXPLOTACIONES
-//para insertar datos 2 rutas CREAR
-Route::view('/insertarExplo', 'insertarExplo')->name('insertarExplo');
-Route::post('/almacenarExplo', [ExplotacionController::class, 'insertar'])->name('almacenarExplo');
-
-
-//para editar y modificar
-Route::get('/editar/{id}' , [ExplotacionController::class, 'editar'])->name('editar');
-Route::patch('/actualizar/{id}', [ExplotacionController::class,'actualizar'])->name('actualizar');
-
-
-
-
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-require __DIR__.'/auth.php';
+// Las vistas Blade antiguas (user, explotaciones, parcelas, insertarExplo,
+// editar, actualizar) se eliminaron: eran públicas, sin autenticación, y
+// todos los datos se sirven ya por la API protegida con auth:sanctum.
+//
+// Tampoco quedan las pantallas de Breeze (login, register, forgot-password,
+// dashboard, profile): el único acceso es la API que consume el front React
+// (/api/login, /api/forgot-password, /api/reset-password).

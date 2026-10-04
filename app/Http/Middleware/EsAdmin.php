@@ -16,8 +16,8 @@ class EsAdmin
    public function handle(Request $request, Closure $next): Response{
         $user = $request->user();
 
-        // un trabajador (o sin sesión) no pasa
-        if (! $user || $user->rol === 'trabajador') {
+        // solo pasan admin y superadmin: cualquier otro rol (o sin sesión) no
+        if (! $user || ! in_array($user->rol, ['admin', 'superadmin'], true)) {
             return response()->json(['mensaje' => 'No autorizado'], 403);
         }
 

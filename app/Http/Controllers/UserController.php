@@ -31,7 +31,7 @@ class UserController extends Controller
         $datos = $request->validate([
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'min:8'],
+            'password' => ['required', \Illuminate\Validation\Rules\Password::min(8)->letters()->numbers()],
         ]);
 
         $trabajador = User::create([

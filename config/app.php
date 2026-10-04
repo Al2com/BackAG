@@ -55,6 +55,11 @@ return [
     'url' => env('APP_URL', 'http://localhost'),
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
 
+    // Registro público por /api/registro. Cerrado por defecto: las cuentas
+    // se crean con `php artisan usuario:crear`. Poner REGISTRO_ABIERTO=true
+    // solo si se quiere que cualquiera pueda darse de alta.
+    'registro_abierto' => (bool) env('REGISTRO_ABIERTO', false),
+
 
     /*
     |--------------------------------------------------------------------------

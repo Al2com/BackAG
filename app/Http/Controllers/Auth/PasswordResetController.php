@@ -37,7 +37,7 @@ class PasswordResetController extends Controller
         $request->validate([
             'token'    => 'required',
             'email'    => 'required|email',
-            'password' => 'required|min:8|confirmed',
+            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::min(8)->letters()->numbers()],
         ]);
 
         $status = Password::reset(
@@ -48,6 +48,10 @@ class PasswordResetController extends Controller
                 ])->setRememberToken(Str::random(60));
 
                 $user->save();
+
+                // cierra las sesiones abiertas: si la contraseña se cambia
+                // por un robo, el token del atacante deja de valer
+                $user->tokens()->delete();
 
                 event(new PasswordReset($user));
             }

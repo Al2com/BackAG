@@ -1,1 +1,1 @@
-web: php artisan serve --host=0.0.0.0 --port=$PORT
+web: PHP_CLI_SERVER_WORKERS=4 php artisan serve --no-reload --host=0.0.0.0 --port=$PORT

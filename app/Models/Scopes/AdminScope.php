@@ -14,7 +14,9 @@ class AdminScope implements Scope
  * - Trabajador: ve solo los datos de su admin (admin_id = su admin_id)
  * - Admin: ve solo sus propios datos (admin_id = su id)
  * - Superadmin: ve todo, sin filtro
- * 
+ * - Sin usuario en una petición web: no ve nada (cierre por defecto)
+ * - Sin usuario en consola (seeders, artisan, tests): sin filtro
+ *
  * Se aplica automáticamente en todos los modelos que lo incluyan,
  * sin necesidad de escribir el WHERE en cada controlador.
  */
@@ -26,6 +28,10 @@ public function apply(Builder $builder, Model $model): void
         $builder->where('admin_id', $user->admin_id);
     } elseif ($user && $user->rol === 'admin') {
         $builder->where('admin_id', $user->id);
+    } elseif (! $user && ! app()->runningInConsole()) {
+        // petición HTTP sin autenticar: si una ruta se queda sin proteger
+        // por error, devuelve vacío en lugar de los datos de todos los admins
+        $builder->whereRaw('1 = 0');
     }
     // superadmin ve todo, no filtra
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use ZipArchive;
@@ -232,9 +233,14 @@ class BackupController extends Controller
                 }
             });
         } catch (\Throwable $e) {
+            // el detalle (SQL, nombres de tablas) va al log, no al cliente
+            Log::error('BackupController: fallo al importar respaldo', [
+                'admin_id' => $adminId,
+                'error' => $e->getMessage(),
+            ]);
+
             return response()->json([
                 'mensaje' => 'No se pudo importar el respaldo, no se ha modificado ningún dato',
-                'error' => $e->getMessage(),
             ], 422);
         }
 

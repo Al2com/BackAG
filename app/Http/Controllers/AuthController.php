@@ -31,6 +31,11 @@ class AuthController extends Controller
 
 
     public function registro(Request $request){
+    // registro público cerrado salvo que se active en config (REGISTRO_ABIERTO)
+    if (! config('app.registro_abierto')) {
+        return response()->json(['mensaje' => 'El registro de nuevas cuentas está cerrado'], 403);
+    }
+
     $request->validate([
         'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'email', 'unique:users'],
