@@ -11,7 +11,7 @@ class PropietariosSeeder extends Seeder
     public function run(): void
     {
         $alvaro  = User::where('email', 'alvaro@test.com')->first();
-        $andres  = User::where('email', 'andres@test.com')->first();
+        $invitado = User::where('email', 'invitado@test.com')->first();
         $miguel  = User::where('email', 'usuario2@test.com')->first();
 
         DB::table('propietarios')->insert([
@@ -27,7 +27,7 @@ class PropietariosSeeder extends Seeder
                 'nombre'     => 'Andrés Marín',
                 'dni'        => '23456789B',
                 'telefono'   => '963 234 567',
-                'admin_id'   => $andres->id,
+                'admin_id'   => $invitado->id,
                 'created_at' => now(),
                 'updated_at' => now()
             ],

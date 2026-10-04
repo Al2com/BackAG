@@ -26,11 +26,11 @@ class UserSeeder extends Seeder
         'admin_id' => $adminAlvaro->id,
     ]);
 
-    // Admin Andrés — id=3
-    $adminAndres = User::create([
-        'name'     => 'Andrés',
-        'email'    => 'andres@test.com',
-        'password' => Hash::make('admin1234'),
+    // Admin Invitado (cuenta del tester) — id=3
+    $adminInvitado = User::create([
+        'name'     => 'Invitado',
+        'email'    => 'invitado@test.com',
+        'password' => Hash::make('invitado1234'),
         'rol'      => 'admin',
     ]);
 
@@ -39,7 +39,7 @@ class UserSeeder extends Seeder
         'email'    => 'trabajador.andres1@test.com',
         'password' => Hash::make('trabajador1234'),
         'rol'      => 'trabajador',
-        'admin_id' => $adminAndres->id,
+        'admin_id' => $adminInvitado->id,
     ]);
 
     // Admin 2

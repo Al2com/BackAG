@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Orden obligatorio:
-        // 1. UserSeeder         -> crea los admins (Álvaro, Andrés, Miguel, ...).
+        // 1. UserSeeder         -> crea los admins (Álvaro, Invitado, Miguel, ...).
         //                          Tiene que ir primero: los demás resuelven el
         //                          admin_id a partir de estos usuarios.
         // 2. PropietariosSeeder -> propietarios por admin (Álvaro usa el id=1 en
