@@ -30,6 +30,9 @@ class BackupController extends Controller
         'compra_productos' => ['fk' => ['producto_id' => 'productos', 'proveedor_id' => 'proveedores']],
         'recoleccion' => ['fk' => ['parcela_id' => 'parcelas']],
         'gastos_riego' => ['fk' => ['parcela_id' => 'parcelas']],
+        // va al final (después de parcelas): al borrar en orden inverso se
+        // elimina antes que su parcela, y al insertar su parcela ya existe.
+        'riegos_manta' => ['fk' => ['parcela_id' => 'parcelas']],
     ];
 
     // Columnas que referencian 'users' y no se pueden remapear al importar
@@ -93,7 +96,7 @@ class BackupController extends Controller
             if ($filas->isNotEmpty()) {
                 fputcsv($csv, array_keys((array) $filas->first()));
                 foreach ($filas as $fila) {
-                    fputcsv($csv, (array) $fila);
+                    fputcsv($csv, array_map([$this, 'neutralizarCeldaCsv'], (array) $fila));
                 }
             } else {
                 $columnas = Schema::getColumnListing($tabla);
@@ -109,6 +112,20 @@ class BackupController extends Controller
         $nombreArchivo = 'agrogestion-datos-' . now()->format('Y-m-d') . '.zip';
 
         return response()->download($rutaTmpZip, $nombreArchivo)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Evita la inyección de fórmulas en hojas de cálculo: una celda que empieza
+     * por =, +, - o @ la interpretan Excel/LibreOffice como fórmula. Se antepone
+     * un apóstrofo para que se trate como texto literal.
+     */
+    private function neutralizarCeldaCsv($valor): mixed
+    {
+        if (is_string($valor) && $valor !== '' && in_array($valor[0], ['=', '+', '-', '@'], true)) {
+            return "'" . $valor;
+        }
+
+        return $valor;
     }
 
     /**
@@ -220,7 +237,10 @@ class BackupController extends Controller
                             }
                         }
 
-                        if (array_key_exists('admin_id', $fila)) {
+                        // si la tabla tiene admin_id, se fuerza SIEMPRE al
+                        // inquilino que importa, aunque la fila del backup no
+                        // lo traiga (así ninguna fila queda huérfana)
+                        if (Schema::hasColumn($tabla, 'admin_id')) {
                             $fila['admin_id'] = $adminId;
                         }
 

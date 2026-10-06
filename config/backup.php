@@ -6,6 +6,9 @@
 // archivo cuya version_esquema no coincida exactamente, para no intentar
 // adivinar una migración de datos ambigua.
 return [
-    'version_esquema' => 1,
+    // v2: se añadió la tabla 'riegos_manta' al respaldo. Un JSON v1 no la
+    // contiene, así que el importador lo rechaza (evita restaurar una copia
+    // que borraría los riegos a manta en cascada sin volver a crearlos).
+    'version_esquema' => 2,
     'version_app' => '1.0.0',
 ];

@@ -13,16 +13,17 @@ class FumigacionController extends Controller
         $datos = $request->validate([
             'parcela_ids'       => 'required|array',
             'parcela_ids.*'     => ['required', Rule::exists('parcelas', 'id')->where('admin_id', $request->user()->adminId())],
-            'metodo_aplicacion' => 'required',
-            'hora_inicio'       => 'required',
-            'descripcion'       => 'required',
-            'precio'            => 'required_if:metodo_aplicacion,mochila', // el precio total solo aplica a mochila
-            'precio_turbo'      => 'required_if:metodo_aplicacion,tractor|numeric|min:0', // precio por turbo en tractor
-            'operario'          => 'required_if:metodo_aplicacion,mochila',
-            'duracion_minutos'  => 'required_if:metodo_aplicacion,mochila',
-            'mochilas'          => 'required_if:metodo_aplicacion,mochila',
+            'metodo_aplicacion' => 'required|in:tractor,mochila',
+            'hora_inicio'       => 'required|date',
+            'descripcion'       => 'required|string|max:1000',
+            // el precio total solo aplica a mochila; nullable deja pasar null en tractor
+            'precio'            => 'nullable|required_if:metodo_aplicacion,mochila|numeric|min:0',
+            'precio_turbo'      => 'nullable|required_if:metodo_aplicacion,tractor|numeric|min:0', // precio por turbo en tractor
+            'operario'          => 'nullable|required_if:metodo_aplicacion,mochila|string|max:255',
+            'duracion_minutos'  => 'nullable|required_if:metodo_aplicacion,mochila|integer|min:0',
+            'mochilas'          => 'nullable|required_if:metodo_aplicacion,mochila|numeric|min:0',
             'litros_agua'       => 'nullable|numeric|min:0',
-            'turbos'            => 'required_if:metodo_aplicacion,tractor',
+            'turbos'            => 'nullable|required_if:metodo_aplicacion,tractor|numeric|min:0',
             'productos'         => 'required|array',
             'productos.*.producto_id'       => ['required', Rule::exists('productos', 'id')->where('admin_id', $request->user()->adminId())],
             'productos.*.dosis_introducida' => 'required|numeric|min:0',
@@ -125,15 +126,15 @@ class FumigacionController extends Controller
 
         $datos = $request->validate([
             'metodo_aplicacion' => 'required|in:tractor,mochila',
-            'hora_inicio'       => 'required',
-            'descripcion'       => 'required',
+            'hora_inicio'       => 'required|date',
+            'descripcion'       => 'required|string|max:1000',
             'precio'            => 'nullable|numeric|min:0',
             'precio_turbo'      => 'nullable|numeric|min:0',
-            'operario'          => 'nullable|string',
+            'operario'          => 'nullable|string|max:255',
             'duracion_minutos'  => 'nullable|integer|min:0',
-            'mochilas'          => 'nullable',
+            'mochilas'          => 'nullable|numeric|min:0',
             'litros_agua'       => 'nullable|numeric|min:0',
-            'turbos'            => 'nullable',
+            'turbos'            => 'nullable|numeric|min:0',
             'estado'            => 'sometimes|in:pendiente,realizada,revisada',
         ]);
 

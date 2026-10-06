@@ -25,7 +25,10 @@ use App\Http\Controllers\ConsultorController;
 
 
 
-Route::middleware('auth:sanctum')->group(function () {
+// throttle:120,1 = tope general por usuario (120 peticiones/min) para que
+// ninguna cuenta pueda saturar el servidor con las pantallas pesadas.
+// Login, consultor y respaldos tienen además su propio límite más estricto.
+Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
 
     // ===== ABIERTAS A TODOS (incluido trabajador): dashboard + operaciones =====
     Route::get('/explotaciones', [ExplotacionController::class, 'numeroExplo']);   // contador dashboard

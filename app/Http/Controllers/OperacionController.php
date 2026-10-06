@@ -11,12 +11,12 @@ class OperacionController extends Controller
     public function crearOperacion(Request $request){
         $operacion = $request->validate([
             'parcela_id'       => ['required', Rule::exists('parcelas', 'id')->where('admin_id', $request->user()->adminId())],
-            'operario'         => 'required',
-            'tipo_operacion'   => 'required',
-            'hora_inicio'      => 'required',
-            'duracion_minutos' => 'required',
-            'precio'           => 'required',
-            'descripcion'      => 'required',
+            'operario'         => 'required|string|max:255',
+            'tipo_operacion'   => 'required|string|max:50',
+            'hora_inicio'      => 'required|date',
+            'duracion_minutos' => 'required|integer|min:0',
+            'precio'           => 'required|numeric|min:0',
+            'descripcion'      => 'required|string|max:1000',
             // solo aplican a abonado: producto consumido y dosis (la dosis ya es el total gastado)
             'producto_id'      => ['nullable', 'required_if:tipo_operacion,abonado', Rule::exists('productos', 'id')->where('admin_id', $request->user()->adminId())],
             'dosis'            => 'nullable|required_if:tipo_operacion,abonado|numeric|min:0.01',
@@ -75,12 +75,12 @@ class OperacionController extends Controller
 
         $datos = $request->validate([
             'parcela_id'       => ['required', Rule::exists('parcelas', 'id')->where('admin_id', $request->user()->adminId())],
-            'operario'         => 'required',
-            'tipo_operacion'   => 'required',
-            'hora_inicio'      => 'required',
+            'operario'         => 'required|string|max:255',
+            'tipo_operacion'   => 'required|string|max:50',
+            'hora_inicio'      => 'required|date',
             'duracion_minutos' => 'required|integer|min:0',
             'precio'           => 'required|numeric|min:0',
-            'descripcion'      => 'required',
+            'descripcion'      => 'required|string|max:1000',
             'estado'           => 'sometimes|in:pendiente,realizada,revisada',
         ]);
 

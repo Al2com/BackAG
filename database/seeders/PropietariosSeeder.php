@@ -12,7 +12,6 @@ class PropietariosSeeder extends Seeder
     {
         $alvaro  = User::where('email', 'alvaro@test.com')->first();
         $invitado = User::where('email', 'invitado@test.com')->first();
-        $miguel  = User::where('email', 'usuario2@test.com')->first();
 
         DB::table('propietarios')->insert([
             [
@@ -28,14 +27,6 @@ class PropietariosSeeder extends Seeder
                 'dni'        => '23456789B',
                 'telefono'   => '963 234 567',
                 'admin_id'   => $invitado->id,
-                'created_at' => now(),
-                'updated_at' => now()
-            ],
-            [
-                'nombre'     => 'Miguel Ángel',
-                'dni'        => '34567890C',
-                'telefono'   => '963 345 678',
-                'admin_id'   => $miguel->id,
                 'created_at' => now(),
                 'updated_at' => now()
             ],
