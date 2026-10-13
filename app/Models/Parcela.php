@@ -29,7 +29,18 @@ protected $fillable = [
     // 'admin_id',
     'impuesto_municipal',
     'impuesto_cequiaje',
+    // datos del Catastro (se rellenan tras la primera consulta)
+    'referencia_catastral',
+    'latitud',
+    'longitud',
 ];
+
+    // las coordenadas se exponen como decimal con 7 posiciones, igual que
+    // se guardan, para no perder precisión al serializar a JSON
+    protected $casts = [
+        'latitud' => 'decimal:7',
+        'longitud' => 'decimal:7',
+    ];
 
     //relaciones
 
