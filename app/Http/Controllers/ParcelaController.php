@@ -102,4 +102,35 @@ class ParcelaController extends Controller
         $parcela->delete();
         return response()->json(['mensaje' => 'Parcela eliminada correctamente']);
     }
+
+    // Devuelve la ubicación guardada de la parcela (null si aún no tiene).
+    // findOrFail respeta el AdminScope: un admin no ve parcelas de otro.
+    public function ubicacion($id)
+    {
+        $parcela = Parcela::findOrFail($id);
+
+        return response()->json([
+            'latitud'              => $parcela->latitud,
+            'longitud'             => $parcela->longitud,
+            'referencia_catastral' => $parcela->referencia_catastral,
+        ]);
+    }
+
+    // Guarda la ubicación (lat/lng) elegida por el usuario en el mapa.
+    public function guardarUbicacion(Request $request, $id)
+    {
+        $parcela = Parcela::findOrFail($id); // respeta el AdminScope
+
+        $datos = $request->validate([
+            'latitud'  => ['required', 'numeric', 'between:-90,90'],
+            'longitud' => ['required', 'numeric', 'between:-180,180'],
+        ]);
+
+        $parcela->update($datos);
+
+        return response()->json([
+            'latitud'  => $parcela->latitud,
+            'longitud' => $parcela->longitud,
+        ]);
+    }
 }

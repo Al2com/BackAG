@@ -64,6 +64,9 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::get('/parcelas/{id}', [ParcelaController::class, 'show']);
         Route::put('/parcelas/{id}', [ParcelaController::class, 'actualizar']);
         Route::delete('/parcelas/{id}', [ParcelaController::class, 'borrar']);
+        // ubicación de la parcela en el mapa (lat/lng)
+        Route::get('/parcelas/{id}/ubicacion', [ParcelaController::class, 'ubicacion']);
+        Route::put('/parcelas/{id}/ubicacion', [ParcelaController::class, 'guardarUbicacion']);
 
         // USUARIOS / PROPIETARIOS / TRABAJADORES
         // Route::get('/usuarios', [UserController::class, 'mostrarUsers']);
