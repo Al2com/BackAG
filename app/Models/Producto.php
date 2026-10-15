@@ -12,12 +12,21 @@ class Producto extends Model
     protected $fillable = [
         'nombre',
         'materia_activa',
+        'categoria',
         'precio',
         'ubicacion',
         'stock_minimo',
+        'stock_maximo',
         'stock_actual',
         'unidad',
         'dosis_recomendada',
+    ];
+
+    // el stock se maneja con decimales (compras/consumos con decimales)
+    protected $casts = [
+        'stock_actual' => 'decimal:2',
+        'stock_minimo' => 'decimal:2',
+        'stock_maximo' => 'decimal:2',
     ];
 
     public function Fumigacion(){
