@@ -19,8 +19,9 @@ class CompraProducto extends Model
         'cantidad_compra',
         'precio',
         'fecha_compra',
-        // campos del rediseño de almacén (proveedor en texto libre)
-        'proveedor',
+        // campos del rediseño de almacén (proveedor en texto libre;
+        // 'proveedor_nombre' para no chocar con la relación proveedor())
+        'proveedor_nombre',
         'albaran',
         'notas',
         // 'admin_id'

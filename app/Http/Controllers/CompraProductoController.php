@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CompraProducto;
 use App\Models\Producto;
 use App\Models\Proveedor;
+use App\Http\Requests\CompraRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -57,6 +58,35 @@ class CompraProductoController extends Controller
         Producto::where('id', $producto->id)->update(['precio' => $precioMedio]);
 
         return response()->json(['mensaje' => 'Compra registrada', 'compra' => $compra], 201);
+    }
+
+    /**
+     * Registra una compra del rediseño de almacén (proveedor en texto libre,
+     * albarán, notas). El stock lo incrementa el observer de CompraProducto.
+     * POST /api/compras
+     */
+    public function registrar(CompraRequest $request)
+    {
+        $datos = $request->validated();
+
+        $compra = CompraProducto::create([
+            'producto_id'      => $datos['producto_id'],
+            'fecha_compra'     => $datos['fecha'],
+            'cantidad_compra'  => $datos['cantidad'],
+            'precio'           => $datos['precio_unitario'] ?? null,
+            'proveedor_nombre' => $datos['proveedor'] ?? null,
+            'albaran'          => $datos['albaran'] ?? null,
+            'notas'            => $datos['notas'] ?? null,
+            'user_id'          => Auth::id(),
+        ]); // el observer sube el stock
+
+        // stock resultante (ya actualizado por el observer)
+        $stock = (float) Producto::findOrFail($datos['producto_id'])->stock_actual;
+
+        return response()->json([
+            'compra'        => $compra,
+            'stock_actual'  => $stock,
+        ], 201);
     }
 
     /**

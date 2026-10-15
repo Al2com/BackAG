@@ -95,6 +95,10 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         // ALMACEN
         Route::post('/almacen/crear', [AlmacenController::class, 'crear']);
         Route::get('/almacen/resumen', [AlmacenController::class, 'resumenGeneral']);
+        // rediseño de almacén: clasificado, historial por producto y alta de compra
+        Route::get('/almacen/clasificado', [AlmacenController::class, 'clasificado']);
+        Route::get('/productos/{id}/historial', [AlmacenController::class, 'historial']);
+        Route::post('/compras', [CompraProductoController::class, 'registrar']);
 
         // COMPRAS
         Route::get('/compras', [CompraProductoController::class, 'listar']);
