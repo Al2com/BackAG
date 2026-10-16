@@ -248,8 +248,7 @@ class AnalisisController extends Controller
             $costes = (float) $costeOperacionesPorParcela->get($p->id, 0)
                 + (float) $costeRiegoPorParcela->get($p->id, 0)
                 + (float) ($costeFumigacionPorParcela[$p->id] ?? 0)
-                + (float) ($p->impuesto_municipal ?? 0)
-                + (float) ($p->impuesto_cequiaje ?? 0);
+                + $this->impuestosParcela($p);
 
             $financiero = $this->resumenFinanciero($ingresosPorParcela->has($p->id), $ingresos, $costes);
             $hanegadas = (float) $p->dimension_hanegadas;
@@ -499,6 +498,26 @@ class AnalisisController extends Controller
      * Calcula el coste de una parcela para el tipo seleccionado, reutilizando
      * el reparto proporcional por hanegadas ya existente en CosteFumigacionService.
      */
+    // Impuestos de una parcela (municipal + cequiaje). Reutilizado por
+    // rentabilidad() y costeParcelaTipo() para que sumen lo mismo.
+    private function impuestosParcela(Parcela $parcela): float
+    {
+        return (float) ($parcela->impuesto_municipal ?? 0)
+            + (float) ($parcela->impuesto_cequiaje ?? 0);
+    }
+
+    // Riego (gastos_riego + riegos_manta) de una parcela en un año, vía la
+    // única fuente de verdad (RiegoService), igual que rentabilidad().
+    private function costeRiegoParcela($parcelaId, string $anio): float
+    {
+        return (float) $this->riego->costeTotalPorParcela(
+            [$parcelaId],
+            [(int) $anio],
+            "$anio-01-01",
+            "$anio-12-31"
+        )->get($parcelaId, 0.0);
+    }
+
     private function costeParcelaTipo(Parcela $parcela, string $anio, string $tipo, Collection $operaciones, Collection $fumigaciones): array
     {
         $opsParcela = $operaciones->filter(fn($o) => $o->parcela_id === $parcela->id);
@@ -515,9 +534,15 @@ class AnalisisController extends Controller
         }
 
         if ($tipo === 'todas') {
+            // coste TOTAL de la parcela: igual que rentabilidad() → operaciones
+            // + fumigaciones + riego + impuestos (antes faltaban riego e
+            // impuestos, por eso el €/hanegada y el semáforo salían sesgados).
             $costeOperaciones = $opsParcela->sum(fn($o) => (float) ($o->precio ?? 0));
             return [
-                'costeTotal' => $costeOperaciones + $costeFumigacion['costeTotal'],
+                'costeTotal' => $costeOperaciones
+                    + $costeFumigacion['costeTotal']
+                    + $this->costeRiegoParcela($parcela->id, $anio)
+                    + $this->impuestosParcela($parcela),
                 'fumigacion' => $hayFumigaciones ? $costeFumigacion : null,
             ];
         }
@@ -525,15 +550,8 @@ class AnalisisController extends Controller
         // el riego no se guarda como Operacion (vive en gastos_riego/riegos_manta):
         // misma fuente de verdad que GastosController y rentabilidad(), vía RiegoService
         if ($tipo === 'riego') {
-            $costeRiego = $this->riego->costeTotalPorParcela(
-                [$parcela->id],
-                [(int) $anio],
-                "$anio-01-01",
-                "$anio-12-31"
-            )->get($parcela->id, 0.0);
-
             return [
-                'costeTotal' => (float) $costeRiego,
+                'costeTotal' => $this->costeRiegoParcela($parcela->id, $anio),
                 'fumigacion' => null,
             ];
         }
