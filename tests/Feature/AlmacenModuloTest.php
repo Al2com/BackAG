@@ -127,3 +127,27 @@ test('un admin no accede al historial ni compra el producto de otro', function (
         'producto_id' => $p->id, 'fecha' => now()->toDateString(), 'cantidad' => 2,
     ])->assertStatus(422); // el producto no es suyo (regla exists)
 });
+
+test('ajustar stock fija el stock del producto al valor contado', function () {
+    $admin = User::factory()->create(['rol' => 'admin']);
+    $this->actingAs($admin, 'sanctum');
+
+    $p = almProducto(['stock_actual' => 40]);
+
+    $this->putJson("/api/productos/{$p->id}/stock", ['stock_actual' => 12.5])
+        ->assertOk()
+        ->assertJsonPath('stock_actual', '12.50');
+
+    expect((float) $p->fresh()->stock_actual)->toBe(12.5);
+});
+
+test('un admin no ajusta el stock del producto de otro', function () {
+    $dueno = User::factory()->create(['rol' => 'admin']);
+    $this->actingAs($dueno, 'sanctum');
+    $p = almProducto();
+
+    $otro = User::factory()->create(['rol' => 'admin']);
+    $this->actingAs($otro, 'sanctum');
+
+    $this->putJson("/api/productos/{$p->id}/stock", ['stock_actual' => 5])->assertNotFound();
+});

@@ -31,6 +31,21 @@ class ProductoController extends Controller
     }
 
     // actualiza el producto elegido por id PUT /api/productos/lista/{id}
+    // Regulariza el inventario: fija el stock al valor contado (recuento físico,
+    // p. ej. a fin de año). findOrFail respeta el AdminScope.
+    // PUT /api/productos/{id}/stock
+    public function ajustarStock(Request $request, $id){
+        $producto = Producto::findOrFail($id);
+
+        $datos = $request->validate([
+            'stock_actual' => 'required|numeric|min:0',
+        ]);
+
+        $producto->update(['stock_actual' => $datos['stock_actual']]);
+
+        return response()->json(['stock_actual' => $producto->stock_actual]);
+    }
+
     public function actualizarProducto(Request $request, $id){
         $producto = Producto::findOrFail($id);
 

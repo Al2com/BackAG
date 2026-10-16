@@ -83,6 +83,8 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::get('/productos/lista/{id}', [ProductoController::class, 'modificarProducto']);
         Route::put('/productos/lista/{id}', [ProductoController::class, 'actualizarProducto']);
         Route::delete('/productos/lista/{id}', [ProductoController::class, 'eliminarProducto']);
+        // regularizar inventario: fijar el stock al recuento físico
+        Route::put('/productos/{id}/stock', [ProductoController::class, 'ajustarStock']);
         // FUMIGACIONES
         Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
         Route::delete('/fumigaciones/{id}', [FumigacionController::class, 'borrar']);
