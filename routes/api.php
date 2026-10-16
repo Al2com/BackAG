@@ -83,6 +83,8 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         Route::get('/productos/lista/{id}', [ProductoController::class, 'modificarProducto']);
         Route::put('/productos/lista/{id}', [ProductoController::class, 'actualizarProducto']);
         Route::delete('/productos/lista/{id}', [ProductoController::class, 'eliminarProducto']);
+        // regularizar inventario: fijar el stock al recuento físico
+        Route::put('/productos/{id}/stock', [ProductoController::class, 'ajustarStock']);
         // FUMIGACIONES
         Route::post('/fumigaciones/crear', [FumigacionController::class, 'añadirFumigacion']);
         Route::delete('/fumigaciones/{id}', [FumigacionController::class, 'borrar']);
@@ -95,6 +97,10 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
         // ALMACEN
         Route::post('/almacen/crear', [AlmacenController::class, 'crear']);
         Route::get('/almacen/resumen', [AlmacenController::class, 'resumenGeneral']);
+        // rediseño de almacén: clasificado, historial por producto y alta de compra
+        Route::get('/almacen/clasificado', [AlmacenController::class, 'clasificado']);
+        Route::get('/productos/{id}/historial', [AlmacenController::class, 'historial']);
+        Route::post('/compras', [CompraProductoController::class, 'registrar']);
 
         // COMPRAS
         Route::get('/compras', [CompraProductoController::class, 'listar']);

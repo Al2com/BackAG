@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CompraProducto;
 use App\Models\Producto;
 use App\Models\Proveedor;
+use App\Http\Requests\CompraRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -36,25 +37,56 @@ class CompraProductoController extends Controller
 
         $datos['user_id'] = Auth::id();
 
-        $compra = CompraProducto::create($datos);
-
-        // Precio medio ponderado: mezcla lo que ya había con lo recién comprado
-        $producto      = $compra->producto;
+        // Precio medio ponderado: se calcula con el stock ANTES de la compra.
+        // El incremento de stock ya NO se hace aquí: lo hace el observer de
+        // CompraProducto al crearla (punto único para el stock). Por eso leo
+        // stockAnterior antes de create() y luego actualizo SOLO el precio.
+        $producto      = Producto::findOrFail($datos['producto_id']);
         $stockAnterior = (float) $producto->stock_actual;
         $costeAnterior = (float) ($producto->precio ?? 0);
         $cantidad      = (float) $datos['cantidad_compra'];
         $precioCompra  = (float) $datos['precio'];
+        $stockTotal    = $stockAnterior + $cantidad;
 
-        $stockTotal = $stockAnterior + $cantidad;
-
-        $producto->precio = $stockTotal > 0
+        $precioMedio = $stockTotal > 0
             ? round((($stockAnterior * $costeAnterior) + ($cantidad * $precioCompra)) / $stockTotal, 2)
             : $precioCompra;
 
-        $producto->stock_actual = $stockTotal;
-        $producto->save();
+        $compra = CompraProducto::create($datos); // el observer incrementa el stock
+
+        // actualiza solo el precio medio (el stock ya lo subió el observer)
+        Producto::where('id', $producto->id)->update(['precio' => $precioMedio]);
 
         return response()->json(['mensaje' => 'Compra registrada', 'compra' => $compra], 201);
+    }
+
+    /**
+     * Registra una compra del rediseño de almacén (proveedor en texto libre,
+     * albarán, notas). El stock lo incrementa el observer de CompraProducto.
+     * POST /api/compras
+     */
+    public function registrar(CompraRequest $request)
+    {
+        $datos = $request->validated();
+
+        $compra = CompraProducto::create([
+            'producto_id'      => $datos['producto_id'],
+            'fecha_compra'     => $datos['fecha'],
+            'cantidad_compra'  => $datos['cantidad'],
+            'precio'           => $datos['precio_unitario'] ?? null,
+            'proveedor_nombre' => $datos['proveedor'] ?? null,
+            'albaran'          => $datos['albaran'] ?? null,
+            'notas'            => $datos['notas'] ?? null,
+            'user_id'          => Auth::id(),
+        ]); // el observer sube el stock
+
+        // stock resultante (ya actualizado por el observer)
+        $stock = (float) Producto::findOrFail($datos['producto_id'])->stock_actual;
+
+        return response()->json([
+            'compra'        => $compra,
+            'stock_actual'  => $stock,
+        ], 201);
     }
 
     /**
